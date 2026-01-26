@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import logo from "@/assets/hwabelle-logo.png";
 
 const Header = () => {
   const location = useLocation();
@@ -21,8 +22,12 @@ const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-divider">
       <div className="container flex items-center justify-between h-16 md:h-20">
         {/* Logo */}
-        <Link to="/" className="font-serif text-2xl md:text-3xl tracking-tight lowercase">
-          hwabelle
+        <Link to="/" className="flex items-center">
+          <img 
+            src={logo} 
+            alt="Hwabelle" 
+            className="h-12 md:h-14 w-auto"
+          />
         </Link>
 
         {/* Desktop Navigation */}
