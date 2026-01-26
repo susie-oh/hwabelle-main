@@ -1,0 +1,170 @@
+import Layout from "@/components/layout/Layout";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { Check } from "lucide-react";
+import productImage from "@/assets/product-flower-press.jpg";
+import lifestyleImage from "@/assets/lifestyle-pressing.jpg";
+import heroImage from "@/assets/hero-flower-press.jpg";
+import pressedFlowers from "@/assets/pressed-flowers-collection.jpg";
+import NewsletterForm from "@/components/sections/NewsletterForm";
+
+const ProductDetail = () => {
+  const [selectedImage, setSelectedImage] = useState(0);
+  
+  const images = [productImage, lifestyleImage, heroImage, pressedFlowers];
+
+  const features = [
+    "Multiple hardwood press plates",
+    "Absorbent blotting paper sheets",
+    "Illustrated instruction manual",
+    "Sustainably sourced wood",
+    "Durable metal hardware",
+    "Compact design: [ADD DIMENSIONS]"
+  ];
+
+  const whatsIncluded = [
+    "1x Wooden flower press",
+    "6x Press plates",
+    "12x Absorbent blotting sheets",
+    "1x Instruction booklet",
+    "1x Storage pouch"
+  ];
+
+  const perfectFor = [
+    "Home gardeners",
+    "Crafters & artists",
+    "Bridal keepsakes",
+    "Nature enthusiasts",
+    "Thoughtful gifting",
+    "Journaling & scrapbooking"
+  ];
+
+  return (
+    <Layout>
+      <section className="py-12 md:py-20 bg-background">
+        <div className="container">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+            {/* Gallery */}
+            <div className="space-y-4">
+              <div className="aspect-square bg-secondary overflow-hidden">
+                <img 
+                  src={images[selectedImage]} 
+                  alt="Flower Press Kit" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="grid grid-cols-4 gap-3">
+                {images.map((img, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImage(index)}
+                    className={`aspect-square bg-secondary overflow-hidden border-2 transition-colors ${
+                      selectedImage === index ? "border-foreground" : "border-transparent"
+                    }`}
+                  >
+                    <img src={img} alt={`View ${index + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Product Info */}
+            <div className="lg:py-4">
+              <p className="caption mb-3">Hwabelle</p>
+              <h1 className="font-serif text-display mb-2">Flower Press Kit</h1>
+              <p className="text-2xl font-serif mb-6">[ADD PRICE]</p>
+              
+              <p className="text-muted-foreground leading-relaxed mb-8">
+                A beautifully crafted wooden flower press for preserving nature's most delicate moments. 
+                Perfect for gardeners, artists, and anyone who appreciates the art of botanical preservation.
+              </p>
+
+              {/* Features */}
+              <div className="mb-8">
+                <h3 className="text-sm tracking-widest uppercase mb-4">Features</h3>
+                <ul className="space-y-2">
+                  {features.map((feature, index) => (
+                    <li key={index} className="flex items-start gap-3 text-muted-foreground">
+                      <Check size={16} className="text-foreground mt-1 flex-shrink-0" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* CTA */}
+              <div className="space-y-3 mb-10">
+                <Button variant="hero" size="xl" className="w-full" asChild>
+                  <a href="[ADD AMAZON LINK]" target="_blank" rel="noopener noreferrer">
+                    Buy on Amazon
+                  </a>
+                </Button>
+                <p className="text-center text-sm text-muted-foreground">
+                  Free shipping on orders over $35
+                </p>
+              </div>
+
+              {/* Shipping */}
+              <div className="border-t border-divider pt-6">
+                <p className="text-sm text-muted-foreground">
+                  <strong className="text-foreground">Shipping:</strong> Fulfilled by Amazon. Typically arrives in 2-5 business days.
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  <strong className="text-foreground">Returns:</strong> 30-day return window through Amazon.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* What's Included */}
+      <section className="py-16 md:py-24 bg-secondary">
+        <div className="container">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="font-serif text-display text-center mb-12">What's Included</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {whatsIncluded.map((item, index) => (
+                <div key={index} className="flex items-center gap-3 bg-background p-4">
+                  <Check size={18} className="text-foreground flex-shrink-0" />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Perfect For */}
+      <section className="py-16 md:py-24 bg-background">
+        <div className="container">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="font-serif text-display mb-12">Perfect For</h2>
+            <div className="flex flex-wrap justify-center gap-4">
+              {perfectFor.map((item, index) => (
+                <span key={index} className="px-6 py-3 border border-divider text-sm">
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter */}
+      <section className="py-16 md:py-24 bg-secondary">
+        <div className="container">
+          <div className="max-w-md mx-auto text-center">
+            <h2 className="font-serif text-heading mb-3">Get Pressing Tips</h2>
+            <p className="text-muted-foreground mb-6">
+              Join our newsletter for seasonal inspiration and techniques.
+            </p>
+            <NewsletterForm />
+          </div>
+        </div>
+      </section>
+    </Layout>
+  );
+};
+
+export default ProductDetail;
