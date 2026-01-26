@@ -6,20 +6,11 @@ import productImage from "@/assets/product-flower-press.jpg";
 const products = [
   {
     id: "flower-press-kit",
-    name: "Flower Press Kit",
-    variant: "Basic",
-    price: "[ADD PRICE]",
-    description: "Everything you need to start pressing and preserving beautiful botanicals.",
+    name: "Acrylic Flower Press Kit",
+    variant: "DIY Set",
+    price: "Coming Soon",
+    description: "A complete acrylic flower pressing set with large and small press plates, blotting paper, and felt storage bags.",
     image: productImage
-  },
-  {
-    id: "flower-press-kit-deluxe",
-    name: "Flower Press Kit",
-    variant: "Deluxe",
-    price: "[ADD PRICE]",
-    description: "Our premium kit with extra press plates and luxury packaging.",
-    image: productImage,
-    comingSoon: true
   }
 ];
 
@@ -52,11 +43,6 @@ const Shop = () => {
                       alt={product.name} 
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    {product.comingSoon && (
-                      <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
-                        <span className="caption">Coming Soon</span>
-                      </div>
-                    )}
                   </div>
                 </Link>
                 <div className="flex justify-between items-start mb-2">
@@ -67,11 +53,9 @@ const Shop = () => {
                   <span className="font-serif text-lg">{product.price}</span>
                 </div>
                 <p className="text-muted-foreground text-sm mb-4">{product.description}</p>
-                {!product.comingSoon && (
-                  <Button variant="hero-outline" size="sm" asChild>
-                    <Link to={`/product/${product.id}`}>View Details</Link>
-                  </Button>
-                )}
+                <Button variant="hero-outline" size="sm" asChild>
+                  <Link to={`/product/${product.id}`}>View Details</Link>
+                </Button>
               </div>
             ))}
           </div>

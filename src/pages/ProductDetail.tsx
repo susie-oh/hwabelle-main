@@ -14,20 +14,21 @@ const ProductDetail = () => {
   const images = [productImage, lifestyleImage, heroImage, pressedFlowers];
 
   const features = [
-    "Multiple hardwood press plates",
+    "Crystal-clear acrylic press plates",
     "Absorbent blotting paper sheets",
-    "Illustrated instruction manual",
-    "Sustainably sourced wood",
-    "Durable metal hardware",
-    "Compact design: [ADD DIMENSIONS]"
+    "Sponge paper for optimal drying",
+    "Durable brass hardware",
+    "Two sizes for versatility",
+    "Compact design: 28 × 26 × 5 cm"
   ];
 
   const whatsIncluded = [
-    "1x Wooden flower press",
-    "6x Press plates",
-    "12x Absorbent blotting sheets",
-    "1x Instruction booklet",
-    "1x Storage pouch"
+    "2× Acrylic press plates (25.4 × 25.4 cm & 7.6 × 7.6 cm)",
+    "Blotting paper sheets (20 × 20 cm & 5.5 × 5.5 cm)",
+    "Sponge paper layers (20 × 20 cm & 5.5 × 5.5 cm)",
+    "Cardstock dry boards (20 × 20 cm & 5.5 × 5.5 cm)",
+    "Brass bolts (M6 & M4)",
+    "2× Felt storage bags (28 × 28 cm & 10 × 10 cm)"
   ];
 
   const perfectFor = [
@@ -71,12 +72,12 @@ const ProductDetail = () => {
             {/* Product Info */}
             <div className="lg:py-4">
               <p className="caption mb-3">Hwabelle</p>
-              <h1 className="font-serif text-display mb-2">Flower Press Kit</h1>
-              <p className="text-2xl font-serif mb-6">[ADD PRICE]</p>
+              <h1 className="font-serif text-display mb-2">Acrylic Flower Press Kit</h1>
+              <p className="text-2xl font-serif mb-6">Coming Soon</p>
               
               <p className="text-muted-foreground leading-relaxed mb-8">
-                A beautifully crafted wooden flower press for preserving nature's most delicate moments. 
-                Perfect for gardeners, artists, and anyone who appreciates the art of botanical preservation.
+                A beautifully crafted acrylic flower press set for preserving nature's most delicate moments. 
+                Includes two press sizes—large and small—plus all the materials you need for perfect botanical preservation.
               </p>
 
               {/* Features */}
