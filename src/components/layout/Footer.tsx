@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Instagram, Facebook } from "lucide-react";
+import logoWhite from "@/assets/hwabelle-logo-white.png";
 
 const Footer = () => {
   return (
@@ -35,10 +36,14 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8">
           {/* Brand */}
           <div className="md:col-span-1">
-            <Link to="/" className="font-serif text-xl tracking-tight">
-              Hwabelle
+            <Link to="/">
+              <img 
+                src={logoWhite} 
+                alt="Hwabelle" 
+                className="h-12 w-auto mb-4"
+              />
             </Link>
-            <p className="mt-4 text-sm text-primary-foreground/60 leading-relaxed">
+            <p className="text-sm text-primary-foreground/60 leading-relaxed">
               Thoughtfully crafted tools for preserving nature's fleeting beauty.
             </p>
           </div>
