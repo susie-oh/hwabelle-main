@@ -1,5 +1,5 @@
 import Layout from "@/components/layout/Layout";
-import lifestyleImage from "@/assets/lifestyle-pressing.jpg";
+import lifestyleImage from "@/assets/pressing-in-action.png";
 
 const About = () => {
   const values = [
