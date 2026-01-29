@@ -42,11 +42,11 @@ const About = () => {
       </section>
 
       {/* Story Image */}
-      <section className="aspect-[21/9] overflow-hidden">
+      <section className="overflow-hidden">
         <img 
           src={lifestyleImage} 
           alt="The art of flower pressing" 
-          className="w-full h-full object-cover"
+          className="w-full h-auto object-contain"
         />
       </section>
 
