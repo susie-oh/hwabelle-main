@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Leaf, Gift, BookOpen, Sparkles } from "lucide-react";
 import heroArrangement from "@/assets/hero-pressed-arrangement.png";
 import heroFlowImage from "@/assets/hero-pressed-flow.png";
-import lifestyleImage from "@/assets/lifestyle-pressing.png";
+import lifestyleImage from "@/assets/lifestyle-pressing-cropped.png";
 import pressedFlowersImage from "@/assets/pressed-flowers-collection.png";
 import blogImage from "@/assets/blog-botanical-art.jpg";
 
