@@ -79,7 +79,7 @@ const FallingPetals = ({ enabled = true }: FallingPetalsProps) => {
 
   return (
     <div 
-      className="fixed inset-0 overflow-hidden pointer-events-none z-0"
+      className="fixed inset-0 overflow-hidden pointer-events-none z-50"
       aria-hidden="true"
     >
       {petals.map((petal) => (
