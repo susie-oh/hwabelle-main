@@ -62,22 +62,29 @@ const Index = () => {
 
   return (
     <Layout>
-      {/* Hero Section - Main Brand Image */}
-      <section className="relative min-h-[80vh] md:min-h-[90vh] flex items-center justify-center bg-background">
-        <div className="container relative z-10 flex flex-col items-center text-center py-12">
-          <motion.img 
+      {/* Hero Section - Full Bleed Pressed Flower Background */}
+      <section className="relative min-h-screen w-full overflow-hidden">
+        {/* Full-screen background image that stretches to all edges */}
+        <motion.div 
+          className="absolute inset-0 w-full h-full"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.2, ease: [0.25, 0.1, 0.25, 1] }}
+        >
+          <img 
             src={heroArrangement}
-            alt="Hwabelle - Pressed flower arrangement with logo"
-            className="w-full max-w-4xl h-auto"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
+            alt="Hwabelle - Pressed flower arrangement"
+            className="w-full h-full object-cover object-center"
           />
+        </motion.div>
+        
+        {/* Centered CTA buttons */}
+        <div className="absolute inset-0 flex items-end justify-center pb-16 md:pb-24 z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-            className="mt-8 md:mt-12 flex flex-col sm:flex-row gap-4"
+            transition={{ duration: 0.8, delay: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+            className="flex flex-col sm:flex-row gap-4"
           >
             <Button variant="hero" size="xl" asChild>
               <a href="[ADD AMAZON LINK]" target="_blank" rel="noopener noreferrer">
