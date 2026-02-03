@@ -78,7 +78,8 @@ const Index = () => {
           />
         </motion.div>
         
-        {/* Gradient fade at bottom for smooth transition */}
+        {/* Gradient fade at top and bottom for smooth transitions */}
+        <div className="absolute top-0 left-0 right-0 h-5 bg-gradient-to-b from-background to-transparent pointer-events-none" />
         <div className="absolute bottom-0 left-0 right-0 h-5 bg-gradient-to-t from-background to-transparent pointer-events-none" />
         
         
