@@ -133,6 +133,7 @@ const Footer = () => {
           <div className="flex items-center gap-6 text-xs text-primary-foreground/50">
             <Link to="/privacy" className="hover:text-primary-foreground transition-colors">Privacy</Link>
             <Link to="/terms" className="hover:text-primary-foreground transition-colors">Terms</Link>
+            <Link to="/admin/login" className="hover:text-primary-foreground transition-colors">Admin</Link>
             <span>© 2025 Hwabelle</span>
           </div>
         </div>
