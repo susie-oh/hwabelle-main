@@ -7,75 +7,41 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
 
-const faqCategories = [
-  {
-    title: "Product & Use",
-    faqs: [
-      {
-        q: "What flowers work best for pressing?",
-        a: "Flat, single-layer flowers like pansies, violas, cosmos, and ferns work beautifully. Thicker flowers like roses can be pressed too—try separating individual petals for best results."
-      },
-      {
-        q: "How long does it take to press flowers?",
-        a: "Most flowers take 2-4 weeks to fully dry and flatten. Thicker specimens may need additional time. Check weekly and replace damp blotting paper as needed."
-      },
-      {
-        q: "How do I replace the blotting paper?",
-        a: "Simply unscrew the press, carefully remove the old paper, and replace with fresh sheets. We recommend acid-free blotting paper for best preservation."
-      },
-      {
-        q: "Can I press leaves and other botanicals?",
-        a: "Absolutely! Ferns, leaves, herbs, and even small grasses press beautifully. The press works for any flat botanical specimen."
-      }
-    ]
-  },
-  {
-    title: "Ordering & Shipping",
-    faqs: [
-      {
-        q: "Where can I purchase the Flower Press Kit?",
-        a: "The Hwabelle Flower Press Kit is currently available exclusively on Amazon. Click the 'Buy on Amazon' button to order."
-      },
-      {
-        q: "How long does shipping take?",
-        a: "Shipping is fulfilled by Amazon. Standard delivery typically takes 2-5 business days depending on your location."
-      },
-      {
-        q: "Do you ship internationally?",
-        a: "International availability depends on Amazon's shipping options for your region. Please check Amazon for details."
-      }
-    ]
-  },
-  {
-    title: "Gifting",
-    faqs: [
-      {
-        q: "Is the kit ready for gifting?",
-        a: "Yes! Each Flower Press Kit comes in elegant, minimal packaging that's perfect for gifting. No additional wrapping needed."
-      },
-      {
-        q: "Can I include a gift message?",
-        a: "Gift messaging is available through Amazon at checkout. You can also opt for gift wrapping if available in your region."
-      }
-    ]
-  },
-  {
-    title: "Returns & Support",
-    faqs: [
-      {
-        q: "What is the return policy?",
-        a: "Returns are handled through Amazon's return policy. Most items can be returned within 30 days of delivery."
-      },
-      {
-        q: "How do I contact customer support?",
-        a: "For product questions, reach out to us at [ADD EMAIL]. For order-related inquiries, please contact Amazon customer service."
-      }
-    ]
-  }
-];
+interface FAQ {
+  id: string;
+  question: string;
+  answer: string;
+  category: string | null;
+  sort_order: number;
+}
 
 const FAQ = () => {
+  const { data: faqs, isLoading } = useQuery({
+    queryKey: ["public-faqs"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("faqs")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      
+      if (error) throw error;
+      return data as FAQ[];
+    },
+  });
+
+  // Group FAQs by category
+  const groupedFaqs = faqs?.reduce((acc, faq) => {
+    const category = faq.category || "General";
+    if (!acc[category]) acc[category] = [];
+    acc[category].push(faq);
+    return acc;
+  }, {} as Record<string, FAQ[]>);
+
   return (
     <Layout>
       {/* Header */}
@@ -95,23 +61,33 @@ const FAQ = () => {
       <section className="py-16 md:py-24 bg-background">
         <div className="container">
           <div className="max-w-3xl mx-auto">
-            {faqCategories.map((category, categoryIndex) => (
-              <div key={categoryIndex} className="mb-12 last:mb-0">
-                <h2 className="font-serif text-heading mb-6">{category.title}</h2>
-                <Accordion type="single" collapsible className="w-full">
-                  {category.faqs.map((faq, faqIndex) => (
-                    <AccordionItem key={faqIndex} value={`${categoryIndex}-${faqIndex}`} className="border-divider">
-                      <AccordionTrigger className="text-left font-normal hover:no-underline py-5">
-                        <span className="font-serif text-lg">{faq.q}</span>
-                      </AccordionTrigger>
-                      <AccordionContent className="text-muted-foreground pb-5">
-                        {faq.a}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
+            {isLoading ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
               </div>
-            ))}
+            ) : !groupedFaqs || Object.keys(groupedFaqs).length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                No FAQs available at the moment.
+              </div>
+            ) : (
+              Object.entries(groupedFaqs).map(([category, categoryFaqs], categoryIndex) => (
+                <div key={categoryIndex} className="mb-12 last:mb-0">
+                  <h2 className="font-serif text-heading mb-6">{category}</h2>
+                  <Accordion type="single" collapsible className="w-full">
+                    {categoryFaqs.map((faq, faqIndex) => (
+                      <AccordionItem key={faq.id} value={`${categoryIndex}-${faqIndex}`} className="border-divider">
+                        <AccordionTrigger className="text-left font-normal hover:no-underline py-5">
+                          <span className="font-serif text-lg">{faq.question}</span>
+                        </AccordionTrigger>
+                        <AccordionContent className="text-muted-foreground pb-5">
+                          {faq.answer}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </section>

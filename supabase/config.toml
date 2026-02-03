@@ -1,0 +1,4 @@
+project_id = "npvasmomxeateyowhlzh"
+
+[functions.generate-blog]
+verify_jwt = false
