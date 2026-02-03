@@ -84,19 +84,19 @@ const Index = () => {
         
         
         {/* Centered CTA buttons */}
-        <div className="absolute inset-0 flex items-end justify-center pb-16 md:pb-24 z-10">
+        <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-20 sm:pb-24 md:pb-28 lg:pb-32 z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-            className="flex flex-col sm:flex-row gap-4"
+            className="flex flex-col sm:flex-row gap-3 sm:gap-4 px-4"
           >
-            <Button variant="hero" size="xl" asChild>
+            <Button variant="hero" size="lg" className="text-sm sm:text-base" asChild>
               <a href="[ADD AMAZON LINK]" target="_blank" rel="noopener noreferrer">
                 Shop the Kit
               </a>
             </Button>
-            <Button variant="hero-outline" size="xl" asChild>
+            <Button variant="hero-outline" size="lg" className="text-sm sm:text-base" asChild>
               <a href="#ai-waitlist">
                 Join AI Waitlist
               </a>
