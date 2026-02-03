@@ -1,63 +1,28 @@
 import Layout from "@/components/layout/Layout";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
+import { format } from "date-fns";
 import blogImage from "@/assets/blog-botanical-art.jpg";
-import pressedFlowers from "@/assets/pressed-flowers-collection.jpg";
-import lifestyleImage from "@/assets/lifestyle-pressing.jpg";
 
 const categories = ["All", "Flower Pressing", "DIY", "Botanical Art", "Preservation Tips"];
 
-const posts = [
-  {
-    slug: "pressing-bridal-bouquets",
-    title: "The Art of Pressing Bridal Bouquets",
-    category: "Preservation Tips",
-    excerpt: "Transform your wedding flowers into a cherished keepsake that lasts a lifetime.",
-    image: blogImage,
-    readTime: "5 min read"
-  },
-  {
-    slug: "best-flowers-beginners",
-    title: "Best Flowers for First-Time Pressers",
-    category: "Flower Pressing",
-    excerpt: "A curated guide to the most forgiving and beautiful flowers for beginners.",
-    image: pressedFlowers,
-    readTime: "4 min read"
-  },
-  {
-    slug: "botanical-wall-art",
-    title: "Creating Botanical Wall Art",
-    category: "DIY",
-    excerpt: "Step-by-step instructions for framing your pressed flowers into stunning displays.",
-    image: lifestyleImage,
-    readTime: "6 min read"
-  },
-  {
-    slug: "seasonal-pressing-guide",
-    title: "A Seasonal Pressing Guide",
-    category: "Flower Pressing",
-    excerpt: "What to press in spring, summer, fall, and even winter.",
-    image: blogImage,
-    readTime: "7 min read"
-  },
-  {
-    slug: "pressed-flower-cards",
-    title: "Handmade Pressed Flower Cards",
-    category: "DIY",
-    excerpt: "Create beautiful greeting cards with your pressed botanical collection.",
-    image: pressedFlowers,
-    readTime: "5 min read"
-  },
-  {
-    slug: "preserving-color",
-    title: "How to Preserve Color in Pressed Flowers",
-    category: "Preservation Tips",
-    excerpt: "Tips and techniques for maintaining vibrant hues in your preserved botanicals.",
-    image: lifestyleImage,
-    readTime: "4 min read"
-  }
-];
-
 const Blog = () => {
+  const { data: posts, isLoading, error } = useQuery({
+    queryKey: ["blog-posts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("*")
+        .eq("status", "published")
+        .order("published_at", { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
   return (
     <Layout>
       {/* Header */}
@@ -94,28 +59,50 @@ const Blog = () => {
       {/* Posts Grid */}
       <section className="py-16 md:py-24 bg-background">
         <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
-            {posts.map((post) => (
-              <Link key={post.slug} to={`/blog/${post.slug}`} className="group">
-                <div className="aspect-[4/3] mb-5 overflow-hidden bg-secondary">
-                  <img 
-                    src={post.image} 
-                    alt={post.title} 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="caption">{post.category}</span>
-                  <span className="text-muted-foreground/40">·</span>
-                  <span className="text-xs text-muted-foreground">{post.readTime}</span>
-                </div>
-                <h2 className="font-serif text-xl mb-2 group-hover:underline underline-offset-4">
-                  {post.title}
-                </h2>
-                <p className="text-muted-foreground text-sm line-clamp-2">{post.excerpt}</p>
-              </Link>
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : error ? (
+            <div className="text-center py-12 text-muted-foreground">
+              Failed to load posts. Please try again later.
+            </div>
+          ) : posts?.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              No blog posts yet. Check back soon!
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+              {posts?.map((post) => (
+                <Link key={post.slug} to={`/blog/${post.slug}`} className="group">
+                  <div className="aspect-[4/3] mb-5 overflow-hidden bg-secondary">
+                    <img 
+                      src={post.featured_image_url || blogImage} 
+                      alt={post.title} 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="flex items-center gap-3 mb-3">
+                    {post.seo_keywords?.[0] && (
+                      <>
+                        <span className="caption">{post.seo_keywords[0]}</span>
+                        <span className="text-muted-foreground/40">·</span>
+                      </>
+                    )}
+                    <span className="text-xs text-muted-foreground">
+                      {post.published_at 
+                        ? format(new Date(post.published_at), "MMM d, yyyy")
+                        : "Draft"}
+                    </span>
+                  </div>
+                  <h2 className="font-serif text-xl mb-2 group-hover:underline underline-offset-4">
+                    {post.title}
+                  </h2>
+                  <p className="text-muted-foreground text-sm line-clamp-2">{post.excerpt}</p>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </Layout>
