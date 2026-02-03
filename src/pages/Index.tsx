@@ -63,7 +63,7 @@ const Index = () => {
   return (
     <Layout>
       {/* Hero Section - Full Bleed Pressed Flower Background */}
-      <section className="relative min-h-[110vh] w-full overflow-hidden">
+      <section className="relative min-h-screen w-full overflow-hidden">
         {/* Full-screen background image that stretches to all edges */}
         <motion.div 
           className="absolute inset-0 w-full h-full"
