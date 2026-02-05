@@ -213,8 +213,8 @@ const BlogManager = () => {
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-serif text-display mb-2">Blog Manager</h1>
-            <p className="text-muted-foreground">Create and manage blog posts with AI assistance</p>
+            <h1 className="font-serif text-display mb-2">Website SEAL Generator</h1>
+            <p className="text-muted-foreground">Create and manage website SEAL content with AI assistance</p>
           </div>
           <Button onClick={openNewDialog}>
             <Plus className="h-4 w-4 mr-2" />
@@ -227,7 +227,7 @@ const BlogManager = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              AI Blog Generator
+              AI SEAL Generator
             </CardTitle>
             <CardDescription>
               Generate AEO-optimized blog content using AI
