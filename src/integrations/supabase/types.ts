@@ -65,6 +65,421 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_schedules: {
+        Row: {
+          approved: boolean | null
+          campaign_id: string
+          created_at: string | null
+          dispatched: boolean | null
+          email_template_id: string
+          id: string
+          scheduled_at: string
+          sequence_order: number
+          timezone: string | null
+        }
+        Insert: {
+          approved?: boolean | null
+          campaign_id: string
+          created_at?: string | null
+          dispatched?: boolean | null
+          email_template_id: string
+          id?: string
+          scheduled_at: string
+          sequence_order: number
+          timezone?: string | null
+        }
+        Update: {
+          approved?: boolean | null
+          campaign_id?: string
+          created_at?: string | null
+          dispatched?: boolean | null
+          email_template_id?: string
+          id?: string
+          scheduled_at?: string
+          sequence_order?: number
+          timezone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_schedules_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_schedules_email_template_id_fkey"
+            columns: ["email_template_id"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_target_customers: {
+        Row: {
+          campaign_id: string
+          created_at: string | null
+          customer_id: string
+          id: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string | null
+          customer_id: string
+          id?: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string | null
+          customer_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_target_customers_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_target_customers_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_target_groups: {
+        Row: {
+          campaign_id: string
+          created_at: string | null
+          group_id: string
+          id: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string | null
+          group_id: string
+          id?: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string | null
+          group_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_target_groups_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_target_groups_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "customer_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_events: {
+        Row: {
+          created_at: string | null
+          customer_id: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          customer_id: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          customer_id?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_events_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_group_memberships: {
+        Row: {
+          created_at: string | null
+          customer_id: string
+          group_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          customer_id: string
+          group_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string | null
+          customer_id?: string
+          group_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_group_memberships_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_group_memberships_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "customer_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_groups: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_groups_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          consent: boolean | null
+          created_at: string | null
+          custom_fields: Json | null
+          email: string
+          id: string
+          name: string | null
+          tags: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          consent?: boolean | null
+          created_at?: string | null
+          custom_fields?: Json | null
+          email: string
+          id?: string
+          name?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          consent?: boolean | null
+          created_at?: string | null
+          custom_fields?: Json | null
+          email?: string
+          id?: string
+          name?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_campaigns: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_campaigns_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_sends: {
+        Row: {
+          clicked: boolean | null
+          customer_id: string
+          id: string
+          opened: boolean | null
+          sent_at: string | null
+          template_id: string
+          user_id: string
+        }
+        Insert: {
+          clicked?: boolean | null
+          customer_id: string
+          id?: string
+          opened?: boolean | null
+          sent_at?: string | null
+          template_id: string
+          user_id: string
+        }
+        Update: {
+          clicked?: boolean | null
+          customer_id?: string
+          id?: string
+          opened?: boolean | null
+          sent_at?: string | null
+          template_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_sends_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_sends_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_sends_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_templates: {
+        Row: {
+          campaign_id: string
+          content: string
+          created_at: string | null
+          id: string
+          sequence_order: number
+          subject: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id: string
+          content: string
+          created_at?: string | null
+          id?: string
+          sequence_order: number
+          subject: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          sequence_order?: number
+          subject?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_templates_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_templates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       faqs: {
         Row: {
           answer: string
@@ -97,6 +512,97 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      sender_identities: {
+        Row: {
+          created_at: string | null
+          dkim_verified: boolean | null
+          domain: string | null
+          from_email: string
+          from_name: string
+          id: string
+          spf_verified: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          dkim_verified?: boolean | null
+          domain?: string | null
+          from_email: string
+          from_name: string
+          id?: string
+          spf_verified?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          dkim_verified?: boolean | null
+          domain?: string | null
+          from_email?: string
+          from_name?: string
+          id?: string
+          spf_verified?: boolean | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sender_identities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suppressions: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          reason: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suppressions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

@@ -2,7 +2,7 @@ import { ReactNode, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Loader2, LayoutDashboard, FileText, HelpCircle, LogOut, Home } from "lucide-react";
+import { Loader2, LayoutDashboard, FileText, HelpCircle, LogOut, Home, Mail } from "lucide-react";
 import logoImage from "@/assets/hwabelle-logo.png";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +14,7 @@ const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/blog", label: "Website SEAL Generator", icon: FileText },
   { href: "/admin/faqs", label: "FAQ Manager", icon: HelpCircle },
+  { href: "/admin/email", label: "Email Campaigns", icon: Mail },
 ];
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
@@ -58,7 +59,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         <nav className="flex-1 p-4 space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.href;
+            const isActive = location.pathname === item.href || (item.href !== "/admin/dashboard" && location.pathname.startsWith(item.href));
             return (
               <Link
                 key={item.href}

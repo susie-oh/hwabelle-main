@@ -21,6 +21,14 @@ import AdminLogin from "./pages/AdminLogin";
 import Dashboard from "./pages/admin/Dashboard";
 import BlogManager from "./pages/admin/BlogManager";
 import FAQManager from "./pages/admin/FAQManager";
+import EmailDashboard from "./pages/admin/EmailDashboard";
+import EmailFunnelCreator from "./pages/admin/EmailFunnelCreator";
+import EmailCampaignList from "./pages/admin/EmailCampaignList";
+import EmailCampaignDetail from "./pages/admin/EmailCampaignDetail";
+import EmailCampaignSetup from "./pages/admin/EmailCampaignSetup";
+import EmailCompose from "./pages/admin/EmailCompose";
+import EmailCustomers from "./pages/admin/EmailCustomers";
+import EmailSettings from "./pages/admin/EmailSettings";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +57,14 @@ const App = () => (
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/blog" element={<BlogManager />} />
             <Route path="/admin/faqs" element={<FAQManager />} />
+            <Route path="/admin/email" element={<EmailDashboard />} />
+            <Route path="/admin/email/funnel" element={<EmailFunnelCreator />} />
+            <Route path="/admin/email/campaigns" element={<EmailCampaignList />} />
+            <Route path="/admin/email/campaign/:id" element={<EmailCampaignDetail />} />
+            <Route path="/admin/email/campaign/:id/setup" element={<EmailCampaignSetup />} />
+            <Route path="/admin/email/compose" element={<EmailCompose />} />
+            <Route path="/admin/email/customers" element={<EmailCustomers />} />
+            <Route path="/admin/email/settings" element={<EmailSettings />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
