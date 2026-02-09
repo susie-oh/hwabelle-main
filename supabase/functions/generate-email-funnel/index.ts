@@ -5,35 +5,40 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+async function pollRunUntilComplete(threadId: string, runId: string, apiKey: string, maxWaitMs = 60000): Promise<any> {
+  const start = Date.now();
+  while (Date.now() - start < maxWaitMs) {
+    const res = await fetch(`https://api.openai.com/v1/threads/${threadId}/runs/${runId}`, {
+      headers: { Authorization: `Bearer ${apiKey}`, "OpenAI-Beta": "assistants=v2" },
+    });
+    const run = await res.json();
+    if (run.status === "completed") return run;
+    if (["failed", "cancelled", "expired"].includes(run.status)) {
+      throw new Error(`Run ${run.status}: ${run.last_error?.message || "unknown"}`);
+    }
+    await new Promise((r) => setTimeout(r, 1500));
+  }
+  throw new Error("Assistant run timed out");
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const { purpose, ageGroup, embedLink, feedback } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    const ASSISTANT_ID = Deno.env.get("OPENAI_ASSISTANT_ID");
+    if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured");
+    if (!ASSISTANT_ID) throw new Error("OPENAI_ASSISTANT_ID is not configured");
 
     const linkInstruction = embedLink ? `Include this CTA link in the emails: ${embedLink}` : "No specific CTA link provided.";
     const feedbackInstruction = feedback ? `Previous feedback to incorporate: ${feedback}` : "";
 
-    const prompt = `Create a 5-email marketing sequence for:
+    const userMessage = `Create a 5-email marketing sequence for:
 Purpose: ${purpose}
 Target Age Group: ${ageGroup}
 ${linkInstruction}
 ${feedbackInstruction}
-
-CRITICAL FORMATTING REQUIREMENTS:
-Each email MUST use extensive HTML formatting to create visual impact:
-1. **Bold key phrases** using <strong> or <b> tags for value propositions, urgency words, benefits, and CTAs.
-2. **Emphasize important words** using <em> or <i> tags for emotional triggers and unique selling points.
-3. **Structure content** with <p> tags, <ul><li> for benefits, and <br> for breathing room.
-4. **Create visual hierarchy** with <h2> or <h3> for section headers, <strong> for stats/numbers.
-5. **Make CTAs stand out** by wrapping call-to-action text in <strong> tags.
-
-Each email should:
-- Have a compelling, curiosity-inducing subject line
-- Be appropriate for the target age group
-- Progress logically through the marketing funnel (awareness → interest → desire → action → urgency)
 
 Return ONLY valid JSON with no markdown wrapping:
 {
@@ -46,39 +51,45 @@ Return ONLY valid JSON with no markdown wrapping:
   ]
 }`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: "You are an expert email marketing copywriter. Always return valid JSON only, no markdown code blocks." },
-          { role: "user", content: prompt },
-        ],
-      }),
+    const headers = {
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+      "Content-Type": "application/json",
+      "OpenAI-Beta": "assistants=v2",
+    };
+
+    // 1. Create thread
+    const threadRes = await fetch("https://api.openai.com/v1/threads", {
+      method: "POST", headers,
     });
+    if (!threadRes.ok) throw new Error(`Failed to create thread: ${await threadRes.text()}`);
+    const thread = await threadRes.json();
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      throw new Error("AI gateway error");
-    }
+    // 2. Add message
+    const msgRes = await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages`, {
+      method: "POST", headers,
+      body: JSON.stringify({ role: "user", content: userMessage }),
+    });
+    if (!msgRes.ok) throw new Error(`Failed to add message: ${await msgRes.text()}`);
 
-    const aiData = await response.json();
-    let content = aiData.choices?.[0]?.message?.content || "";
+    // 3. Create run
+    const runRes = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs`, {
+      method: "POST", headers,
+      body: JSON.stringify({ assistant_id: ASSISTANT_ID }),
+    });
+    if (!runRes.ok) throw new Error(`Failed to create run: ${await runRes.text()}`);
+    const run = await runRes.json();
+
+    // 4. Poll until complete
+    await pollRunUntilComplete(thread.id, run.id, OPENAI_API_KEY);
+
+    // 5. Get messages
+    const msgsRes = await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages?order=desc&limit=1`, {
+      headers,
+    });
+    if (!msgsRes.ok) throw new Error(`Failed to get messages: ${await msgsRes.text()}`);
+    const msgs = await msgsRes.json();
+
+    let content = msgs.data?.[0]?.content?.[0]?.text?.value || "";
     
     // Clean markdown code blocks if present
     content = content.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
