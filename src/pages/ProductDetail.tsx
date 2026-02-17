@@ -14,12 +14,12 @@ const ProductDetail = () => {
   const images = [productImage, lifestyleImage, heroImage, pressedFlowers];
 
   const features = [
-    "Crystal-clear acrylic press plates",
-    "Absorbent blotting paper sheets",
-    "Sponge paper for optimal drying",
-    "Durable brass hardware",
-    "Two sizes for versatility",
-    "Compact design: 28 × 26 × 5 cm"
+    "Crystal-clear acrylic plates — see your arrangement as it presses",
+    "Absorbent blotting paper for consistent, even drying",
+    "Sponge paper layers for optimal moisture absorption",
+    "Durable brass hardware that tightens securely",
+    "Large + small press sizes for every flower type",
+    "Compact storage: 28 × 26 × 5 cm with felt bags included"
   ];
 
   const whatsIncluded = [
@@ -32,12 +32,12 @@ const ProductDetail = () => {
   ];
 
   const perfectFor = [
-    "Home gardeners",
-    "Crafters & artists",
-    "Bridal keepsakes",
-    "Nature enthusiasts",
-    "Thoughtful gifting",
-    "Journaling & scrapbooking"
+    "Wedding bouquet preservation",
+    "Beginner flower pressers",
+    "Botanical art & framing",
+    "Journaling & scrapbooking",
+    "Seasonal garden keepsakes",
+    "Crafters, artists & gift-givers"
   ];
 
   return (
@@ -76,8 +76,7 @@ const ProductDetail = () => {
               <p className="text-2xl font-serif mb-6">Coming Soon</p>
               
               <p className="text-muted-foreground leading-relaxed mb-8">
-                A beautifully crafted acrylic flower press set for preserving nature's most delicate moments. 
-                Includes two press sizes—large and small—plus all the materials you need for perfect botanical preservation.
+                A complete DIY flower press kit for beginners and experienced crafters alike. Preserve your wedding bouquet, seasonal garden flowers, or any bloom worth keeping — with crystal-clear acrylic plates that let you see exactly how your arrangement is taking shape.
               </p>
 
               {/* Features */}
@@ -123,7 +122,7 @@ const ProductDetail = () => {
       <section className="py-16 md:py-24 bg-secondary">
         <div className="container">
           <div className="max-w-3xl mx-auto">
-            <h2 className="font-serif text-display text-center mb-12">What's Included</h2>
+            <h2 className="font-serif text-display text-center mb-12">What's in the Flower Press Kit</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {whatsIncluded.map((item, index) => (
                 <div key={index} className="flex items-center gap-3 bg-background p-4">
@@ -156,9 +155,9 @@ const ProductDetail = () => {
       <section className="py-16 md:py-24 bg-secondary">
         <div className="container">
           <div className="max-w-md mx-auto text-center">
-            <h2 className="font-serif text-heading mb-3">Get Pressing Tips</h2>
+            <h2 className="font-serif text-heading mb-3">Pressing Tips & Seasonal Guides</h2>
             <p className="text-muted-foreground mb-6">
-              Join our newsletter for seasonal inspiration and techniques.
+              Which flowers press best each season, how to preserve wedding bouquets, and what to make with your pressed botanicals — straight to your inbox.
             </p>
             <NewsletterForm />
           </div>

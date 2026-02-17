@@ -17,26 +17,26 @@ const Index = () => {
   const productHighlights = [
     {
       icon: Leaf,
-      title: "Different Sizes for Different Flowers",
-      description: "We provide a selection of different sized presses to meet all your flower needs."
+      title: "Two Sizes for Every Bloom",
+      description: "A large and small press included — so you can preserve everything from full bridal bouquets to delicate wildflowers."
     },
     {
       icon: Gift,
-      title: "Giftable Design",
-      description: "Beautifully presented and ready to give for any occasion."
+      title: "Ready to Gift",
+      description: "Beautifully packaged for birthdays, bridal showers, or any occasion worth remembering."
     },
     {
       icon: BookOpen,
-      title: "Detailed Instructions",
-      description: "Step-by-step guide included to help you achieve perfect results."
+      title: "Beginner-Friendly Guide",
+      description: "Step-by-step instructions so your first press is your best press — no experience needed."
     }
   ];
 
   const steps = [
-    { number: "01", title: "Pick", description: "Select fresh flowers and foliage at their peak." },
-    { number: "02", title: "Press", description: "Arrange between absorbent paper and tighten." },
-    { number: "03", title: "Preserve", description: "Wait 2-4 weeks for perfect preservation." },
-    { number: "04", title: "Create", description: "Use in art, cards, or keepsake displays." }
+    { number: "01", title: "Pick", description: "Choose fresh flowers at peak bloom — seasonal varieties press especially well." },
+    { number: "02", title: "Press", description: "Layer between absorbent paper, tighten the bolts, and leave to dry." },
+    { number: "03", title: "Preserve", description: "Most flowers are ready in 2–4 weeks. Thicker blooms may need a little longer." },
+    { number: "04", title: "Create", description: "Frame them, add to greeting cards, journals, or preserve your wedding bouquet forever." }
   ];
 
   const aiFeatures = [
@@ -47,16 +47,16 @@ const Index = () => {
   ];
 
   const blogPosts = [
-    { title: "The Art of Pressing Bridal Bouquets", category: "Preservation Tips", slug: "pressing-bridal-bouquets" },
-    { title: "Best Flowers for First-Time Pressers", category: "Flower Pressing", slug: "best-flowers-beginners" },
-    { title: "Creating Botanical Wall Art", category: "DIY", slug: "botanical-wall-art" }
+    { title: "How to Preserve Your Wedding Bouquet with a Flower Press", category: "Wedding Preservation", slug: "pressing-bridal-bouquets" },
+    { title: "Best Flowers for First-Time Pressers (and Which to Avoid)", category: "Beginner Guide", slug: "best-flowers-beginners" },
+    { title: "DIY Pressed Flower Wall Art: A Step-by-Step Guide", category: "DIY Projects", slug: "botanical-wall-art" }
   ];
 
   const faqs = [
-    { q: "How long does it take to press flowers?", a: "Most flowers take 2-4 weeks to fully dry and flatten, depending on thickness and moisture content." },
-    { q: "What flowers work best?", a: "Flat flowers like pansies, ferns, and daisies work beautifully. Thicker flowers can be pressed but may take longer." },
-    { q: "Is the kit ready for gifting?", a: "Yes, each kit comes in elegant, minimal packaging perfect for gifting." },
-    { q: "Can I replace the blotting paper?", a: "Absolutely. We recommend replacing papers between uses for best results." }
+    { q: "How long does it take to press flowers?", a: "Most flowers press fully in 2–4 weeks. Flat varieties like pansies and ferns are ready faster; thick or moisture-heavy blooms may take a little longer." },
+    { q: "Which flowers press best?", a: "Flat, single-layer flowers work beautifully — think pansies, daisies, lavender, and ferns. Roses and peonies can be pressed petal-by-petal for stunning results." },
+    { q: "Can I preserve my wedding bouquet with this kit?", a: "Yes. The large press plate is designed for wedding flowers. Press within 24–48 hours of your wedding day for the best colour retention." },
+    { q: "Is it beginner-friendly?", a: "Absolutely. Every kit includes a step-by-step guide covering timing, layering, and finishing — so your first press is a success." }
   ];
 
   return (
@@ -120,10 +120,10 @@ const Index = () => {
             </ScrollReveal>
             <ScrollReveal direction="right" delay={0.2}>
               <h2 className="font-serif text-display md:text-display-lg mb-6">
-                Preserve nature's beauty, one bloom at a time.
+                Preserve your blooms — from garden cuttings to wedding bouquets.
               </h2>
               <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                A thoughtfully crafted flower press for gardeners, artists, and anyone who treasures nature's fleeting moments.
+                The Hwabelle acrylic flower press kit is designed for beginners and artists alike. Crystal-clear plates let you see exactly how your arrangement is taking shape — so every press turns out beautifully.
               </p>
             </ScrollReveal>
           </div>
@@ -310,10 +310,10 @@ const Index = () => {
         <div className="container">
           <ScrollReveal className="max-w-2xl mx-auto text-center">
             <h2 className="font-serif text-display md:text-display-lg mb-6">
-              Start your first press
+              Preserve your wedding bouquet. Frame a garden memory. Start today.
             </h2>
             <p className="text-muted-foreground mb-10 text-lg">
-              Transform fleeting blooms into lasting treasures.
+              The complete flower press kit for beginners, crafters, and anyone who wants to hold on to something beautiful.
             </p>
             <motion.div
               whileHover={{ scale: 1.02 }}
