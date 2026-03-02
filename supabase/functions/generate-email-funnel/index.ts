@@ -1,46 +1,76 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+const ALLOWED_ORIGINS = [
+  "https://hwabelle.com",
+  "https://www.hwabelle.com",
+  "http://localhost:8080",
+];
 
-async function pollRunUntilComplete(threadId: string, runId: string, apiKey: string, maxWaitMs = 60000): Promise<any> {
-  const start = Date.now();
-  while (Date.now() - start < maxWaitMs) {
-    const res = await fetch(`https://api.openai.com/v1/threads/${threadId}/runs/${runId}`, {
-      headers: { Authorization: `Bearer ${apiKey}`, "OpenAI-Beta": "assistants=v2" },
-    });
-    const run = await res.json();
-    if (run.status === "completed") return run;
-    if (["failed", "cancelled", "expired"].includes(run.status)) {
-      throw new Error(`Run ${run.status}: ${run.last_error?.message || "unknown"}`);
-    }
-    await new Promise((r) => setTimeout(r, 1500));
-  }
-  throw new Error("Assistant run timed out");
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("origin") || "";
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  };
 }
 
+const SYSTEM_PROMPT = `You are an expert email marketing strategist for Hwabelle, a premium flower pressing kit brand. Create compelling, beautifully formatted HTML email sequences that drive engagement and conversions. Emails should feel personal, inspire creativity, and subtly promote Hwabelle products. Use clean, mobile-friendly HTML formatting.`;
+
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    // Auth check — require a valid admin user
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Check admin role
+    const { data: roleData, error: roleError } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    if (roleError || !roleData) {
+      return new Response(JSON.stringify({ error: "Admin access required" }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { purpose, ageGroup, embedLink, feedback } = await req.json();
-    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
-    const ASSISTANT_ID = Deno.env.get("OPENAI_ASSISTANT_ID");
-    if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured");
-    if (!ASSISTANT_ID) throw new Error("OPENAI_ASSISTANT_ID is not configured");
+    const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
+    if (!GOOGLE_API_KEY) throw new Error("GOOGLE_API_KEY is not configured");
 
     const linkInstruction = embedLink ? `Include this CTA link in the emails: ${embedLink}` : "No specific CTA link provided.";
     const feedbackInstruction = feedback ? `Previous feedback to incorporate: ${feedback}` : "";
 
-    const userMessage = `Create a 5-email marketing sequence for:
+    const userPrompt = `Create a 5-email marketing sequence for:
 Purpose: ${purpose}
 Target Age Group: ${ageGroup}
 ${linkInstruction}
 ${feedbackInstruction}
 
-Return ONLY valid JSON with no markdown wrapping:
+Return ONLY valid JSON with this exact structure:
 {
   "emails": [
     { "sequence_order": 1, "subject": "Subject line here", "content": "Full HTML-formatted email body" },
@@ -51,50 +81,36 @@ Return ONLY valid JSON with no markdown wrapping:
   ]
 }`;
 
-    const headers = {
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-      "Content-Type": "application/json",
-      "OpenAI-Beta": "assistants=v2",
-    };
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            { role: "user", parts: [{ text: SYSTEM_PROMPT + "\n\n" + userPrompt }] },
+          ],
+          generationConfig: {
+            responseMimeType: "application/json",
+          },
+        }),
+      }
+    );
 
-    // 1. Create thread
-    const threadRes = await fetch("https://api.openai.com/v1/threads", {
-      method: "POST", headers,
-    });
-    if (!threadRes.ok) throw new Error(`Failed to create thread: ${await threadRes.text()}`);
-    const thread = await threadRes.json();
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Gemini API error:", response.status, errorText);
+      throw new Error("Failed to generate email sequence");
+    }
 
-    // 2. Add message
-    const msgRes = await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages`, {
-      method: "POST", headers,
-      body: JSON.stringify({ role: "user", content: userMessage }),
-    });
-    if (!msgRes.ok) throw new Error(`Failed to add message: ${await msgRes.text()}`);
+    const aiResponse = await response.json();
+    const textContent = aiResponse.candidates?.[0]?.content?.parts?.[0]?.text;
 
-    // 3. Create run
-    const runRes = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs`, {
-      method: "POST", headers,
-      body: JSON.stringify({ assistant_id: ASSISTANT_ID }),
-    });
-    if (!runRes.ok) throw new Error(`Failed to create run: ${await runRes.text()}`);
-    const run = await runRes.json();
+    if (!textContent) {
+      throw new Error("Invalid AI response format");
+    }
 
-    // 4. Poll until complete
-    await pollRunUntilComplete(thread.id, run.id, OPENAI_API_KEY);
-
-    // 5. Get messages
-    const msgsRes = await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages?order=desc&limit=1`, {
-      headers,
-    });
-    if (!msgsRes.ok) throw new Error(`Failed to get messages: ${await msgsRes.text()}`);
-    const msgs = await msgsRes.json();
-
-    let content = msgs.data?.[0]?.content?.[0]?.text?.value || "";
-    
-    // Clean markdown code blocks if present
-    content = content.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-    
-    const parsed = JSON.parse(content);
+    const parsed = JSON.parse(textContent);
 
     return new Response(JSON.stringify(parsed), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

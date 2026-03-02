@@ -1,10 +1,23 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Instagram, Facebook } from "lucide-react";
+import { toast } from "sonner";
 import logoWhite from "@/assets/hwabelle-logo-white.png";
 
 const Footer = () => {
+  const [email, setEmail] = useState("");
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    toast.success("Thanks for subscribing!", {
+      description: "You'll receive our latest tips and updates.",
+    });
+    setEmail("");
+  };
+
   return (
     <footer className="bg-foreground text-primary-foreground">
       {/* Newsletter Section */}
@@ -17,13 +30,16 @@ const Footer = () => {
             <p className="text-primary-foreground/70 mb-8">
               Receive pressing tips, seasonal inspiration, and be the first to know about new products.
             </p>
-            <form className="flex flex-col sm:flex-row gap-3">
+            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3">
               <Input
                 type="email"
                 placeholder="Your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 className="bg-transparent border-primary-foreground/30 text-primary-foreground placeholder:text-primary-foreground/50 flex-1"
               />
-              <Button variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-foreground">
+              <Button variant="outline" type="submit" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-foreground">
                 Subscribe
               </Button>
             </form>
@@ -37,9 +53,9 @@ const Footer = () => {
           {/* Brand */}
           <div className="md:col-span-1">
             <Link to="/">
-              <img 
-                src={logoWhite} 
-                alt="Hwabelle" 
+              <img
+                src={logoWhite}
+                alt="Hwabelle"
                 className="h-12 w-auto mb-4"
               />
             </Link>
@@ -123,7 +139,7 @@ const Footer = () => {
               <Instagram size={20} />
             </a>
             <a href="#" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors" aria-label="Pinterest">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 12a4 4 0 1 0 8 0c0-2.5-2-4-4-6-2 2-4 3.5-4 6Z"/><path d="M12 12v10"/><path d="m9 18 3-3 3 3"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 12a4 4 0 1 0 8 0c0-2.5-2-4-4-6-2 2-4 3.5-4 6Z" /><path d="M12 12v10" /><path d="m9 18 3-3 3 3" /></svg>
             </a>
             <a href="#" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors" aria-label="Facebook">
               <Facebook size={20} />
@@ -133,8 +149,7 @@ const Footer = () => {
           <div className="flex items-center gap-6 text-xs text-primary-foreground/50">
             <Link to="/privacy" className="hover:text-primary-foreground transition-colors">Privacy</Link>
             <Link to="/terms" className="hover:text-primary-foreground transition-colors">Terms</Link>
-            <Link to="/admin/login" className="hover:text-primary-foreground transition-colors">Admin</Link>
-            <span>© 2025 Hwabelle</span>
+            <span>© {new Date().getFullYear()} Hwabelle</span>
           </div>
         </div>
       </div>

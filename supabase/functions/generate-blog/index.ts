@@ -1,10 +1,20 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+const ALLOWED_ORIGINS = [
+  "https://hwabelle.com",
+  "https://www.hwabelle.com",
+  "http://localhost:8080",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("origin") || "";
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  };
+}
 
 const systemPrompt = `You are an expert blog content writer for Hwabelle, a premium flower pressing kit brand. Your task is to generate SEO and AEO (Answer Engine Optimization) optimized blog posts about flower pressing, botanical art, and related topics.
 
@@ -29,6 +39,7 @@ Content Structure:
 Output must be clean, professional content suitable for a lifestyle/craft brand.`;
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -51,7 +62,7 @@ serve(async (req) => {
 
     const token = authHeader.replace("Bearer ", "");
     const { data: claims, error: claimsError } = await supabase.auth.getClaims(token);
-    
+
     if (claimsError || !claims?.claims) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
@@ -60,7 +71,7 @@ serve(async (req) => {
     }
 
     const userId = claims.claims.sub;
-    
+
     // Check admin role
     const { data: roleData, error: roleError } = await supabase
       .from("user_roles")
@@ -85,73 +96,39 @@ serve(async (req) => {
       });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
+    if (!GOOGLE_API_KEY) {
+      throw new Error("GOOGLE_API_KEY is not configured");
     }
 
     const userPrompt = `Generate a comprehensive blog post about: "${topic}"
 ${additionalContext ? `Additional context: ${additionalContext}` : ""}
 
-The blog post should be 800-1200 words and optimized for search engines and AI answer engines.`;
+The blog post should be 800-1200 words and optimized for search engines and AI answer engines.
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "generate_blog_post",
-              description: "Generate a structured blog post with all required fields",
-              parameters: {
-                type: "object",
-                properties: {
-                  title: { 
-                    type: "string", 
-                    description: "Compelling, SEO-friendly title (under 60 chars)" 
-                  },
-                  metaDescription: { 
-                    type: "string", 
-                    description: "SEO meta description (under 160 chars)" 
-                  },
-                  excerpt: { 
-                    type: "string", 
-                    description: "Brief preview text for listings (1-2 sentences)" 
-                  },
-                  content: { 
-                    type: "string", 
-                    description: "Full blog post content in Markdown format with question-style H2/H3 headings" 
-                  },
-                  seoKeywords: { 
-                    type: "array", 
-                    items: { type: "string" },
-                    description: "5-8 relevant SEO keywords" 
-                  },
-                  longTailQueries: { 
-                    type: "array", 
-                    items: { type: "string" },
-                    description: "3-5 long-tail search queries this post answers" 
-                  },
-                },
-                required: ["title", "metaDescription", "excerpt", "content", "seoKeywords", "longTailQueries"],
-                additionalProperties: false,
-              },
-            },
+Return a JSON object with these fields:
+- title: Compelling, SEO-friendly title (under 60 chars)
+- metaDescription: SEO meta description (under 160 chars)
+- excerpt: Brief preview text for listings (1-2 sentences)
+- content: Full blog post content in Markdown format with question-style H2/H3 headings
+- seoKeywords: Array of 5-8 relevant SEO keywords
+- longTailQueries: Array of 3-5 long-tail search queries this post answers`;
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            { role: "user", parts: [{ text: systemPrompt + "\n\n" + userPrompt }] },
+          ],
+          generationConfig: {
+            responseMimeType: "application/json",
           },
-        ],
-        tool_choice: { type: "function", function: { name: "generate_blog_post" } },
-      }),
-    });
+        }),
+      }
+    );
 
     if (!response.ok) {
       if (response.status === 429) {
@@ -160,26 +137,20 @@ The blog post should be 800-1200 words and optimized for search engines and AI a
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
       const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
+      console.error("Gemini API error:", response.status, errorText);
       throw new Error("Failed to generate blog post");
     }
 
     const aiResponse = await response.json();
-    const toolCall = aiResponse.choices?.[0]?.message?.tool_calls?.[0];
-    
-    if (!toolCall?.function?.arguments) {
+    const textContent = aiResponse.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!textContent) {
       throw new Error("Invalid AI response format");
     }
 
-    const blogData = JSON.parse(toolCall.function.arguments);
-    
+    const blogData = JSON.parse(textContent);
+
     // Generate unique slug
     const baseSlug = blogData.title
       .toLowerCase()

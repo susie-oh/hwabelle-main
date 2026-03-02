@@ -1,46 +1,70 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+const ALLOWED_ORIGINS = [
+  "https://hwabelle.com",
+  "https://www.hwabelle.com",
+  "http://localhost:8080",
+];
 
-async function pollRunUntilComplete(threadId: string, runId: string, apiKey: string, maxWaitMs = 90000): Promise<void> {
-  const start = Date.now();
-  while (Date.now() - start < maxWaitMs) {
-    const res = await fetch(`https://api.openai.com/v1/threads/${threadId}/runs/${runId}`, {
-      headers: { Authorization: `Bearer ${apiKey}`, "OpenAI-Beta": "assistants=v2" },
-    });
-    const run = await res.json();
-    if (run.status === "completed") return;
-    if (["failed", "cancelled", "expired"].includes(run.status)) {
-      throw new Error(`Run ${run.status}: ${run.last_error?.message || "unknown"}`);
-    }
-    await new Promise((r) => setTimeout(r, 1500));
-  }
-  throw new Error("Assistant run timed out");
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("origin") || "";
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  };
 }
 
+const SYSTEM_PROMPT = `You are the Hwabelle Floral Preservation Course Designer & Assistant — a calm, preservation-first floral pressing expert.
+
+BEHAVIOR RULES:
+- Be CONVERSATIONAL. Match your response length to the user's input. A greeting gets a warm, short greeting back. A specific question gets a focused answer.
+- NEVER dump an entire lesson or module unprompted. Only provide structured workbook-style content when the user explicitly asks for a lesson, module, or detailed tutorial.
+- Ask what the user needs help with. Guide them, don't lecture them.
+- When answering questions, keep responses concise and practical. Use bullet points and short paragraphs.
+- If a user uploads a photo, identify the flower and give specific, actionable pressing advice for that species — don't launch into a full course.
+
+EXPERTISE:
+- Flower identification from photos
+- Pressing techniques tailored to specific flower types
+- Drying support methods (silica gel, bamboo charcoal, dehumidifiers, fans, paper rotation)
+- Color preservation and salvage techniques
+- Design ideas for framed botanical art
+- The full 9-module Hwabelle course (deliver only when requested)
+
+TONE: Calm, expert, reassuring, friendly. Never fluffy or dramatic.
+
+NON-NEGOTIABLE RULES:
+1. MOISTURE: Never recommend steaming, misting, damp cloths, humidifiers, or any moisture-adding technique. We remove moisture, never add it.
+2. DRYING SUPPORT: When discussing pressing, mention at least one drying-support tool (silica gel, bamboo charcoal, dehumidifier, fan, paper rotation). Normalize it as smart preparation.
+3. SALVAGE: Reinforce that broken petals, half blooms, and bent stems can all become design elements. Disassembly is preservation intelligence.
+4. RESIN: Never recommend resin first. Always warn about yellowing, bubbles, and moisture. Require test pieces.
+
+COURSE MODULES (deliver ONLY when explicitly requested):
+1. Pressing Fundamentals | 2. Flower Triage | 3. Disassembly Skills | 4. Assisted Drying Tools | 5. Storage & Pause Mode | 6. The 5 Hwabelle Design Styles | 7. Color Shift & Recoloring | 8. Mixed Media | 9. Resin (Advanced)
+
+When delivering course content, use workbook format: clear headings, short blocks, checklists, practical exercises, and drying-support reminders.`;
+
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
-    const ASSISTANT_ID = Deno.env.get("OPENAI_DESIGNER_ASSISTANT_ID");
-    if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured");
-    if (!ASSISTANT_ID) throw new Error("OPENAI_DESIGNER_ASSISTANT_ID is not configured");
+    const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
+    if (!GOOGLE_API_KEY) throw new Error("GOOGLE_API_KEY is not configured");
 
+    // Parse request — supports multipart/form-data (with image) or JSON (text only)
     const contentType = req.headers.get("content-type") || "";
     let userMessage = "";
     let imageBase64: string | null = null;
-    let imageMediaType = "image/jpeg";
+    let imageMimeType = "image/jpeg";
 
     if (contentType.includes("multipart/form-data")) {
       const formData = await req.formData();
       userMessage = (formData.get("message") as string) || "";
       const imageFile = formData.get("image") as File | null;
       if (imageFile) {
-        imageMediaType = imageFile.type || "image/jpeg";
+        imageMimeType = imageFile.type || "image/jpeg";
         const arrayBuffer = await imageFile.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
         let binary = "";
@@ -54,107 +78,47 @@ serve(async (req) => {
       userMessage = body.message || "";
     }
 
-    const headers = {
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-      "Content-Type": "application/json",
-      "OpenAI-Beta": "assistants=v2",
-    };
+    // Build Gemini request parts
+    const parts: Array<{ text: string } | { inline_data: { mime_type: string; data: string } }> = [];
 
-    // 1. Upload image to OpenAI if present
-    let fileId: string | null = null;
+    // Add system prompt as first text part
+    parts.push({ text: SYSTEM_PROMPT });
+
+    // Add image if present
     if (imageBase64) {
-      // Convert base64 back to binary for upload
-      const binaryStr = atob(imageBase64);
-      const bytes = new Uint8Array(binaryStr.length);
-      for (let i = 0; i < binaryStr.length; i++) {
-        bytes[i] = binaryStr.charCodeAt(i);
-      }
-
-      const ext = imageMediaType.split("/")[1] || "jpg";
-      const blob = new Blob([bytes], { type: imageMediaType });
-      const form = new FormData();
-      form.append("file", blob, `upload.${ext}`);
-      form.append("purpose", "vision");
-
-      const uploadRes = await fetch("https://api.openai.com/v1/files", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${OPENAI_API_KEY}` },
-        body: form,
-      });
-
-      if (!uploadRes.ok) {
-        const errText = await uploadRes.text();
-        console.error("File upload failed:", errText);
-        // Fall back to message-only if image upload fails
-      } else {
-        const uploadData = await uploadRes.json();
-        fileId = uploadData.id;
-      }
-    }
-
-    // 2. Create thread
-    const threadRes = await fetch("https://api.openai.com/v1/threads", {
-      method: "POST",
-      headers,
-      body: JSON.stringify({}),
-    });
-    if (!threadRes.ok) throw new Error(`Failed to create thread: ${await threadRes.text()}`);
-    const thread = await threadRes.json();
-
-    // 3. Build message content
-    type ContentPart =
-      | { type: "text"; text: string }
-      | { type: "image_file"; image_file: { file_id: string; detail: string } };
-
-    const contentParts: ContentPart[] = [];
-
-    if (fileId) {
-      contentParts.push({
-        type: "image_file",
-        image_file: { file_id: fileId, detail: "high" },
+      parts.push({
+        inline_data: {
+          mime_type: imageMimeType,
+          data: imageBase64,
+        },
       });
     }
 
-    contentParts.push({
-      type: "text",
+    // Add user message
+    parts.push({
       text: userMessage || "Please analyse this image and provide botanical identification and design suggestions.",
     });
 
-    // 4. Add message to thread
-    const msgRes = await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        role: "user",
-        content: contentParts,
-      }),
-    });
-    if (!msgRes.ok) throw new Error(`Failed to add message: ${await msgRes.text()}`);
-
-    // 5. Run
-    const runRes = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ assistant_id: ASSISTANT_ID }),
-    });
-    if (!runRes.ok) throw new Error(`Failed to create run: ${await runRes.text()}`);
-    const run = await runRes.json();
-
-    // 6. Poll until complete
-    await pollRunUntilComplete(thread.id, run.id, OPENAI_API_KEY);
-
-    // 7. Get latest assistant message
-    const msgsRes = await fetch(
-      `https://api.openai.com/v1/threads/${thread.id}/messages?order=desc&limit=1`,
-      { headers }
+    // Call Gemini API
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts }],
+        }),
+      }
     );
-    if (!msgsRes.ok) throw new Error(`Failed to get messages: ${await msgsRes.text()}`);
-    const msgs = await msgsRes.json();
 
-    const reply = msgs.data?.[0]?.content
-      ?.filter((c: { type: string }) => c.type === "text")
-      ?.map((c: { type: string; text: { value: string } }) => c.text?.value)
-      ?.join("\n") || "No response received.";
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Gemini API error:", response.status, errorText);
+      throw new Error("Failed to get AI response");
+    }
+
+    const aiResponse = await response.json();
+    const reply = aiResponse.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
 
     return new Response(JSON.stringify({ reply }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

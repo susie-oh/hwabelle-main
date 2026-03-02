@@ -18,6 +18,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 import Designer from "./pages/Designer";
+import DesignerChat from "./pages/DesignerChat";
 import AdminLogin from "./pages/AdminLogin";
 import Dashboard from "./pages/admin/Dashboard";
 import BlogManager from "./pages/admin/BlogManager";
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/designer" element={<Designer />} />
+            <Route path="/designer-test" element={<DesignerChat />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/shipping" element={<Shipping />} />
             <Route path="/returns" element={<Returns />} />
