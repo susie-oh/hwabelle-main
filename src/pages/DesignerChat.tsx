@@ -85,10 +85,14 @@ const DesignerChat = () => {
         try {
             let response: Response;
 
+            // Build conversation history for context (exclude image previews)
+            const history = messages.map(m => ({ role: m.role, content: m.content }));
+
             if (currentImage) {
                 const formData = new FormData();
                 formData.append("message", text);
                 formData.append("image", currentImage);
+                formData.append("history", JSON.stringify(history));
                 response = await fetch(DESIGNER_URL, {
                     method: "POST",
                     headers: {
@@ -103,7 +107,7 @@ const DesignerChat = () => {
                         Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ message: text }),
+                    body: JSON.stringify({ message: text, history }),
                 });
             }
 

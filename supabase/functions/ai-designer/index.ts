@@ -60,10 +60,15 @@ serve(async (req) => {
     let userMessage = "";
     let imageBase64: string | null = null;
     let imageMimeType = "image/jpeg";
+    let history: Array<{ role: string; content: string }> = [];
 
     if (contentType.includes("multipart/form-data")) {
       const formData = await req.formData();
       userMessage = (formData.get("message") as string) || "";
+      const historyStr = formData.get("history") as string;
+      if (historyStr) {
+        try { history = JSON.parse(historyStr); } catch { /* ignore */ }
+      }
       const imageFile = formData.get("image") as File | null;
       if (imageFile) {
         imageMimeType = imageFile.type || "image/jpeg";
@@ -78,28 +83,38 @@ serve(async (req) => {
     } else {
       const body = await req.json();
       userMessage = body.message || "";
+      history = body.history || [];
     }
 
-    // Build Gemini request parts
-    const parts: Array<{ text: string } | { inline_data: { mime_type: string; data: string } }> = [];
+    // Build Gemini multi-turn conversation
+    const contents: Array<{ role: string; parts: Array<{ text: string } | { inline_data: { mime_type: string; data: string } }> }> = [];
 
-    // Add system prompt as first text part
-    parts.push({ text: SYSTEM_PROMPT });
+    // System instruction as first user message
+    contents.push({ role: "user", parts: [{ text: SYSTEM_PROMPT }] });
+    contents.push({ role: "model", parts: [{ text: "Understood. I'm ready to help with flower pressing and preservation." }] });
 
-    // Add image if present
+    // Add conversation history
+    for (const msg of history) {
+      contents.push({
+        role: msg.role === "user" ? "user" : "model",
+        parts: [{ text: msg.content }],
+      });
+    }
+
+    // Add current message with optional image
+    const currentParts: Array<{ text: string } | { inline_data: { mime_type: string; data: string } }> = [];
     if (imageBase64) {
-      parts.push({
+      currentParts.push({
         inline_data: {
           mime_type: imageMimeType,
           data: imageBase64,
         },
       });
     }
-
-    // Add user message
-    parts.push({
+    currentParts.push({
       text: userMessage || "Please analyse this image and provide botanical identification and design suggestions.",
     });
+    contents.push({ role: "user", parts: currentParts });
 
     // Call Gemini API
     const response = await fetch(
@@ -107,9 +122,7 @@ serve(async (req) => {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts }],
-        }),
+        body: JSON.stringify({ contents }),
       }
     );
 
