@@ -34,7 +34,7 @@ const About = () => {
               Preserving what matters
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Hwabelle creates thoughtful tools for those who find beauty in nature's 
+              Hwabelle creates thoughtful tools for those who find beauty in nature's
               fleeting moments and want to hold onto them forever.
             </p>
           </div>
@@ -43,9 +43,9 @@ const About = () => {
 
       {/* Story Image */}
       <section className="overflow-hidden">
-        <img 
-          src={lifestyleImage} 
-          alt="The art of flower pressing" 
+        <img
+          src={lifestyleImage}
+          alt="The art of flower pressing"
           className="w-full h-auto object-contain"
         />
       </section>
@@ -57,17 +57,17 @@ const About = () => {
             <h2 className="font-serif text-display mb-8 text-center">Our Story</h2>
             <div className="prose-like space-y-6 text-muted-foreground leading-relaxed">
               <p>
-                Hwabelle was born from a simple observation: the most beautiful flowers 
-                fade all too quickly. A garden in full bloom, a wedding bouquet, wildflowers 
+                Hwabelle was born from a simple observation: the most beautiful flowers
+                fade all too quickly. A garden in full bloom, a wedding bouquet, wildflowers
                 picked on a summer walk—these moments deserve to be preserved.
               </p>
               <p>
-                We set out to create a flower press that was not just functional, but 
-                beautiful in its own right. Something you'd be proud to display, gift, 
+                We set out to create a flower press that was not just functional, but
+                beautiful in its own right. Something you'd be proud to display, gift,
                 or pass down through generations.
               </p>
               <p>
-                Every Hwabelle kit is designed with care, crafted from sustainable materials, 
+                Every Hwabelle kit is designed with care, crafted from sustainable materials,
                 and made to transform delicate blooms into lasting botanical art.
               </p>
             </div>
@@ -105,8 +105,31 @@ const About = () => {
         </div>
       </section>
 
-      {/* Timeline */}
+      {/* Personal Story */}
       <section className="py-16 md:py-24 bg-secondary">
+        <div className="container">
+          <div className="max-w-2xl mx-auto">
+            <h2 className="font-serif text-display mb-8 text-center">Where It Started</h2>
+            <div className="space-y-6 text-muted-foreground leading-relaxed">
+              <p>
+                I grew up in a Korean home where plants—<em>hwa-cho</em>—were everywhere.
+                My parents filled our living room with them, and once they retired, even more
+                appeared. My father had a true green thumb; every plant he touched thrived.
+                He especially loved flowers, cosmos in particular.
+              </p>
+              <p>
+                Back then, I didn't know anything about flower pressing. I wish I had—I would
+                have pressed some cosmos for him. Whenever I received flowers, I dried them
+                upside down and kept them until they finally crumbled. Maybe it was my own way
+                of holding on to moments, the same way my father held on to his garden.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Timeline */}
+      <section className="py-16 md:py-24 bg-background">
         <div className="container">
           <h2 className="font-serif text-display mb-16 text-center">Our Journey</h2>
           <div className="max-w-2xl mx-auto">
