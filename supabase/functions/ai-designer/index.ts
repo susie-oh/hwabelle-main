@@ -3,6 +3,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 const ALLOWED_ORIGINS = [
   "https://hwabelle.com",
   "https://www.hwabelle.com",
+  "https://hwabelle.shop",
+  "https://www.hwabelle.shop",
   "http://localhost:8080",
 ];
 

@@ -4,6 +4,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const ALLOWED_ORIGINS = [
   "https://hwabelle.com",
   "https://www.hwabelle.com",
+  "https://hwabelle.shop",
+  "https://www.hwabelle.shop",
   "http://localhost:8080",
 ];
 
