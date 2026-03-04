@@ -22,7 +22,6 @@ const CartDrawer = () => {
                         name: item.name,
                         price: item.price,
                         quantity: item.quantity,
-                        image: item.image,
                     })),
                     successUrl: `${window.location.origin}/order-confirmation`,
                     cancelUrl: window.location.href,

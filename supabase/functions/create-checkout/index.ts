@@ -1,5 +1,5 @@
 import "https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts";
-import Stripe from "https://esm.sh/stripe@14.14.0?target=deno";
+import Stripe from "https://esm.sh/stripe@14.14.0?target=deno&no-check";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -11,7 +11,6 @@ interface LineItem {
     name: string;
     price: number; // in dollars
     quantity: number;
-    image?: string;
 }
 
 interface CheckoutRequest {
@@ -30,7 +29,14 @@ Deno.serve(async (req) => {
     try {
         const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
         if (!stripeKey) {
-            throw new Error("STRIPE_SECRET_KEY is not configured");
+            console.error("STRIPE_SECRET_KEY not found in environment");
+            return new Response(
+                JSON.stringify({ error: "Payment service is not configured" }),
+                {
+                    status: 500,
+                    headers: { ...corsHeaders, "Content-Type": "application/json" },
+                }
+            );
         }
 
         const stripe = new Stripe(stripeKey, {
@@ -38,8 +44,11 @@ Deno.serve(async (req) => {
             httpClient: Stripe.createFetchHttpClient(),
         });
 
+        const body = await req.json();
+        console.log("Checkout request received:", JSON.stringify(body));
+
         const { items, successUrl, cancelUrl, customerEmail } =
-            (await req.json()) as CheckoutRequest;
+            body as CheckoutRequest;
 
         if (!items?.length) {
             return new Response(JSON.stringify({ error: "No items provided" }), {
@@ -53,12 +62,13 @@ Deno.serve(async (req) => {
                 currency: "usd",
                 product_data: {
                     name: item.name,
-                    ...(item.image ? { images: [item.image] } : {}),
                 },
                 unit_amount: Math.round(item.price * 100), // convert dollars to cents
             },
             quantity: item.quantity,
         }));
+
+        console.log("Creating Stripe session with line_items:", JSON.stringify(line_items));
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ["card"],
@@ -75,14 +85,17 @@ Deno.serve(async (req) => {
             },
         });
 
+        console.log("Stripe session created:", session.id);
+
         return new Response(JSON.stringify({ url: session.url }), {
             status: 200,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
-    } catch (error) {
-        console.error("Checkout error:", error);
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Failed to create checkout session";
+        console.error("Checkout error:", message, error);
         return new Response(
-            JSON.stringify({ error: error.message || "Failed to create checkout session" }),
+            JSON.stringify({ error: message }),
             {
                 status: 500,
                 headers: { ...corsHeaders, "Content-Type": "application/json" },
