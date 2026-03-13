@@ -247,7 +247,7 @@ const DesignerChat = () => {
                                     <div
                                         className={`max-w-[80%] ${msg.role === "user"
                                             ? "bg-foreground text-background rounded-2xl rounded-br-md px-4 py-3 text-sm shadow-sm"
-                                            : "text-foreground"
+                                            : "bg-secondary/80 rounded-2xl rounded-bl-sm px-4 py-3 text-sm text-foreground"
                                             }`}
                                     >
                                         {msg.imagePreview && (
