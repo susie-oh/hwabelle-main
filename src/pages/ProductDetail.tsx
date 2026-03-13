@@ -1,7 +1,7 @@
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Check, ShoppingBag } from "lucide-react";
+import { Check, ShoppingBag, ExternalLink } from "lucide-react";
 import productImage from "@/assets/product-flower-press.jpg";
 import lifestyleImage from "@/assets/lifestyle-pressing.jpg";
 import heroImage from "@/assets/hero-flower-press.jpg";
@@ -122,6 +122,16 @@ const ProductDetail = () => {
                   <ShoppingBag size={20} className="mr-2" />
                   Add to Cart
                 </Button>
+                <a
+                  href="https://www.amazon.com/dp/B0GFGY8DGW"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full px-6 py-3 text-sm font-medium rounded-md border border-[#FF9900] text-[#FF9900] hover:bg-[#FF9900] hover:text-white transition-colors"
+                  id="buy-on-amazon-button"
+                >
+                  <ExternalLink size={16} />
+                  Buy on Amazon
+                </a>
                 <p className="text-center text-sm text-muted-foreground">
                   Free shipping on orders over $35
                 </p>

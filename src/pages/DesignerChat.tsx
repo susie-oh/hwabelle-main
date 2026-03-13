@@ -260,8 +260,8 @@ const DesignerChat = () => {
                                             </div>
                                         )}
                                         {msg.role === "assistant" ? (
-                                            <div className="prose prose-sm max-w-none text-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_p]:text-foreground [&_li]:text-foreground [&_strong]:text-foreground [&_h1]:font-serif [&_h2]:font-serif [&_h3]:font-serif [&_a]:text-emerald-600 dark:[&_a]:text-emerald-400 [&_code]:bg-secondary [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded-md [&_code]:text-xs">
-                                                <ReactMarkdown>{msg.content}</ReactMarkdown>
+                                            <div className="prose prose-sm max-w-none text-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_p]:text-foreground [&_p]:mb-4 [&_p+p]:mt-2 [&_li]:text-foreground [&_strong]:text-foreground [&_h1]:font-serif [&_h2]:font-serif [&_h3]:font-serif [&_a]:text-emerald-600 dark:[&_a]:text-emerald-400 [&_code]:bg-secondary [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded-md [&_code]:text-xs [&_br]:block [&_br]:mt-2">
+                                                <ReactMarkdown>{msg.content.replace(/\n(?!\n)/g, '\n\n')}</ReactMarkdown>
                                             </div>
                                         ) : (
                                             <p className="text-sm leading-relaxed">{msg.content}</p>

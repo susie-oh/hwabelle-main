@@ -142,15 +142,15 @@ The Hwabelle Flower Press Kit includes TWO presses: a full-size press for detail
 
 PRODUCT DETAILS:
 - The mini press is compact, lightweight, and sized for small hands.
-- Uses the same parchment paper + cardboard layering system as the full-size press.
+- Uses the same drying paper + acrylic layering system as the full-size press.
 - Best for small flowers, individual petals, leaves, and clover.
 - Kids can operate it with minimal adult help (tightening the bolts may need supervision for younger ones).
 
 KIDS TUTORIAL — HOW TO USE THE MINI FLOWER PRESS (share when relevant, step by step):
 1. **Go on a nature walk**: Find small, flat flowers — daisies, clovers, violets, small leaves, buttercups. Avoid thick or bulky flowers.
 2. **Pick gently**: Snip or pinch at the stem. Don't pull from the root. Explain to kids: "we take one, leave the rest for the bees."
-3. **Arrange on the parchment paper**: Place the mini press base plate down, lay parchment paper, then arrange flowers face-down. Leave space between each flower — no overlapping.
-4. **Add the top layer**: Place another sheet of parchment on top, then the cardboard spacer, then the top plate.
+3. **Arrange on the drying paper**: Place the mini press base plate down, lay drying paper, then arrange flowers face-down. Leave space between each flower — no overlapping.
+4. **Add the top layer**: Place another sheet of drying paper on top, then the acrylic spacer, then the top plate.
 5. **Tighten the bolts**: Finger-tight is enough! Kids can twist the wing nuts. An adult can snug them up after.
 6. **Wait 1–2 weeks**: Set it somewhere warm and dry. Check after 7 days — if petals feel papery, they're done!
 7. **Peel gently**: Use fingers or a flat tool to lift the pressed flowers off the paper. They're delicate!
