@@ -200,10 +200,10 @@ const DesignerTestFlow = () => {
                                         else if (s.key === "active") { setStep("active"); }
                                     }}
                                     className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-colors ${i <= currentStepIndex
-                                            ? i === currentStepIndex
-                                                ? "bg-emerald-600 text-white"
-                                                : "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400"
-                                            : "bg-white dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-700"
+                                        ? i === currentStepIndex
+                                            ? "bg-emerald-600 text-white"
+                                            : "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400"
+                                        : "bg-white dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-700"
                                         }`}
                                 >
                                     {i < currentStepIndex ? (
@@ -226,8 +226,8 @@ const DesignerTestFlow = () => {
                         <button
                             onClick={() => setStep("expired")}
                             className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${step === "expired"
-                                    ? "bg-red-600 text-white"
-                                    : "text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30"
+                                ? "bg-red-600 text-white"
+                                : "text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30"
                                 }`}
                         >
                             Expire
@@ -562,15 +562,15 @@ const DesignerTestFlow = () => {
                                                         <Sparkles size={14} className="text-emerald-600 dark:text-emerald-400" />
                                                     </div>
                                                 )}
-                                                <div className={`max-w-[80%] ${msg.role === "user" ? "bg-foreground text-background rounded-2xl rounded-br-md px-4 py-3 text-sm shadow-sm" : "text-foreground"}`}>
+                                                <div className={`max-w-[80%] ${msg.role === "user" ? "bg-foreground text-background rounded-2xl rounded-br-md px-4 py-3 text-sm shadow-sm" : "bg-secondary/80 rounded-2xl rounded-bl-sm px-4 py-3 text-sm text-foreground"}`}>
                                                     {msg.imagePreview && (
                                                         <div className="mb-2">
                                                             <img src={msg.imagePreview} alt="Uploaded" className="max-w-[220px] max-h-[220px] object-cover rounded-xl shadow-sm" />
                                                         </div>
                                                     )}
                                                     {msg.role === "assistant" ? (
-                                                        <div className="prose prose-sm max-w-none text-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_p]:text-foreground [&_li]:text-foreground [&_strong]:text-foreground [&_h1]:font-serif [&_h2]:font-serif [&_h3]:font-serif [&_a]:text-emerald-600 dark:[&_a]:text-emerald-400 [&_code]:bg-secondary [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded-md [&_code]:text-xs">
-                                                            <ReactMarkdown>{msg.content}</ReactMarkdown>
+                                                        <div className="prose prose-sm max-w-none text-foreground leading-relaxed [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_p]:text-foreground [&_p]:!mb-5 [&_p]:leading-relaxed [&_li]:text-foreground [&_li]:!my-2 [&_strong]:text-foreground [&_h1]:font-serif [&_h2]:font-serif [&_h3]:font-serif [&_a]:text-emerald-600 dark:[&_a]:text-emerald-400 [&_code]:bg-secondary [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded-md [&_code]:text-xs [&_br]:block [&_br]:content-[''] [&_br]:mt-3">
+                                                            <ReactMarkdown>{msg.content.replace(/\n(?!\n)/g, '\n\n')}</ReactMarkdown>
                                                         </div>
                                                     ) : (
                                                         <p className="text-sm leading-relaxed">{msg.content}</p>
