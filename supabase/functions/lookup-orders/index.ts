@@ -8,6 +8,21 @@ const corsHeaders = {
         "authorization, x-client-info, apikey, content-type",
 };
 
+// Check if any order contains the AI Designer product
+function checkAiAccess(orders: any[]): boolean {
+    for (const order of orders) {
+        if (order.status !== "paid") continue;
+        const items = order.items;
+        if (!items) continue;
+        // Check metadata keys/values or stringified items for ai-designer-access
+        const itemStr = JSON.stringify(items).toLowerCase();
+        if (itemStr.includes("ai-designer") || itemStr.includes("ai designer")) {
+            return true;
+        }
+    }
+    return false;
+}
+
 Deno.serve(async (req) => {
     if (req.method === "OPTIONS") {
         return new Response(null, { headers: corsHeaders });
@@ -15,7 +30,7 @@ Deno.serve(async (req) => {
 
     try {
         const body = await req.json();
-        const { email, session_id } = body;
+        const { email, session_id, check_ai_access } = body;
 
         if (!email && !session_id) {
             return new Response(
@@ -135,7 +150,11 @@ Deno.serve(async (req) => {
                     );
                 }
 
-                return new Response(JSON.stringify({ orders: orders || [] }), {
+                const result: Record<string, unknown> = { orders: orders || [] };
+                if (check_ai_access) {
+                    result.has_ai_access = checkAiAccess(orders || []);
+                }
+                return new Response(JSON.stringify(result), {
                     status: 200,
                     headers: {
                         ...corsHeaders,
@@ -146,7 +165,7 @@ Deno.serve(async (req) => {
 
             // No email found
             return new Response(
-                JSON.stringify({ orders: [], pending: true }),
+                JSON.stringify({ orders: [], pending: true, has_ai_access: false }),
                 {
                     status: 200,
                     headers: {
@@ -180,7 +199,11 @@ Deno.serve(async (req) => {
             );
         }
 
-        return new Response(JSON.stringify({ orders: orders || [] }), {
+        const result: Record<string, unknown> = { orders: orders || [] };
+        if (check_ai_access) {
+            result.has_ai_access = checkAiAccess(orders || []);
+        }
+        return new Response(JSON.stringify(result), {
             status: 200,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
         });

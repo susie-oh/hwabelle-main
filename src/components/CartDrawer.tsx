@@ -16,6 +16,8 @@ const CartDrawer = () => {
 
         setIsLoading(true);
         try {
+            const hasAiDesigner = items.some((item) => item.id === "ai-designer-access");
+            const successPath = hasAiDesigner ? "/designer-chat" : "/my-orders";
             const { data, error } = await supabase.functions.invoke("create-checkout", {
                 body: {
                     items: items.map((item) => ({
@@ -23,7 +25,7 @@ const CartDrawer = () => {
                         price: item.price,
                         quantity: item.quantity,
                     })),
-                    successUrl: `${window.location.origin}/my-orders`,
+                    successUrl: `${window.location.origin}${successPath}`,
                     cancelUrl: window.location.href,
                 },
             });

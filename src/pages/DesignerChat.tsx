@@ -3,9 +3,12 @@ import Header from "@/components/layout/Header";
 import FallingPetals from "@/components/animations/FallingPetals";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
-import { ImagePlus, Send, X, Sparkles, Loader2, ArrowDown, Leaf, Flower2, Camera, Upload } from "lucide-react";
+import { ImagePlus, Send, X, Sparkles, Loader2, ArrowDown, Leaf, Flower2, Camera, Upload, Lock, Mail, CheckCircle2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { supabase } from "@/integrations/supabase/client";
+import { useSearchParams } from "react-router-dom";
 
 const DESIGNER_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-designer`;
 
@@ -16,6 +19,7 @@ interface Message {
 }
 
 const DesignerChat = () => {
+    const [searchParams] = useSearchParams();
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [image, setImage] = useState<File | null>(null);
@@ -25,6 +29,79 @@ const DesignerChat = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+    // Access gating state
+    const [hasAccess, setHasAccess] = useState(false);
+    const [isVerifying, setIsVerifying] = useState(true);
+    const [accessEmail, setAccessEmail] = useState("");
+    const [verifyError, setVerifyError] = useState<string | null>(null);
+
+    // Check for existing access on mount
+    useEffect(() => {
+        const storedEmail = localStorage.getItem("hwabelle_designer_email");
+        const sessionId = searchParams.get("session_id");
+
+        if (storedEmail) {
+            verifyAccess(storedEmail, false);
+        } else if (sessionId) {
+            // Coming from checkout — verify via session
+            verifyAccessBySession(sessionId);
+        } else {
+            setIsVerifying(false);
+        }
+    }, []);
+
+    const verifyAccess = async (email: string, showError = true) => {
+        setIsVerifying(true);
+        setVerifyError(null);
+        try {
+            const { data, error } = await supabase.functions.invoke(
+                "lookup-orders",
+                { body: { email: email.trim(), check_ai_access: true } }
+            );
+            if (error) throw error;
+
+            if (data?.has_ai_access) {
+                setHasAccess(true);
+                localStorage.setItem("hwabelle_designer_email", email.trim());
+            } else if (showError) {
+                setVerifyError("No AI Designer purchase found for this email. Please use the email you checked out with.");
+            }
+        } catch (err) {
+            if (showError) {
+                setVerifyError("Something went wrong. Please try again.");
+            }
+        } finally {
+            setIsVerifying(false);
+        }
+    };
+
+    const verifyAccessBySession = async (sessionId: string) => {
+        setIsVerifying(true);
+        try {
+            const { data, error } = await supabase.functions.invoke(
+                "lookup-orders",
+                { body: { session_id: sessionId, check_ai_access: true } }
+            );
+            if (error) throw error;
+
+            if (data?.has_ai_access && data?.orders?.[0]?.customer_email) {
+                setHasAccess(true);
+                localStorage.setItem("hwabelle_designer_email", data.orders[0].customer_email);
+            }
+        } catch (err) {
+            // Silently fail — they can enter email manually
+        } finally {
+            setIsVerifying(false);
+        }
+    };
+
+    const handleVerifySubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (accessEmail.trim()) {
+            verifyAccess(accessEmail.trim());
+        }
+    };
 
     const scrollToBottom = () => {
         const container = messagesContainerRef.current;
@@ -134,6 +211,105 @@ const DesignerChat = () => {
 
     const isEmpty = messages.length === 0;
 
+    // ─── Access Gate ───
+    if (isVerifying) {
+        return (
+            <div className="h-screen flex flex-col overflow-hidden" style={{ background: "linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%)" }}>
+                <Header />
+                <FallingPetals />
+                <div className="flex-1 flex items-center justify-center">
+                    <div className="text-center">
+                        <div className="w-8 h-8 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin mx-auto mb-4" />
+                        <p className="text-muted-foreground text-sm">Checking access…</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (!hasAccess) {
+        return (
+            <div className="h-screen flex flex-col overflow-hidden" style={{ background: "linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%)" }}>
+                <Header />
+                <FallingPetals />
+                <div className="flex-1 flex items-center justify-center px-4">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="max-w-md w-full text-center"
+                    >
+                        <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/15 flex items-center justify-center">
+                            <Lock size={28} className="text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <h1 className="font-serif text-3xl mb-3">AI Designer Access</h1>
+                        <p className="text-muted-foreground mb-8 leading-relaxed">
+                            Enter the email you used to purchase AI Designer Access to unlock your personalized floral preservation expert.
+                        </p>
+
+                        <form onSubmit={handleVerifySubmit} className="space-y-4 mb-6">
+                            <div className="relative">
+                                <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                                <Input
+                                    type="email"
+                                    placeholder="your@email.com"
+                                    value={accessEmail}
+                                    onChange={(e) => setAccessEmail(e.target.value)}
+                                    required
+                                    className="pl-10"
+                                    id="designer-email-input"
+                                />
+                            </div>
+                            <Button
+                                variant="hero"
+                                size="lg"
+                                type="submit"
+                                disabled={isVerifying}
+                                className="w-full gap-2"
+                                id="designer-verify-button"
+                            >
+                                {isVerifying ? (
+                                    <Loader2 size={16} className="animate-spin" />
+                                ) : (
+                                    <Sparkles size={16} />
+                                )}
+                                Unlock Designer
+                            </Button>
+                        </form>
+
+                        {verifyError && (
+                            <motion.p
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="text-sm text-destructive mb-4"
+                            >
+                                {verifyError}
+                            </motion.p>
+                        )}
+
+                        <div className="pt-4 border-t border-border">
+                            <p className="text-sm text-muted-foreground mb-3">
+                                Don't have access yet?
+                            </p>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-2 border-foreground/20 hover:bg-foreground hover:text-background"
+                                asChild
+                            >
+                                <a href="/designer">
+                                    Get AI Designer — $9.99
+                                    <Sparkles size={14} />
+                                </a>
+                            </Button>
+                        </div>
+                    </motion.div>
+                </div>
+            </div>
+        );
+    }
+
+    // ─── Chat (Unlocked) ───
     return (
         <div className="h-screen flex flex-col overflow-hidden" style={{ background: "linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%)" }}>
             {/* Site Header */}
@@ -149,9 +325,13 @@ const DesignerChat = () => {
                         </div>
                         <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-background" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                         <h1 className="font-serif text-lg leading-tight">Floral Designer</h1>
                         <p className="text-xs text-muted-foreground">Your botanical companion</p>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full">
+                        <CheckCircle2 size={12} />
+                        <span>Active</span>
                     </div>
                 </div>
             </div>
