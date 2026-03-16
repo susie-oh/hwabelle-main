@@ -169,6 +169,7 @@ Deno.serve(async (req) => {
         let event: any;
 
         // Verify webhook signature if secret is available
+        // Must use constructEventAsync + SubtleCryptoProvider for Deno
         if (webhookSecret) {
             const signature = req.headers.get("stripe-signature");
             if (!signature) {
@@ -177,7 +178,14 @@ Deno.serve(async (req) => {
                     { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
                 );
             }
-            event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+            const cryptoProvider = Stripe.createSubtleCryptoProvider();
+            event = await stripe.webhooks.constructEventAsync(
+                body,
+                signature,
+                webhookSecret,
+                undefined,
+                cryptoProvider
+            );
         } else {
             console.warn("STRIPE_WEBHOOK_SECRET not set — skipping signature verification");
             event = JSON.parse(body);
