@@ -108,15 +108,38 @@ const BlogPost = () => {
             {/* Share */}
             <div className="flex items-center gap-4 pb-8 border-b border-divider mb-10">
               <span className="text-sm text-muted-foreground">Share</span>
-              <button className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Share">
+              <button
+                className="text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Share"
+                onClick={() => {
+                  const url = window.location.href;
+                  if (navigator.share) {
+                    navigator.share({ title: post.title, url });
+                  } else {
+                    navigator.clipboard.writeText(url);
+                  }
+                }}
+              >
                 <Share2 size={18} />
               </button>
-              <button className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Twitter">
+              <a
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(window.location.href)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Share on Twitter"
+              >
                 <Twitter size={18} />
-              </button>
-              <button className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Facebook">
+              </a>
+              <a
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Share on Facebook"
+              >
                 <Facebook size={18} />
-              </button>
+              </a>
             </div>
 
             {/* Body - Markdown */}
