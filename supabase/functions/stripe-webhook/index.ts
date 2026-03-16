@@ -119,7 +119,7 @@ async function sendConfirmationEmail(
 </body>
 </html>`;
 
-    const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "Hwabelle <orders@hwabelle.com>";
+    const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "Hwabelle <orders@hwabelle.shop>";
 
     try {
         const res = await fetch("https://api.resend.com/emails", {
