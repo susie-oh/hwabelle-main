@@ -10,15 +10,49 @@ const corsHeaders = {
 
 // Check if any order contains the AI Designer product
 function checkAiAccess(orders: any[]): boolean {
+    const AI_KEYWORDS = ["ai-designer", "ai designer", "designer access"];
     for (const order of orders) {
         if (order.status !== "paid") continue;
         const items = order.items;
         if (!items) continue;
-        // Check metadata keys/values or stringified items for ai-designer-access
+        // Check metadata keys/values for ai-designer references
         const itemStr = JSON.stringify(items).toLowerCase();
-        if (itemStr.includes("ai-designer") || itemStr.includes("ai designer")) {
+        if (AI_KEYWORDS.some(kw => itemStr.includes(kw))) {
             return true;
         }
+    }
+    return false;
+}
+
+// Fallback: check Stripe line items directly for orders without item_names in metadata
+async function checkAiAccessViaStripe(orders: any[]): Promise<boolean> {
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) return false;
+
+    try {
+        const stripe = new Stripe(stripeKey, {
+            apiVersion: "2023-10-16",
+            httpClient: Stripe.createFetchHttpClient(),
+        });
+
+        for (const order of orders) {
+            if (order.status !== "paid" || !order.stripe_session_id) continue;
+            try {
+                const lineItems = await stripe.checkout.sessions.listLineItems(order.stripe_session_id);
+                const descriptions = lineItems.data.map((li: any) =>
+                    (li.description || li.price?.product?.name || "").toLowerCase()
+                );
+                if (descriptions.some((d: string) =>
+                    d.includes("ai designer") || d.includes("ai-designer") || d.includes("designer access")
+                )) {
+                    return true;
+                }
+            } catch {
+                // Skip this order if Stripe lookup fails
+            }
+        }
+    } catch {
+        // Stripe init failed
     }
     return false;
 }
@@ -152,7 +186,11 @@ Deno.serve(async (req) => {
 
                 const result: Record<string, unknown> = { orders: orders || [] };
                 if (check_ai_access) {
-                    result.has_ai_access = checkAiAccess(orders || []);
+                    let hasAccess = checkAiAccess(orders || []);
+                    if (!hasAccess) {
+                        hasAccess = await checkAiAccessViaStripe(orders || []);
+                    }
+                    result.has_ai_access = hasAccess;
                 }
                 return new Response(JSON.stringify(result), {
                     status: 200,
@@ -201,7 +239,11 @@ Deno.serve(async (req) => {
 
         const result: Record<string, unknown> = { orders: orders || [] };
         if (check_ai_access) {
-            result.has_ai_access = checkAiAccess(orders || []);
+            let hasAccess = checkAiAccess(orders || []);
+            if (!hasAccess) {
+                hasAccess = await checkAiAccessViaStripe(orders || []);
+            }
+            result.has_ai_access = hasAccess;
         }
         return new Response(JSON.stringify(result), {
             status: 200,

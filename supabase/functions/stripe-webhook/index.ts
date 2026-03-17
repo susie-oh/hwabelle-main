@@ -100,7 +100,7 @@ async function sendConfirmationEmail(
           <h3 style="font-family: Georgia, serif; font-size: 16px; font-weight: normal; color: #2c2c2c; margin: 0 0 16px;">What's Next</h3>
           <ul style="margin: 0; padding: 0 0 0 20px; color: #6b6b6b; font-size: 14px; line-height: 2;">
             <li>You'll receive a shipping confirmation when your order is on its way.</li>
-            <li>If you purchased AI Designer Access, you can start using it right away at <a href="https://hwabelle.com/designer-test" style="color: #2c2c2c;">hwabelle.com/designer</a>.</li>
+            <li>If you purchased AI Designer Access, you can start using it right away at <a href="https://hwabelle.com/designer-chat" style="color: #2c2c2c;">hwabelle.com/designer-chat</a>.</li>
             <li>Questions? Reply to this email or visit our <a href="https://hwabelle.com/faq" style="color: #2c2c2c;">FAQ</a>.</li>
           </ul>
         </td></tr>

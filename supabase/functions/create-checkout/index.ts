@@ -82,6 +82,7 @@ Deno.serve(async (req) => {
             },
             metadata: {
                 source: "hwabelle",
+                item_names: items.map((item: LineItem) => item.name).join(", "),
             },
         });
 
