@@ -5,7 +5,8 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/hooks/useCart";
-import { Package, Search, CheckCircle2, Mail } from "lucide-react";
+import { Package, Search, CheckCircle2, Mail, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface Order {
     id: string;
@@ -39,6 +40,7 @@ const MyOrders = () => {
     const [error, setError] = useState<string | null>(null);
     const [isPostCheckout, setIsPostCheckout] = useState(false);
     const [retryCount, setRetryCount] = useState(0);
+    const [hasAiAccess, setHasAiAccess] = useState(false);
     const { clearCart } = useCart();
 
     // Auto-lookup when arriving from Stripe checkout
@@ -56,7 +58,7 @@ const MyOrders = () => {
         try {
             const { data, error: fnError } = await supabase.functions.invoke(
                 "lookup-orders",
-                { body: { session_id: sid } }
+                { body: { session_id: sid, check_ai_access: true } }
             );
             if (fnError) throw fnError;
 
@@ -70,6 +72,7 @@ const MyOrders = () => {
             }
 
             setOrders(data?.orders || []);
+            setHasAiAccess(data?.has_ai_access || false);
             setHasSearched(true);
         } catch (err: any) {
             console.error("Session lookup error:", err);
@@ -89,10 +92,11 @@ const MyOrders = () => {
         try {
             const { data, error: fnError } = await supabase.functions.invoke(
                 "lookup-orders",
-                { body: { email: email.trim() } }
+                { body: { email: email.trim(), check_ai_access: true } }
             );
             if (fnError) throw fnError;
             setOrders(data?.orders || []);
+            setHasAiAccess(data?.has_ai_access || false);
             setHasSearched(true);
         } catch (err: any) {
             console.error("Lookup error:", err);
@@ -120,6 +124,11 @@ const MyOrders = () => {
         return [addr.line1, addr.line2, addr.city, addr.state, addr.postal_code, addr.country]
             .filter(Boolean)
             .join(", ");
+    };
+
+    const orderHasAiDesigner = (order: Order) => {
+        const itemStr = JSON.stringify(order.items).toLowerCase();
+        return itemStr.includes("ai designer") || itemStr.includes("ai-designer") || itemStr.includes("designer access");
     };
 
     return (
@@ -213,6 +222,27 @@ const MyOrders = () => {
                             </div>
                         )}
 
+                        {/* AI Designer Access Banner */}
+                        {hasSearched && hasAiAccess && (
+                            <div className="mb-8 p-5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl">
+                                <div className="flex flex-col sm:flex-row items-center gap-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
+                                        <Sparkles size={22} className="text-emerald-600 dark:text-emerald-400" />
+                                    </div>
+                                    <div className="flex-1 text-center sm:text-left">
+                                        <h3 className="font-serif text-lg mb-0.5">AI Designer Access Active</h3>
+                                        <p className="text-sm text-emerald-700 dark:text-emerald-300">Your personalized floral preservation expert is ready.</p>
+                                    </div>
+                                    <Button variant="hero" size="lg" asChild className="gap-2 flex-shrink-0">
+                                        <Link to="/designer-chat">
+                                            <Sparkles size={16} />
+                                            Open AI Designer
+                                        </Link>
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Results */}
                         {hasSearched && !error && (
                             <>
@@ -264,10 +294,18 @@ const MyOrders = () => {
                                                     </div>
                                                 )}
 
-                                                <div className="mt-4 pt-4 border-t border-divider">
+                                                <div className="mt-4 pt-4 border-t border-divider flex items-center justify-between gap-3">
                                                     <p className="text-xs text-muted-foreground">
                                                         Order ID: {order.id.slice(0, 8)}…
                                                     </p>
+                                                    {orderHasAiDesigner(order) && (
+                                                        <Button variant="outline" size="sm" asChild className="gap-1.5 border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-400 dark:hover:bg-emerald-950/30">
+                                                            <Link to="/designer-chat">
+                                                                <Sparkles size={14} />
+                                                                AI Designer
+                                                            </Link>
+                                                        </Button>
+                                                    )}
                                                 </div>
                                             </div>
                                         ))}
