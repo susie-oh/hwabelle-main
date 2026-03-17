@@ -325,7 +325,7 @@ const DesignerTestFlow = () => {
                                     <div className="p-4 space-y-3">
                                         <div className="flex gap-2 justify-end">
                                             <div className="bg-foreground text-background rounded-2xl rounded-br-sm px-3 py-2 text-xs max-w-[75%]">
-                                                I have a fresh rose from my garden — can I press it?
+                                                I have a fresh rose from my garden — which press plate should I use?
                                             </div>
                                         </div>
                                         <div className="flex gap-2">
@@ -333,7 +333,7 @@ const DesignerTestFlow = () => {
                                                 <Sparkles size={8} className="text-emerald-600" />
                                             </div>
                                             <div className="bg-secondary/80 rounded-2xl rounded-bl-sm px-3 py-2 text-xs max-w-[85%] text-left">
-                                                <strong>Absolutely!</strong> Roses press beautifully when you disassemble them into individual petals. Remove petals within 24hrs of cutting, and press with silica gel between layers for the best color retention.
+                                                <strong>Use the large 10×10" acrylic plates!</strong> Disassemble the rose into individual petals, layer them between your blotting papers and reusable drying boards, and you'll be able to monitor the drying progress through the clear acrylic.
                                             </div>
                                         </div>
                                     </div>
@@ -373,10 +373,10 @@ const DesignerTestFlow = () => {
                                         <span className="text-sm font-medium">$9.99/mo</span>
                                     </div>
                                     <div className="space-y-1.5 text-xs text-muted-foreground">
-                                        <div className="flex items-center gap-2"><Check size={12} className="text-emerald-500" /> Unlimited conversations</div>
-                                        <div className="flex items-center gap-2"><Check size={12} className="text-emerald-500" /> Photo flower identification</div>
-                                        <div className="flex items-center gap-2"><Check size={12} className="text-emerald-500" /> 9-module preservation course</div>
-                                        <div className="flex items-center gap-2"><Check size={12} className="text-emerald-500" /> Design inspiration & salvage tips</div>
+                                        <div className="flex items-center gap-2"><Check size={12} className="text-emerald-500" /> Advice tailored to your acrylic press kit</div>
+                                        <div className="flex items-center gap-2"><Check size={12} className="text-emerald-500" /> Photo flower ID + pressing guidance</div>
+                                        <div className="flex items-center gap-2"><Check size={12} className="text-emerald-500" /> Large & mini press size recommendations</div>
+                                        <div className="flex items-center gap-2"><Check size={12} className="text-emerald-500" /> 9-module preservation course included</div>
                                     </div>
                                 </div>
 
@@ -483,7 +483,7 @@ const DesignerTestFlow = () => {
                                             <Check size={16} className="text-emerald-600" />
                                             <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Subscription active</span>
                                         </div>
-                                        <p className="text-xs text-muted-foreground">You're all set! Start by uploading a flower photo.</p>
+                                        <p className="text-xs text-muted-foreground">You're all set! Ask about your acrylic press kit or upload a flower photo to get started.</p>
                                     </motion.div>
 
                                     <motion.div
@@ -527,10 +527,10 @@ const DesignerTestFlow = () => {
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full max-w-md">
                                         {[
-                                            { text: "Best flowers for beginners to press", icon: Flower2 },
-                                            { text: "How do I prevent mold when pressing?", icon: Leaf },
-                                            { text: "Design ideas for framing pressed flowers", icon: Sparkles },
-                                            { text: "What drying support tools do you recommend?", icon: Flower2 },
+                                            { text: "What's included in my flower press kit?", icon: Flower2 },
+                                            { text: "Which press plate should I use for peonies?", icon: Leaf },
+                                            { text: "How do I use the reusable drying boards?", icon: Sparkles },
+                                            { text: "Can I take the kit on nature walks?", icon: Flower2 },
                                         ].map((prompt, i) => (
                                             <motion.button
                                                 key={i}
