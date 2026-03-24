@@ -166,7 +166,7 @@ const About = () => {
         </div>
       </section>
 
-      {/* Founders Photo Carousel */}
+      {/* Founders Photo Carousel — hidden for now
       <section className="py-16 md:py-24 bg-secondary">
         <div className="container">
           <h2 className="font-serif text-display mb-10 text-center">Meet the Founder</h2>
@@ -198,6 +198,7 @@ const About = () => {
           </div>
         </div>
       </section>
+      */}
     </Layout>
   );
 };
