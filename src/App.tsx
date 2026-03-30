@@ -19,6 +19,7 @@ import Shipping from "./pages/Shipping";
 import Returns from "./pages/Returns";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import DataProtection from "./pages/DataProtection";
 import NotFound from "./pages/NotFound";
 import Designer from "./pages/Designer";
 import DesignerChat from "./pages/DesignerChat";
@@ -65,6 +66,7 @@ const App = () => (
               <Route path="/shipping" element={<Shipping />} />
               <Route path="/returns" element={<Returns />} />
               <Route path="/privacy" element={<Privacy />} />
+              <Route path="/data-protection" element={<DataProtection />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/order-confirmation" element={<OrderConfirmation />} />
               <Route path="/my-orders" element={<MyOrders />} />

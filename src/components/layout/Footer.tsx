@@ -153,6 +153,7 @@ const Footer = () => {
 
           <div className="flex items-center gap-6 text-xs text-primary-foreground/50">
             <Link to="/privacy" className="hover:text-primary-foreground transition-colors">Privacy</Link>
+            <Link to="/data-protection" className="hover:text-primary-foreground transition-colors">Data Protection</Link>
             <Link to="/terms" className="hover:text-primary-foreground transition-colors">Terms</Link>
             <span>© {new Date().getFullYear()} Hwabelle</span>
           </div>
