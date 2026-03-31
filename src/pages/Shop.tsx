@@ -2,6 +2,7 @@ import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import productImage from "@/assets/capture-moment.jpeg";
+import designerImage from "@/assets/digital-designer.jpeg";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import { ShoppingBag, Sparkles } from "lucide-react";
@@ -23,7 +24,7 @@ const products = [
     variant: "Digital Product",
     price: 19.99,
     description: "Unlock your personal AI flower preservation expert. Get instant flower identification, pressing guidance, design inspiration, and access to the full 9-module preservation course.",
-    image: null,
+    image: designerImage,
     detailUrl: "/designer",
     type: "digital" as const,
   },

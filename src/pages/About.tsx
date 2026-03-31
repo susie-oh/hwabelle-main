@@ -1,5 +1,9 @@
 import Layout from "@/components/layout/Layout";
-import lifestyleImage from "@/assets/pressing-in-action.png";
+import img1 from "@/assets/capture-moment.jpeg";
+import img2 from "@/assets/step-by-step.jpeg";
+import img3 from "@/assets/comparison.jpeg";
+import img4 from "@/assets/digital-designer.jpeg";
+import img5 from "@/assets/kit-contents.jpeg";
 import {
   Carousel,
   CarouselContent,
@@ -10,6 +14,7 @@ import {
 import Autoplay from "embla-carousel-autoplay";
 
 const About = () => {
+  const carouselImages = [img1, img2, img3, img4, img5];
   const values = [
     {
       title: "Sustainability",
@@ -57,13 +62,33 @@ const About = () => {
         </div>
       </section>
 
-      {/* Story Image */}
-      <section className="overflow-hidden">
-        <img
-          src={lifestyleImage}
-          alt="The art of flower pressing"
-          className="w-full h-auto object-contain"
-        />
+      {/* Story Gallery Carousel */}
+      <section className="pb-16 md:pb-24 bg-secondary">
+        <div className="container">
+          <div className="max-w-5xl mx-auto relative px-12">
+            <Carousel
+              opts={{ align: "start", loop: true }}
+              plugins={[Autoplay({ delay: 3500, stopOnInteraction: true })]}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-4">
+                {carouselImages.map((src, index) => (
+                  <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                    <div className="rounded-xl overflow-hidden bg-background shadow-sm border border-border">
+                      <img
+                        src={src}
+                        alt={`The art of flower pressing ${index + 1}`}
+                        className="w-full h-auto block"
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-0" />
+              <CarouselNext className="right-0" />
+            </Carousel>
+          </div>
+        </div>
       </section>
 
       {/* Our Story */}
