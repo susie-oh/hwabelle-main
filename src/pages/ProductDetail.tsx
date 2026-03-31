@@ -2,10 +2,11 @@ import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Check, ShoppingBag, ExternalLink } from "lucide-react";
-import productImage from "@/assets/product-flower-press.jpg";
-import lifestyleImage from "@/assets/lifestyle-pressing.jpg";
-import heroImage from "@/assets/hero-flower-press.jpg";
-import pressedFlowers from "@/assets/pressed-flowers-collection.jpg";
+import img1 from "@/assets/capture-moment.jpeg";
+import img2 from "@/assets/step-by-step.jpeg";
+import img3 from "@/assets/comparison.jpeg";
+import img4 from "@/assets/digital-designer.jpeg";
+import img5 from "@/assets/kit-contents.jpeg";
 import NewsletterForm from "@/components/sections/NewsletterForm";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
@@ -17,14 +18,14 @@ const ProductDetail = () => {
   const { addItem } = useCart();
   const { toast } = useToast();
 
-  const images = [productImage, lifestyleImage, heroImage, pressedFlowers];
+  const images = [img1, img2, img3, img4, img5];
 
   const handleAddToCart = () => {
     addItem({
       id: "flower-press-kit",
       name: "Acrylic Flower Press Kit",
       price: PRODUCT_PRICE,
-      image: productImage,
+      image: img1,
     });
     toast({
       title: "Added to cart",
@@ -66,22 +67,22 @@ const ProductDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
             {/* Gallery */}
             <div className="space-y-4">
-              <div className="aspect-square bg-secondary overflow-hidden">
+              <div className="bg-secondary rounded-lg overflow-hidden">
                 <img
                   src={images[selectedImage]}
                   alt="Flower Press Kit"
-                  className="w-full h-full object-cover"
+                  className="w-full h-auto block"
                 />
               </div>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-5 gap-3">
                 {images.map((img, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    className={`aspect-square bg-secondary overflow-hidden border-2 transition-colors ${selectedImage === index ? "border-foreground" : "border-transparent"
+                    className={`bg-secondary rounded-md overflow-hidden border-2 transition-colors ${selectedImage === index ? "border-foreground" : "border-transparent"
                       }`}
                   >
-                    <img src={img} alt={`View ${index + 1}`} className="w-full h-full object-cover" />
+                    <img src={img} alt={`View ${index + 1}`} className="w-full h-auto block" />
                   </button>
                 ))}
               </div>

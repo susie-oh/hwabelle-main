@@ -1,7 +1,7 @@
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import productImage from "@/assets/product-flower-press.jpg";
+import productImage from "@/assets/capture-moment.jpeg";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import { ShoppingBag, Sparkles } from "lucide-react";
@@ -68,7 +68,7 @@ const Shop = () => {
             {products.map((product) => (
               <div key={product.id} className="group">
                 <Link to={product.detailUrl} className="block">
-                  <div className="aspect-square mb-6 overflow-hidden bg-secondary relative">
+                  <div className="aspect-square mb-6 overflow-hidden bg-secondary rounded-lg relative">
                     {product.image ? (
                       <img
                         src={product.image}
