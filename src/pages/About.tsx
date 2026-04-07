@@ -41,14 +41,6 @@ const About = () => {
     { year: "2025", event: "Official launch", description: "Hwabelle Flower Press Kit available to the world." }
   ];
 
-  const founderPhotos = [
-    { src: "/founders-photos/20191229_161023.jpg", alt: "Founder moment — 2019" },
-    { src: "/founders-photos/20200224_210717.jpg", alt: "Founder moment — 2020" },
-    { src: "/founders-photos/20230924_111236.jpg", alt: "Founder moment — 2023" },
-    { src: "/founders-photos/20241020_164657.jpg", alt: "Founder moment — 2024" },
-    { src: "/founders-photos/IMG-20260321-WA0005.jpg", alt: "Founder moment — 2026" },
-  ];
-
   return (
     <Layout>
       {/* Hero */}
@@ -208,47 +200,30 @@ const About = () => {
         </div>
       </section>
 
-      {/* Founders Photo Carousel */}
+      {/* Meet the Founder */}
       <section className="py-16 md:py-24 bg-secondary">
         <div className="container">
           <h2 className="font-serif text-display mb-10 text-center">Meet the Founder</h2>
-          <div className="max-w-4xl mx-auto px-12">
-            <Carousel
-              opts={{ align: "start", loop: true }}
-              plugins={[Autoplay({ delay: 3500, stopOnInteraction: true })]}
-              className="w-full"
-            >
-              <CarouselContent className="-ml-4">
-                {founderPhotos.map((photo, index) => (
-                  <CarouselItem
-                    key={index}
-                    className="pl-4 basis-full sm:basis-1/2 md:basis-1/3"
-                  >
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <div className="overflow-hidden rounded-xl aspect-[3/4] cursor-pointer">
-                          <img
-                            src={photo.src}
-                            alt={photo.alt}
-                            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                          />
-                        </div>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-[90vw] md:max-w-4xl bg-transparent border-none shadow-none p-0 flex justify-center items-center [&>button]:text-white">
-                        <DialogTitle className="sr-only">{photo.alt}</DialogTitle>
-                        <img
-                          src={photo.src}
-                          alt={photo.alt}
-                          className="w-auto h-auto max-w-full max-h-[85vh] object-contain rounded-md"
-                        />
-                      </DialogContent>
-                    </Dialog>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
-            </Carousel>
+          <div className="max-w-md mx-auto px-6">
+            <Dialog>
+              <DialogTrigger asChild>
+                <div className="overflow-hidden rounded-xl aspect-square md:aspect-[4/5] cursor-pointer shadow-sm">
+                  <img
+                    src="/founders-photos/hwabelle-founder.jpeg"
+                    alt="Founder of Hwabelle"
+                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                  />
+                </div>
+              </DialogTrigger>
+              <DialogContent className="max-w-[90vw] md:max-w-4xl bg-transparent border-none shadow-none p-0 flex justify-center items-center [&>button]:text-white">
+                <DialogTitle className="sr-only">Founder of Hwabelle</DialogTitle>
+                <img
+                  src="/founders-photos/hwabelle-founder.jpeg"
+                  alt="Founder of Hwabelle"
+                  className="w-auto h-auto max-w-full max-h-[85vh] object-contain rounded-md"
+                />
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </section>
