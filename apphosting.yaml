@@ -1,0 +1,12 @@
+# Firebase App Hosting configuration
+# This file is used to configure Firebase App Hosting for the Vite React SPA.
+# It ensures that App Hosting knows how to run the application if it uses SSR,
+# but for a static Vite app, Firebase App Hosting automatically detects `npm run build`
+# and outputs the `dist` directory.
+
+# You can configure environment variables and secrets here if needed.
+# https://firebase.google.com/docs/app-hosting/configure
+
+# environmentVariables:
+#   VITE_SUPABASE_URL: "your_supabase_url"
+#   VITE_SUPABASE_ANON_KEY: "your_supabase_anon_key"
