@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ShoppingBag } from "lucide-react";
+import { Menu, X, ShoppingBag, User } from "lucide-react";
 import { useState } from "react";
 import logo from "@/assets/hwabelle-full-logo.jpg";
 import { useCart } from "@/hooks/useCart";
@@ -47,8 +47,16 @@ const Header = () => {
           ))}
         </nav>
 
-        {/* Cart Button */}
-        <div className="flex items-center gap-2">
+        {/* Actions */}
+        <div className="flex items-center gap-1 md:gap-2">
+          <Link
+            to="/my-orders"
+            className="relative p-2 text-muted-foreground hover:text-foreground transition-colors hidden md:block"
+            aria-label="My Account"
+          >
+            <User size={22} />
+          </Link>
+
           <button
             onClick={openCart}
             className="relative p-2 text-muted-foreground hover:text-foreground transition-colors"
@@ -89,6 +97,15 @@ const Header = () => {
                 {link.label}
               </Link>
             ))}
+            <div className="h-px bg-border my-2" />
+            <Link
+              to="/my-orders"
+              onClick={() => setIsMenuOpen(false)}
+              className={`text-lg tracking-wide transition-colors flex items-center gap-3 hover:text-foreground ${isActive('/my-orders') ? "text-foreground" : "text-muted-foreground"}`}
+            >
+              <User size={20} />
+              My Orders & Access
+            </Link>
             <Button
               variant="hero"
               size="lg"
