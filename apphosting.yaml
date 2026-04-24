@@ -7,6 +7,8 @@
 # You can configure environment variables and secrets here if needed.
 # https://firebase.google.com/docs/app-hosting/configure
 
-# environmentVariables:
-#   VITE_SUPABASE_URL: "your_supabase_url"
-#   VITE_SUPABASE_ANON_KEY: "your_supabase_anon_key"
+environmentVariables:
+  VITE_SUPABASE_PROJECT_ID: "ryeviupygrrmoyxoycwl"
+  VITE_SUPABASE_PUBLISHABLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5ZXZpdXB5Z3JybW95eG95Y3dsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NzQzNzEsImV4cCI6MjA4ODA1MDM3MX0.dyNXDPiisIDfenfqXns_FYHn4CBFwNNmkVQDMtGgsn4"
+  VITE_SUPABASE_URL: "https://ryeviupygrrmoyxoycwl.supabase.co"
+  VITE_STRIPE_PUBLISHABLE_KEY: "pk_test_51T1X5zLKhJibl1Zfskkx8JSwCfnesxjT3wd0taVRCrQUczNa3vvPDuwlBgkPmSgAwPIDP0y47XNTzq4RpaaJRmMP008KPJ96yJ"
