@@ -19,6 +19,7 @@ interface Order {
     status: string;
     shipping_address: Record<string, string> | null;
     created_at: string;
+    order_items?: { id: string; product_name: string; quantity: number; product_type: string }[];
 }
 
 const statusColors: Record<string, string> = {
@@ -322,6 +323,17 @@ const MyOrders = () => {
                                                 ${(order.total_amount / 100).toFixed(2)} {order.currency?.toUpperCase()}
                                             </span>
                                         </div>
+
+                                        {order.order_items && order.order_items.length > 0 && (
+                                            <div className="mt-3 space-y-1.5">
+                                                {order.order_items.map((item) => (
+                                                    <div key={item.id} className="flex items-center text-sm">
+                                                        <span className="text-muted-foreground w-6">{item.quantity}x</span>
+                                                        <span className="font-medium">{item.product_name}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
 
                                         {order.shipping_address && (
                                             <div className="mt-3 pt-3 border-t border-border/60 text-xs text-muted-foreground">

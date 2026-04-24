@@ -197,7 +197,7 @@ Deno.serve(async (req) => {
 
             const { data: orders, error: orderErr } = await adminClient
                 .from("orders")
-                .select("id, order_number, status, total_amount, currency, created_at, customer_email, shipping_address")
+                .select("id, order_number, status, total_amount, currency, created_at, customer_email, shipping_address, order_items(id, product_name, quantity, product_type)")
                 .eq("user_id", user.id)
                 .order("created_at", { ascending: false });
 
