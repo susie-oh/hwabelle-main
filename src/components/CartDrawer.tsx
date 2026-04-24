@@ -21,6 +21,7 @@ const CartDrawer = () => {
             const { data, error } = await supabase.functions.invoke("create-checkout", {
                 body: {
                     items: items.map((item) => ({
+                        id: item.id,        // stable slug — required for product_type resolution
                         name: item.name,
                         price: item.price,
                         quantity: item.quantity,

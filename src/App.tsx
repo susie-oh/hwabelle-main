@@ -23,9 +23,10 @@ import DataProtection from "./pages/DataProtection";
 import NotFound from "./pages/NotFound";
 import Designer from "./pages/Designer";
 import DesignerChat from "./pages/DesignerChat";
-import DesignerTestFlow from "./pages/DesignerTestFlow";
+// DesignerTestFlow archived — route removed for production security
 import OrderConfirmation from "./pages/OrderConfirmation";
 import MyOrders from "./pages/MyOrders";
+import UnlockPage from "./pages/Unlock";
 import AdminLogin from "./pages/AdminLogin";
 import Dashboard from "./pages/admin/Dashboard";
 import BlogManager from "./pages/admin/BlogManager";
@@ -60,7 +61,7 @@ const App = () => (
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/designer" element={<Designer />} />
-              <Route path="/designer-test" element={<DesignerTestFlow />} />
+              {/* /designer-test route removed — see src/pages/_archive/DesignerTestFlow.tsx */}
               <Route path="/designer-chat" element={<DesignerChat />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/shipping" element={<Shipping />} />
@@ -70,6 +71,7 @@ const App = () => (
               <Route path="/terms" element={<Terms />} />
               <Route path="/order-confirmation" element={<OrderConfirmation />} />
               <Route path="/my-orders" element={<MyOrders />} />
+              <Route path="/unlock" element={<UnlockPage />} />
               {/* Admin Routes */}
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/dashboard" element={<Dashboard />} />

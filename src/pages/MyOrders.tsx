@@ -1,18 +1,19 @@
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/hooks/useCart";
-import { Package, Search, CheckCircle2, Mail, Sparkles } from "lucide-react";
-import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+    Package, CheckCircle2, Sparkles, Loader2, AlertCircle,
+    ShieldCheck, LogIn, ChevronRight, ExternalLink,
+} from "lucide-react";
 
 interface Order {
     id: string;
-    stripe_session_id: string;
+    order_number?: string;
     customer_email?: string;
-    items: Record<string, unknown>;
     total_amount: number;
     currency: string;
     status: string;
@@ -21,317 +22,319 @@ interface Order {
 }
 
 const statusColors: Record<string, string> = {
-    paid: "bg-green-50 text-green-700 border-green-200",
-    pending: "bg-amber-50 text-amber-700 border-amber-200",
-    processing: "bg-blue-50 text-blue-700 border-blue-200",
-    shipped: "bg-indigo-50 text-indigo-700 border-indigo-200",
-    delivered: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    cancelled: "bg-red-50 text-red-700 border-red-200",
+    paid: "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/40",
+    pending: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800/40",
+    processing: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800/40",
+    shipped: "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-800/40",
+    delivered: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800/40",
+    cancelled: "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/40",
 };
+
+type PageState =
+    | "loading"          // resolving auth session
+    | "unauthenticated"  // no session — prompt to sign in
+    | "post-checkout"    // ?session_id= present — confirming purchase + prompting sign-in/up
+    | "orders"           // authenticated, orders loaded
+    | "error";
 
 const MyOrders = () => {
     const [searchParams] = useSearchParams();
     const sessionId = searchParams.get("session_id");
-
-    const [email, setEmail] = useState("");
-    const [orders, setOrders] = useState<Order[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [hasSearched, setHasSearched] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [isPostCheckout, setIsPostCheckout] = useState(false);
-    const [retryCount, setRetryCount] = useState(0);
-    const [hasAiAccess, setHasAiAccess] = useState(false);
     const { clearCart } = useCart();
 
-    // Auto-lookup when arriving from Stripe checkout
+    const [pageState, setPageState] = useState<PageState>("loading");
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [hasAiAccess, setHasAiAccess] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    // Post-checkout activation — was the purchase confirmed?
+    const [purchaseConfirmed, setPurchaseConfirmed] = useState(false);
+    const [purchaseHasAi, setPurchaseHasAi] = useState(false);
+    const [verifyRetries, setVerifyRetries] = useState(0);
+
+    // ── Bootstrap ─────────────────────────────────────────────────────────────
     useEffect(() => {
-        if (sessionId) {
-            setIsPostCheckout(true);
-            clearCart();
-            lookupBySession(sessionId);
+        let cancelled = false;
+
+        async function bootstrap() {
+            const { data: { session } } = await supabase.auth.getSession();
+
+            if (!cancelled) {
+                if (sessionId) {
+                    // Always clear cart on post-checkout landing
+                    clearCart();
+
+                    if (session) {
+                        // Authenticated — verify session then load their orders
+                        await verifySession(sessionId);
+                        if (!cancelled) await loadOrders(session.access_token);
+                    } else {
+                        // Not authenticated — show activation UX
+                        setPageState("post-checkout");
+                        verifySession(sessionId); // run in background to confirm purchase
+                    }
+                } else if (session) {
+                    await loadOrders(session.access_token);
+                } else {
+                    setPageState("unauthenticated");
+                }
+            }
         }
+
+        bootstrap();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            if (!cancelled && session) {
+                loadOrders(session.access_token);
+            }
+        });
+
+        return () => {
+            cancelled = true;
+            subscription.unsubscribe();
+        };
     }, [sessionId]);
 
-    const lookupBySession = async (sid: string) => {
-        setIsLoading(true);
-        setError(null);
+    // ── Verify Stripe session (post-checkout confirmation) ────────────────────
+    const verifySession = useCallback(async (sid: string) => {
         try {
-            const { data, error: fnError } = await supabase.functions.invoke(
-                "lookup-orders",
-                { body: { session_id: sid, check_ai_access: true } }
-            );
-            if (fnError) throw fnError;
+            const { data, error: fnErr } = await supabase.functions.invoke("lookup-orders", {
+                body: { action: "verify-session", session_id: sid },
+            });
+            if (fnErr) throw fnErr;
 
-            if (data?.pending && retryCount < 5) {
-                // Webhook hasn't processed yet, retry after a delay
+            if (data?.pending && verifyRetries < 6) {
                 setTimeout(() => {
-                    setRetryCount((c) => c + 1);
-                    lookupBySession(sid);
-                }, 2000);
+                    setVerifyRetries((r) => r + 1);
+                    verifySession(sid);
+                }, 2500);
                 return;
             }
 
-            setOrders(data?.orders || []);
-            setHasAiAccess(data?.has_ai_access || false);
-            setHasSearched(true);
-        } catch (err: any) {
-            console.error("Session lookup error:", err);
-            setError("We're still processing your order. Please try again in a moment.");
-        } finally {
-            setIsLoading(false);
+            setPurchaseConfirmed(!data?.pending);
+            setPurchaseHasAi(data?.has_ai_access || false);
+        } catch (err) {
+            console.error("Session verify error:", err);
         }
-    };
+    }, [verifyRetries]);
 
-    const handleLookup = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!email.trim()) return;
-
-        setIsLoading(true);
+    // ── Load authenticated user's orders ──────────────────────────────────────
+    const loadOrders = useCallback(async (jwt: string) => {
+        setPageState("loading");
         setError(null);
-        setIsPostCheckout(false);
         try {
-            const { data, error: fnError } = await supabase.functions.invoke(
-                "lookup-orders",
-                { body: { email: email.trim(), check_ai_access: true } }
-            );
-            if (fnError) throw fnError;
+            const { data, error: fnErr } = await supabase.functions.invoke("lookup-orders", {
+                body: { action: "my-orders" },
+                headers: { Authorization: `Bearer ${jwt}` },
+            });
+            if (fnErr) throw fnErr;
+
             setOrders(data?.orders || []);
             setHasAiAccess(data?.has_ai_access || false);
-            setHasSearched(true);
+            setPageState("orders");
         } catch (err: any) {
-            console.error("Lookup error:", err);
-            setError(err.message || "Something went wrong. Please try again.");
-        } finally {
-            setIsLoading(false);
+            console.error("Order load error:", err);
+            setError(err.message || "Failed to load orders");
+            setPageState("error");
         }
-    };
+    }, []);
 
-    const formatDate = (dateStr: string) =>
-        new Date(dateStr).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-        });
-
-    const formatAmount = (cents: number, currency: string) =>
-        new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: currency.toUpperCase(),
-        }).format(cents / 100);
-
-    const formatAddress = (addr: Record<string, string> | null) => {
-        if (!addr) return null;
-        return [addr.line1, addr.line2, addr.city, addr.state, addr.postal_code, addr.country]
-            .filter(Boolean)
-            .join(", ");
-    };
-
-    const orderHasAiDesigner = (order: Order) => {
-        const itemStr = JSON.stringify(order.items).toLowerCase();
-        return itemStr.includes("ai designer") || itemStr.includes("ai-designer") || itemStr.includes("designer access");
-    };
-
+    // ── Render ─────────────────────────────────────────────────────────────────
     return (
         <Layout>
-            <section className="py-24 md:py-32 bg-background">
-                <div className="container">
-                    <div className="max-w-2xl mx-auto">
-                        {/* Post-checkout success banner */}
-                        {isPostCheckout && hasSearched && orders.length > 0 && (
-                            <div className="mb-10 p-6 bg-green-50 border border-green-200 rounded-lg text-center">
-                                <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
-                                    <CheckCircle2 size={28} className="text-green-600" />
-                                </div>
-                                <h2 className="font-serif text-2xl mb-2">Thank you for your order!</h2>
-                                <p className="text-green-700 text-sm">
-                                    Your payment was successful. You'll receive a confirmation email shortly.
-                                </p>
-                            </div>
-                        )}
+            <div className="container py-16 md:py-24 max-w-3xl">
+                <div className="mb-10">
+                    <h1 className="font-serif text-3xl md:text-4xl mb-2">My Orders</h1>
+                    <p className="text-muted-foreground">
+                        {pageState === "orders" ? "Your purchase history and access status." : "Sign in to view your orders."}
+                    </p>
+                </div>
 
-                        {/* Header */}
-                        <div className="text-center mb-12">
-                            {!isPostCheckout && (
-                                <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-secondary flex items-center justify-center">
-                                    <Package size={28} className="text-foreground" />
-                                </div>
-                            )}
-                            <h1 className="font-serif text-display mb-3">
-                                {isPostCheckout ? "Your Orders" : "Track Your Orders"}
-                            </h1>
-                            {!isPostCheckout && (
-                                <p className="text-muted-foreground text-lg">
-                                    Enter the email you used at checkout to view your order history.
-                                </p>
-                            )}
+                {/* ── Loading ── */}
+                {pageState === "loading" && (
+                    <div className="flex items-center justify-center py-24">
+                        <Loader2 size={32} className="text-emerald-600 animate-spin" />
+                    </div>
+                )}
+
+                {/* ── Error ── */}
+                {pageState === "error" && (
+                    <div className="flex items-center gap-3 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl px-4 py-3">
+                        <AlertCircle size={16} />
+                        <span>{error || "Something went wrong. Please refresh and try again."}</span>
+                    </div>
+                )}
+
+                {/* ── Unauthenticated ── */}
+                {pageState === "unauthenticated" && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="border border-border rounded-2xl p-8 text-center max-w-sm mx-auto"
+                    >
+                        <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-secondary flex items-center justify-center">
+                            <LogIn size={24} className="text-muted-foreground" />
                         </div>
+                        <h2 className="font-serif text-xl mb-2">Sign In to View Orders</h2>
+                        <p className="text-sm text-muted-foreground mb-6">
+                            Your order history is linked to your account.
+                        </p>
+                        <Button className="gap-2" asChild>
+                            <Link to="/designer-chat">
+                                <LogIn size={14} />
+                                Sign In
+                            </Link>
+                        </Button>
+                    </motion.div>
+                )}
 
-                        {/* Lookup Form */}
-                        {!isPostCheckout && (
-                            <form
-                                onSubmit={handleLookup}
-                                className="flex flex-col sm:flex-row gap-3 mb-12"
-                                id="order-lookup-form"
-                            >
-                                <div className="relative flex-1">
-                                    <Mail
-                                        size={18}
-                                        className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                                    />
-                                    <Input
-                                        type="email"
-                                        placeholder="your@email.com"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required
-                                        className="pl-10"
-                                        id="order-email-input"
-                                    />
+                {/* ── Post-checkout activation (not yet authenticated) ── */}
+                {pageState === "post-checkout" && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="space-y-6 max-w-lg mx-auto"
+                    >
+                        {/* Purchase confirmation banner */}
+                        {purchaseConfirmed ? (
+                            <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-6 text-center">
+                                <div className="flex items-center justify-center gap-2 mb-3">
+                                    <div className="w-9 h-9 rounded-full bg-emerald-500/15 flex items-center justify-center">
+                                        <CheckCircle2 size={18} className="text-emerald-600" />
+                                    </div>
+                                    <span className="font-medium text-emerald-700 dark:text-emerald-400">
+                                        Purchase confirmed
+                                    </span>
                                 </div>
-                                <Button
-                                    variant="hero"
-                                    size="lg"
-                                    type="submit"
-                                    disabled={isLoading}
-                                    id="order-lookup-button"
-                                >
-                                    {isLoading ? (
-                                        "Searching…"
-                                    ) : (
-                                        <>
-                                            <Search size={18} className="mr-2" />
-                                            Find Orders
-                                        </>
-                                    )}
-                                </Button>
-                            </form>
-                        )}
-
-                        {/* Loading state for post-checkout */}
-                        {isPostCheckout && isLoading && (
-                            <div className="text-center py-16">
-                                <div className="w-8 h-8 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin mx-auto mb-4" />
-                                <p className="text-muted-foreground">Loading your order…</p>
-                            </div>
-                        )}
-
-                        {/* Error */}
-                        {error && (
-                            <div className="text-center text-destructive mb-8 p-4 bg-destructive/5 rounded-md">
-                                {error}
-                            </div>
-                        )}
-
-                        {/* AI Designer Access Banner */}
-                        {hasSearched && hasAiAccess && (
-                            <div className="mb-8 p-5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl">
-                                <div className="flex flex-col sm:flex-row items-center gap-4">
-                                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
-                                        <Sparkles size={22} className="text-emerald-600 dark:text-emerald-400" />
-                                    </div>
-                                    <div className="flex-1 text-center sm:text-left">
-                                        <h3 className="font-serif text-lg mb-0.5">AI Designer Access Active</h3>
-                                        <p className="text-sm text-emerald-700 dark:text-emerald-300">Your personalized floral preservation expert is ready.</p>
-                                    </div>
-                                    <Button variant="hero" size="lg" asChild className="gap-2 flex-shrink-0">
-                                        <Link to="/designer-chat">
-                                            <Sparkles size={16} />
-                                            Open AI Designer
-                                        </Link>
-                                    </Button>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Results */}
-                        {hasSearched && !error && (
-                            <>
-                                {orders.length === 0 ? (
-                                    <div className="text-center py-16">
-                                        <p className="text-muted-foreground text-lg mb-2">
-                                            No orders found{!isPostCheckout ? " for this email" : ""}.
-                                        </p>
-                                        <p className="text-sm text-muted-foreground">
-                                            {isPostCheckout
-                                                ? "Your order is still being processed. Please refresh in a moment."
-                                                : "Make sure you're using the same email you entered during checkout."}
-                                        </p>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-4">
-                                        <p className="text-sm text-muted-foreground mb-6">
-                                            {orders.length} order{orders.length !== 1 ? "s" : ""} found
-                                        </p>
-                                        {orders.map((order) => (
-                                            <div
-                                                key={order.id}
-                                                className="border border-divider rounded-lg p-6 hover:border-foreground/20 transition-colors"
-                                            >
-                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                                                    <div>
-                                                        <p className="text-xs text-muted-foreground mb-1">
-                                                            {formatDate(order.created_at)}
-                                                        </p>
-                                                        <p className="font-serif text-lg">
-                                                            {formatAmount(order.total_amount, order.currency)}
-                                                        </p>
-                                                    </div>
-                                                    <span
-                                                        className={`inline-flex items-center px-3 py-1 text-xs font-medium rounded-full border capitalize ${statusColors[order.status] ||
-                                                            "bg-gray-50 text-gray-700 border-gray-200"
-                                                            }`}
-                                                    >
-                                                        {order.status}
-                                                    </span>
-                                                </div>
-
-                                                {order.shipping_address && (
-                                                    <div className="text-sm text-muted-foreground">
-                                                        <span className="text-foreground font-medium">
-                                                            Ships to:{" "}
-                                                        </span>
-                                                        {formatAddress(order.shipping_address)}
-                                                    </div>
-                                                )}
-
-                                                <div className="mt-4 pt-4 border-t border-divider flex items-center justify-between gap-3">
-                                                    <p className="text-xs text-muted-foreground">
-                                                        Order ID: {order.id.slice(0, 8)}…
-                                                    </p>
-                                                    {orderHasAiDesigner(order) && (
-                                                        <Button variant="outline" size="sm" asChild className="gap-1.5 border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-400 dark:hover:bg-emerald-950/30">
-                                                            <Link to="/designer-chat">
-                                                                <Sparkles size={14} />
-                                                                AI Designer
-                                                            </Link>
-                                                        </Button>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </>
-                        )}
-
-                        {/* Help note */}
-                        {!hasSearched && !isPostCheckout && (
-                            <div className="text-center mt-8">
                                 <p className="text-sm text-muted-foreground">
-                                    Need help?{" "}
-                                    <a
-                                        href="/contact"
-                                        className="underline hover:text-foreground transition-colors"
-                                    >
-                                        Contact us
-                                    </a>{" "}
-                                    and we'll look into it.
+                                    {purchaseHasAi
+                                        ? "Your AI Designer access is ready to activate."
+                                        : "Your order is confirmed and being prepared for fulfillment."}
                                 </p>
+                            </div>
+                        ) : (
+                            <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-2xl p-5 flex items-center gap-3">
+                                <Loader2 size={18} className="text-amber-600 animate-spin flex-shrink-0" />
+                                <p className="text-sm text-amber-700 dark:text-amber-400">
+                                    Confirming your payment…
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Activation prompt */}
+                        <div className="border border-border rounded-2xl overflow-hidden">
+                            <div className="px-6 py-5 border-b border-border bg-secondary/30 flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                                    <ShieldCheck size={19} className="text-emerald-600" />
+                                </div>
+                                <div>
+                                    <h2 className="font-serif text-lg">Activate Your Access</h2>
+                                    <p className="text-xs text-muted-foreground">Sign in to link this purchase to your account</p>
+                                </div>
+                            </div>
+                            <div className="px-6 py-5">
+                                <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+                                    To view your orders and activate AI Designer access, sign in or create an account
+                                    using the <strong>same email address you used at checkout.</strong>
+                                </p>
+                                <Button className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white" asChild>
+                                    <Link to={`/designer-chat?session_id=${sessionId}`}>
+                                        <LogIn size={14} />
+                                        Sign In & Activate
+                                        <ChevronRight size={14} />
+                                    </Link>
+                                </Button>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* ── Orders list ── */}
+                {pageState === "orders" && (
+                    <div className="space-y-6">
+                        {/* AI Designer access banner */}
+                        {hasAiAccess && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-5 flex items-center gap-4"
+                            >
+                                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                                    <Sparkles size={22} className="text-emerald-600 dark:text-emerald-400" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-sm">AI Designer Active</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        Your AI Floral Designer access is active. Start a session anytime.
+                                    </p>
+                                </div>
+                                <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 flex-shrink-0" asChild>
+                                    <Link to="/designer-chat">
+                                        <ExternalLink size={13} />
+                                        Open
+                                    </Link>
+                                </Button>
+                            </motion.div>
+                        )}
+
+                        {orders.length === 0 ? (
+                            <div className="text-center py-20 text-muted-foreground">
+                                <Package size={40} className="mx-auto mb-4 opacity-30" />
+                                <p className="font-serif text-lg mb-1">No orders yet</p>
+                                <p className="text-sm">Once you make a purchase, your orders will appear here.</p>
+                                <Button variant="outline" className="mt-6 gap-2" asChild>
+                                    <Link to="/shop">
+                                        Browse the Shop
+                                        <ChevronRight size={14} />
+                                    </Link>
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {orders.map((order, i) => (
+                                    <motion.div
+                                        key={order.id}
+                                        initial={{ opacity: 0, y: 12 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: i * 0.06 }}
+                                        className="border border-border rounded-xl p-5 bg-background"
+                                    >
+                                        <div className="flex items-start justify-between gap-3 mb-3">
+                                            <div>
+                                                <p className="font-medium text-sm">
+                                                    {order.order_number || `Order ${order.id.substring(0, 8).toUpperCase()}`}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground mt-0.5">
+                                                    {new Date(order.created_at).toLocaleDateString("en-US", {
+                                                        year: "numeric", month: "long", day: "numeric",
+                                                    })}
+                                                </p>
+                                            </div>
+                                            <span className={`text-xs font-medium px-2.5 py-1 rounded-full border capitalize ${statusColors[order.status] || statusColors.pending}`}>
+                                                {order.status}
+                                            </span>
+                                        </div>
+
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span className="text-muted-foreground">Total</span>
+                                            <span className="font-medium">
+                                                ${(order.total_amount / 100).toFixed(2)} {order.currency?.toUpperCase()}
+                                            </span>
+                                        </div>
+
+                                        {order.shipping_address && (
+                                            <div className="mt-3 pt-3 border-t border-border/60 text-xs text-muted-foreground">
+                                                Shipping to {order.shipping_address.city}, {order.shipping_address.state}
+                                            </div>
+                                        )}
+                                    </motion.div>
+                                ))}
                             </div>
                         )}
                     </div>
-                </div>
-            </section>
+                )}
+            </div>
         </Layout>
     );
 };

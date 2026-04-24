@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.auto-blog]
 verify_jwt = false
+
+[functions.amazon-mcf]
+verify_jwt = false

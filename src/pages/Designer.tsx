@@ -162,7 +162,7 @@ const Designer = () => {
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-sm text-emerald-700 dark:text-emerald-400 mb-8">
                   <Sparkles size={14} />
                   <span>AI-Powered Floral Preservation</span>
-                  <span className="ml-1 font-semibold">$19.99/mo</span>
+                  <span className="ml-1 font-semibold">$19.99 one-time</span>
                 </div>
 
                 <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl mb-6 leading-tight">
@@ -185,7 +185,7 @@ const Designer = () => {
                     onClick={handleAddAIOnly}
                   >
                     <Zap size={16} />
-                    Start for $19.99/mo
+                    Start for $19.99 — Lifetime Access
                   </Button>
                   <Button
                     variant="outline"
@@ -198,7 +198,7 @@ const Designer = () => {
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground/60 mt-4">
-                  Cancel anytime · Instant access after purchase
+                  One-time purchase · Lifetime access · Instant activation
                 </p>
               </motion.div>
             </div>
@@ -450,7 +450,7 @@ const Designer = () => {
                   </p>
                   <div className="flex items-baseline justify-center gap-1">
                     <span className="font-serif text-4xl">$19.99</span>
-                    <span className="text-muted-foreground text-sm">/month</span>
+                    <span className="text-muted-foreground text-sm">/one-time</span>
                   </div>
                 </div>
                 <ul className="space-y-3 mb-8 text-sm">
@@ -610,12 +610,21 @@ const Designer = () => {
                     className="gap-2 text-base px-8 border-foreground/20 hover:bg-foreground hover:text-background"
                     onClick={handleAddAIOnly}
                   >
-                    AI Designer Only — $19.99/mo
+                    AI Designer Only — $19.99
                     <Sparkles size={16} />
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground/50 mt-5">
-                  Cancel anytime · No hidden fees · Instant access
+                  One-time purchase · Lifetime access · No hidden fees
+                </p>
+                <p className="text-xs text-muted-foreground/40 mt-2">
+                  Already purchased?{" "}
+                  <Link
+                    to="/unlock"
+                    className="underline underline-offset-2 hover:text-muted-foreground transition-colors"
+                  >
+                    Activate your access →
+                  </Link>
                 </p>
               </motion.div>
             </div>
