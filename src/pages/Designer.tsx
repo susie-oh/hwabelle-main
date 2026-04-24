@@ -162,7 +162,7 @@ const Designer = () => {
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-sm text-emerald-700 dark:text-emerald-400 mb-8">
                   <Sparkles size={14} />
                   <span>AI-Powered Floral Preservation</span>
-                  <span className="ml-1 font-semibold">$19.99 one-time</span>
+                  <span className="ml-1 font-semibold">$19.99/mo or Free Trial</span>
                 </div>
 
                 <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl mb-6 leading-tight">
@@ -185,7 +185,7 @@ const Designer = () => {
                     onClick={handleAddAIOnly}
                   >
                     <Zap size={16} />
-                    Start for $19.99 — Lifetime Access
+                    Start for $19.99/mo
                   </Button>
                   <Button
                     variant="outline"
@@ -194,12 +194,23 @@ const Designer = () => {
                     onClick={handleAddKitAndAI}
                   >
                     <Crown size={16} />
-                    Kit + AI Access — $44.98
+                    Kit + 30 Days Free AI — $44.98
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground/60 mt-4">
-                  One-time purchase · Lifetime access · Instant activation
-                </p>
+                <div className="flex flex-col items-center gap-2 mt-5">
+                  <p className="text-xs text-muted-foreground/60">
+                    Cancel anytime · Instant activation
+                  </p>
+                  <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                    Already purchased?{" "}
+                    <Link
+                      to="/unlock"
+                      className="underline underline-offset-2 hover:text-emerald-800 dark:hover:text-emerald-300 transition-colors"
+                    >
+                      Activate your access →
+                    </Link>
+                  </p>
+                </div>
               </motion.div>
             </div>
           </div>
@@ -403,7 +414,7 @@ const Designer = () => {
                   </p>
                   <div className="flex items-baseline justify-center gap-1">
                     <span className="font-serif text-4xl">$44.98</span>
-                    <span className="text-muted-foreground text-sm">/one-time</span>
+                    <span className="text-muted-foreground text-sm">/kit + 30 days free</span>
                   </div>
                 </div>
                 <ul className="space-y-3 mb-8 text-sm">
@@ -430,7 +441,7 @@ const Designer = () => {
                   className="w-full gap-2"
                   onClick={handleAddKitAndAI}
                 >
-                  Get Kit + AI Access
+                  Get Kit + 30 Days Free AI
                   <ArrowRight size={16} />
                 </Button>
               </motion.div>
@@ -450,7 +461,7 @@ const Designer = () => {
                   </p>
                   <div className="flex items-baseline justify-center gap-1">
                     <span className="font-serif text-4xl">$19.99</span>
-                    <span className="text-muted-foreground text-sm">/one-time</span>
+                    <span className="text-muted-foreground text-sm">/mo</span>
                   </div>
                 </div>
                 <ul className="space-y-3 mb-8 text-sm">
@@ -601,7 +612,7 @@ const Designer = () => {
                     className="gap-2 text-base px-8"
                     onClick={handleAddKitAndAI}
                   >
-                    Get Kit + AI Access
+                    Get Kit + 30 Days Free AI
                     <ArrowRight size={16} />
                   </Button>
                   <Button
@@ -610,12 +621,12 @@ const Designer = () => {
                     className="gap-2 text-base px-8 border-foreground/20 hover:bg-foreground hover:text-background"
                     onClick={handleAddAIOnly}
                   >
-                    AI Designer Only — $19.99
+                    AI Designer Only — $19.99/mo
                     <Sparkles size={16} />
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground/50 mt-5">
-                  One-time purchase · Lifetime access · No hidden fees
+                  Cancel anytime · No hidden fees
                 </p>
                 <p className="text-xs text-muted-foreground/40 mt-2">
                   Already purchased?{" "}
