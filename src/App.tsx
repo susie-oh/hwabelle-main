@@ -7,6 +7,8 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { CartProvider } from "@/hooks/useCart";
 import CartDrawer from "@/components/CartDrawer";
 import ScrollToTop from "@/components/ScrollToTop";
+import { initGA } from "./utils/analytics";
+import AnalyticsTracker from "./components/AnalyticsTracker";
 import Index from "./pages/Index";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
@@ -42,6 +44,9 @@ import EmailSettings from "./pages/admin/EmailSettings";
 
 const queryClient = new QueryClient();
 
+// Initialize Google Analytics
+initGA();
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -52,6 +57,7 @@ const App = () => (
           <CartDrawer />
           <BrowserRouter>
             <ScrollToTop />
+            <AnalyticsTracker />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/shop" element={<Shop />} />

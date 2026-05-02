@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amazon MCF Credential Verification — Hwabelle</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0a0f1e;
+    color: #e2e8f0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+  }
+
+  .card {
+    background: linear-gradient(145deg, #111827 0%, #1a2540 100%);
+    border: 1px solid rgba(99, 179, 237, 0.18);
+    border-radius: 22px;
+    padding: 44px 48px;
+    width: 100%;
+    max-width: 860px;
+    box-shadow:
+      0 30px 80px rgba(0,0,0,0.6),
+      0 0 0 1px rgba(255,255,255,0.04),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+
+  /* ─── Header ─── */
+  .header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 36px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    gap: 20px;
+  }
+
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .brand-icon {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, #ff9900 0%, #ffb347 100%);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    box-shadow: 0 8px 24px rgba(255,153,0,0.3);
+  }
+
+  .header-text h1 {
+    font-size: 21px;
+    font-weight: 700;
+    color: #f8faff;
+    letter-spacing: -0.4px;
+    line-height: 1.2;
+  }
+
+  .header-text p {
+    font-size: 13px;
+    color: #4a6080;
+    margin-top: 5px;
+    font-weight: 400;
+  }
+
+  .badge-pass {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    border-radius: 50px;
+    padding: 10px 22px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #34d399;
+    letter-spacing: 0.5px;
+  }
+
+  .pulse-dot {
+    width: 9px; height: 9px;
+    background: #34d399;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #34d399;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+
+  /* ─── Section labels ─── */
+  .section-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: #374560;
+    margin-bottom: 14px;
+    margin-top: 28px;
+  }
+
+  /* ─── Result grid ─── */
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 4px;
+  }
+
+  .result-item {
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 13px;
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-item::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: 13px 13px 0 0;
+  }
+
+  .result-item.green::before { background: linear-gradient(90deg, #10b981, #34d399); }
+  .result-item.blue::before  { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+  .result-item.gray::before  { background: linear-gradient(90deg, #475569, #64748b); }
+
+  .result-item .r-label {
+    font-size: 10.5px;
+    color: #3d5070;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.9px;
+    margin-bottom: 10px;
+  }
+
+  .result-item .r-value {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .result-item.green .r-value { color: #34d399; }
+  .result-item.blue .r-value  { color: #60a5fa; }
+  .result-item.gray .r-value  { color: #94a3b8; }
+
+  /* ─── Credential rows ─── */
+  .cred-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 11px;
+    margin-bottom: 10px;
+  }
+
+  .cred-icon {
+    width: 38px; height: 38px;
+    border-radius: 9px;
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+
+  .cred-info { flex: 1; min-width: 0; }
+
+  .cred-info .cred-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin-bottom: 3px;
+  }
+
+  .cred-info .cred-val {
+    font-family: 'Courier New', monospace;
+    font-size: 11.5px;
+    color: #3d5070;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cred-ok {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #34d399;
+    white-space: nowrap;
+  }
+
+  /* ─── Token box ─── */
+  .token-box {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(96,165,250,0.15);
+    border-radius: 13px;
+    padding: 20px 24px;
+    margin-top: 4px;
+  }
+
+  .token-box .t-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #374560;
+    margin-bottom: 10px;
+  }
+
+  .token-box .t-value {
+    font-family: 'Courier New', monospace;
+    font-size: 12.5px;
+    color: #60a5fa;
+    word-break: break-all;
+    line-height: 1.7;
+  }
+
+  /* ─── Footer ─── */
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 24px;
+    margin-top: 28px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .footer .ft { font-size: 12px; color: #2c3e55; }
+  .footer .ft span { color: #3d5575; font-weight: 500; }
+
+  .amazon-tag {
+    font-size: 13px;
+    font-weight: 800;
+    color: #ff9900;
+    letter-spacing: -0.5px;
+  }
+
+  .next-step-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-top: 4px;
+  }
+
+  .next-step-box .ns-icon { font-size: 20px; }
+
+  .next-step-box .ns-text {
+    font-size: 13px;
+    color: #fbbf24;
+    line-height: 1.5;
+  }
+
+  .next-step-box .ns-text strong { display: block; font-weight: 700; margin-bottom: 2px; }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-brand">
+      <div class="brand-icon">🔐</div>
+      <div class="header-text">
+        <h1>Amazon SP-API Credential Verification</h1>
+        <p>Hwabelle · Multi-Channel Fulfillment (MCF) Integration · Supabase Edge Function</p>
+      </div>
+    </div>
+    <div class="badge-pass">
+      <div class="pulse-dot"></div>
+      ALL CHECKS PASSED
+    </div>
+  </div>
+
+  <!-- Test Results -->
+  <div class="section-label">Test Results</div>
+  <div class="result-grid">
+    <div class="result-item green">
+      <div class="r-label">LWA Token Exchange</div>
+      <div class="r-value">✅ Success</div>
+    </div>
+    <div class="result-item blue">
+      <div class="r-label">Token Type</div>
+      <div class="r-value">Bearer</div>
+    </div>
+    <div class="result-item gray">
+      <div class="r-label">Token Validity</div>
+      <div class="r-value">3 600 s · 1 hr</div>
+    </div>
+  </div>
+
+  <!-- Credentials -->
+  <div class="section-label">Credentials Verified</div>
+
+  <div class="cred-row">
+    <div class="cred-icon">🔑</div>
+    <div class="cred-info">
+      <div class="cred-name">Client ID</div>
+      <div class="cred-val">amzn1.application-oa2-client.7a63d26fc50749068ffb797616e4eb33</div>
+    </div>
+    <div class="cred-ok">✓ Valid</div>
+  </div>
+
+  <div class="cred-row">
+    <div class="cred-icon">🛡️</div>
+    <div class="cred-info">
+      <div class="cred-name">Client Secret</div>
+      <div class="cred-val">amzn1.oa2-cs.v1.***REDACTED***</div>
+    </div>
+    <div class="cred-ok">✓ Valid</div>
+  </div>
+
+  <div class="cred-row">
+    <div class="cred-icon">🔄</div>
+    <div class="cred-info">
+      <div class="cred-name">Refresh Token</div>
+      <div class="cred-val">Atzr|IwEBIOozlZIlVmXdDkaBNPCt1VKTJTwIOUKBNo3MTlsq···SCs2Qt</div>
+    </div>
+    <div class="cred-ok">✓ Valid</div>
+  </div>
+
+  <!-- Issued Token -->
+  <div class="section-label">Access Token Issued by Amazon LWA</div>
+  <div class="token-box">
+    <div class="t-label">Atza Bearer Token (truncated for security)</div>
+    <div class="t-value">Atza|IwEBIJ8x0OkbXWZQudT5OHFEiQ9x0bNRF3vzgxhooPRGmwbk_HnKgpm...</div>
+  </div>
+
+  <!-- Next step -->
+  <div class="section-label">Pending Action</div>
+  <div class="next-step-box">
+    <div class="ns-icon">⚙️</div>
+    <div class="ns-text">
+      <strong>Set secrets in Supabase Vault</strong>
+      AMAZON_SP_CLIENT_ID · AMAZON_SP_CLIENT_SECRET · AMAZON_SP_REFRESH_TOKEN must be added to the Supabase project (ref: ryeviupygrrmoyxoycwl) to activate the amazon-mcf edge function.
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="ft">⏱ Verified: <span>Thu 24 Apr 2026 · 03:07 SGT</span></div>
+    <div class="amazon-tag">amazon</div>
+    <div class="ft">Project Ref: <span>ryeviupygrrmoyxoycwl</span></div>
+  </div>
+
+</div>
+</body>
+</html>
