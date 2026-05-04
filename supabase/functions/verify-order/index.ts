@@ -91,7 +91,7 @@ async function verifyAmazonOrder(orderId: string): Promise<boolean> {
 
             if (mcfRes.ok) {
                 const mcfData = await mcfRes.json();
-                const items = mcfData.payload?.fulfillmentOrder?.items || mcfData.fulfillmentOrder?.items || [];
+                const items = mcfData.payload?.fulfillmentOrderItems || mcfData.fulfillmentOrderItems || [];
                 validItemFound = items.some((item: any) => 
                     item.sellerSku === FLOWER_PRESS_SKU || item.sellerFulfillmentOrderItemId?.includes(FLOWER_PRESS_SKU)
                 );
@@ -158,6 +158,16 @@ Deno.serve(async (req) => {
             .eq("customer_email", email.toLowerCase())
             .maybeSingle();
 
+        // ── Check if order has items; if not, delete the broken stub ──
+        if (order) {
+            const { data: existingItems } = await adminClient.from("order_items").select("id").eq("order_id", order.id);
+            if (!existingItems || existingItems.length === 0) {
+                console.log(`Deleting broken order stub for ${order_number}`);
+                await adminClient.from("orders").delete().eq("id", order.id);
+                order = null; // force fallback to Amazon check
+            }
+        }
+
         // ── Amazon SP-API Verification Fallback ──
         if (!order) {
             console.log(JSON.stringify({ function: "verify-order", event: "checking_amazon_spapi", order_number, ts: new Date().toISOString() }));
@@ -171,6 +181,7 @@ Deno.serve(async (req) => {
                     .from("orders")
                     .insert({
                         order_number: order_number,
+                        stripe_session_id: `amz_${order_number}`, // satisfy NOT NULL constraint
                         mcf_order_id: order_number, // assign to mcf tracking column
                         customer_email: email.toLowerCase(),
                         status: "paid", // considered paid if it is valid in Amazon
@@ -183,18 +194,24 @@ Deno.serve(async (req) => {
 
                 if (insertErr || !newOrder) {
                     console.error("Failed to inject Amazon order:", insertErr);
-                    throw new Error("Failed to inject Amazon order");
+                    throw new Error(`Failed to inject Amazon order: ${insertErr?.message || 'unknown'}`);
                 }
                 order = newOrder;
                 orderErr = null;
 
                 // Also inject the order_item for ai-designer access
-                await adminClient.from("order_items").insert({
+                const { error: itemErr } = await adminClient.from("order_items").insert({
                     order_id: order.id,
                     product_type: "ai-designer",
+                    product_name: "AI Designer Access",
                     quantity: 1,
-                    price: 0
+                    unit_amount: 0,
+                    stripe_line_item_id: `amz_${order_number}_item`
                 });
+                if (itemErr) {
+                    console.error("Failed to inject order_items:", itemErr);
+                    throw new Error(`Failed to inject order_items: ${itemErr.message}`);
+                }
             }
         }
 
