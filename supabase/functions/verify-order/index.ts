@@ -20,6 +20,91 @@ function isRateLimited(ip: string): boolean {
     return record.count > 60; // Max 60 req / min
 }
 
+// ─── SP-API Token Exchange ────────────────────────────────────────────
+async function getAccessToken(): Promise<string> {
+    const clientId = Deno.env.get("AMAZON_SP_CLIENT_ID");
+    const clientSecret = Deno.env.get("AMAZON_SP_CLIENT_SECRET");
+    const refreshToken = Deno.env.get("AMAZON_SP_REFRESH_TOKEN");
+
+    if (!clientId || !clientSecret || !refreshToken) {
+        throw new Error("Missing Amazon SP-API credentials");
+    }
+
+    const res = await fetch("https://api.amazon.com/auth/o2/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+            grant_type: "refresh_token",
+            refresh_token: refreshToken,
+            client_id: clientId,
+            client_secret: clientSecret,
+        }),
+    });
+
+    if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`LWA token exchange failed: ${res.status} — ${errText}`);
+    }
+
+    const data = await res.json();
+    return data.access_token;
+}
+
+// ─── Amazon Order Verification ─────────────────────────────────────────
+const FLOWER_PRESS_SKU = Deno.env.get("AMAZON_SKU_FLOWER_PRESS") || "FPK-1-2026";
+const FLOWER_PRESS_ASIN = "B0GFGY8DGW"; // As documented in KI
+
+async function verifyAmazonOrder(orderId: string): Promise<boolean> {
+    try {
+        const accessToken = await getAccessToken();
+        const endpoint = "https://sellingpartnerapi-na.amazon.com";
+
+        let isOrganic = false;
+        let isMcf = false;
+        let validItemFound = false;
+
+        // Try organic Orders API first
+        const orderRes = await fetch(`${endpoint}/orders/v0/orders/${orderId}`, {
+            headers: { "x-amz-access-token": accessToken },
+        });
+
+        if (orderRes.ok) {
+            isOrganic = true;
+            // Fetch order items
+            const itemsRes = await fetch(`${endpoint}/orders/v0/orders/${orderId}/orderItems`, {
+                headers: { "x-amz-access-token": accessToken },
+            });
+            if (itemsRes.ok) {
+                const itemsData = await itemsRes.json();
+                const items = itemsData.payload?.OrderItems || [];
+                validItemFound = items.some((item: any) => 
+                    item.SellerSKU === FLOWER_PRESS_SKU || item.ASIN === FLOWER_PRESS_ASIN
+                );
+            }
+        }
+
+        // If not found in organic orders or failed, try MCF Outbound API
+        if (!isOrganic || !validItemFound) {
+            const mcfRes = await fetch(`${endpoint}/fba/outbound/2020-07-01/fulfillmentOrders/${orderId}`, {
+                headers: { "x-amz-access-token": accessToken },
+            });
+
+            if (mcfRes.ok) {
+                const mcfData = await mcfRes.json();
+                const items = mcfData.payload?.fulfillmentOrder?.items || mcfData.fulfillmentOrder?.items || [];
+                validItemFound = items.some((item: any) => 
+                    item.sellerSku === FLOWER_PRESS_SKU || item.sellerFulfillmentOrderItemId?.includes(FLOWER_PRESS_SKU)
+                );
+            }
+        }
+
+        return validItemFound;
+    } catch (e: any) {
+        console.error("verifyAmazonOrder error:", e);
+        return false;
+    }
+}
+
 Deno.serve(async (req) => {
     if (req.method === "OPTIONS") {
         return new Response(null, { headers: corsHeaders });
@@ -64,13 +149,54 @@ Deno.serve(async (req) => {
         }
 
         // ── Validation (Both Stages) ──
-        // 1. Find the order by order_number and email exactly
-        const { data: order, error: orderErr } = await adminClient
+
+        // 1. Find the order by order_number or mcf_order_id and email exactly
+        let { data: order, error: orderErr } = await adminClient
             .from("orders")
             .select("id, status, customer_email")
-            .eq("order_number", order_number)
+            .or(`order_number.eq.${order_number},mcf_order_id.eq.${order_number}`)
             .eq("customer_email", email.toLowerCase())
             .maybeSingle();
+
+        // ── Amazon SP-API Verification Fallback ──
+        if (!order) {
+            console.log(JSON.stringify({ function: "verify-order", event: "checking_amazon_spapi", order_number, ts: new Date().toISOString() }));
+            const isAmazonValid = await verifyAmazonOrder(order_number);
+            
+            if (isAmazonValid) {
+                console.log(JSON.stringify({ function: "verify-order", event: "amazon_order_valid", order_number, ts: new Date().toISOString() }));
+                
+                // Inject the mock order so that we can proceed with standard logic
+                const { data: newOrder, error: insertErr } = await adminClient
+                    .from("orders")
+                    .insert({
+                        order_number: order_number,
+                        mcf_order_id: order_number, // assign to mcf tracking column
+                        customer_email: email.toLowerCase(),
+                        status: "paid", // considered paid if it is valid in Amazon
+                        total_amount: 0,
+                        currency: "usd",
+                        items: { source: "amazon", verify_method: "sp-api" }
+                    })
+                    .select("id, status, customer_email")
+                    .single();
+
+                if (insertErr || !newOrder) {
+                    console.error("Failed to inject Amazon order:", insertErr);
+                    throw new Error("Failed to inject Amazon order");
+                }
+                order = newOrder;
+                orderErr = null;
+
+                // Also inject the order_item for ai-designer access
+                await adminClient.from("order_items").insert({
+                    order_id: order.id,
+                    product_type: "ai-designer",
+                    quantity: 1,
+                    price: 0
+                });
+            }
+        }
 
         if (orderErr || !order || order.status !== "paid") {
             // Safe generic state - does not leak whether email or order_number was wrong
