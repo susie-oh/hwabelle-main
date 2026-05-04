@@ -82,14 +82,14 @@ async function sendConfirmationEmail(customerEmail: string, session: any) {
         <tr><td style="padding:32px 40px;background-color:#faf8f5;">
           <h3 style="font-family:Georgia,serif;font-size:16px;font-weight:normal;color:#2c2c2c;margin:0 0 16px;">What's Next</h3>
           <ul style="margin:0;padding:0 0 0 20px;color:#6b6b6b;font-size:14px;line-height:2;">
-            ${hasAiDesigner ? `<li>To activate your AI Designer, visit <a href="https://hwabelle.com/my-orders" style="color:#2c2c2c;">hwabelle.com/my-orders</a> and sign in or create an account using this email address.</li>` : ""}
+            ${hasAiDesigner ? `<li>To activate your AI Designer, visit <a href="https://hwabelle.shop/my-orders" style="color:#2c2c2c;">hwabelle.shop/my-orders</a> and sign in or create an account using this email address.</li>` : ""}
             <li>You'll receive a shipping confirmation when your order is on its way.</li>
-            <li>Questions? Visit our <a href="https://hwabelle.com/faq" style="color:#2c2c2c;">FAQ</a> or reply to this email.</li>
+            <li>Questions? Visit our <a href="https://hwabelle.shop/faq" style="color:#2c2c2c;">FAQ</a> or reply to this email.</li>
           </ul>
         </td></tr>
         <tr><td style="padding:32px 40px;text-align:center;border-top:1px solid #f0ece8;">
           <p style="font-size:13px;color:#9b9b9b;margin:0 0 8px;">Hwabelle — Preserve nature's beauty, one bloom at a time.</p>
-          <p style="font-size:12px;color:#c0c0c0;margin:0;"><a href="https://hwabelle.com" style="color:#9b9b9b;text-decoration:none;">hwabelle.com</a></p>
+          <p style="font-size:12px;color:#c0c0c0;margin:0;"><a href="https://hwabelle.shop" style="color:#9b9b9b;text-decoration:none;">hwabelle.shop</a></p>
         </td></tr>
       </table>
     </td></tr>
