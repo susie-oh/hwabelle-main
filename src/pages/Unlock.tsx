@@ -115,10 +115,28 @@ const UnlockPage = () => {
         return () => subscription.unsubscribe();
     }, []);
 
-    // Auto-claim if they authenticate while in auth-required state
+    // Auto-claim if they authenticate while in auth-required state or return from email link
     useEffect(() => {
-        if (session && submitState === "auth-required") {
-            verifyOrder();
+        if (!session) return;
+
+        // Auto-claim from localStorage (email link return)
+        const pendingClaimStr = localStorage.getItem("pending_designer_claim");
+        if (pendingClaimStr && submitState === "idle") {
+            try {
+                const pendingClaim = JSON.parse(pendingClaimStr);
+                if (pendingClaim.orderId && pendingClaim.email) {
+                    setOrderId(pendingClaim.orderId);
+                    setEmail(pendingClaim.email);
+                    verifyOrder(pendingClaim.orderId, pendingClaim.email);
+                }
+                localStorage.removeItem("pending_designer_claim");
+            } catch (e) {
+                localStorage.removeItem("pending_designer_claim");
+            }
+        } 
+        // Auto-claim from immediate signin without page reload
+        else if (submitState === "auth-required") {
+            verifyOrder(orderId, email);
         }
     }, [session]);
 
@@ -129,11 +147,11 @@ const UnlockPage = () => {
     const orderIdEmpty = orderId.trim() === "";
     const emailInvalid = email.trim() === "" || !email.includes("@");
 
-    const verifyOrder = async () => {
+    const verifyOrder = async (targetOrderId = orderId, targetEmail = email) => {
         setSubmitState("loading");
         try {
             const { data, error } = await supabase.functions.invoke("verify-order", {
-                body: { order_number: orderId, email },
+                body: { order_number: targetOrderId, email: targetEmail },
             });
 
             if (error) throw new Error(error.message);
@@ -142,10 +160,15 @@ const UnlockPage = () => {
             if (data.state === "success") {
                 if (session) {
                     setSubmitState("success");
+                    localStorage.removeItem("pending_designer_claim");
                 } else {
                     // Stage A passed, need Stage B
-                    setAuthEmail(email); // prepopulate auth email with order email
+                    setAuthEmail(targetEmail); // prepopulate auth email with order email
                     setSubmitState("auth-required");
+                    localStorage.setItem("pending_designer_claim", JSON.stringify({ 
+                        orderId: targetOrderId, 
+                        email: targetEmail 
+                    }));
                 }
             } else {
                 setSubmitState(data.state as SubmitState);
