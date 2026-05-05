@@ -76,10 +76,10 @@ Deno.serve(async (req) => {
         global: { headers: { Authorization: `Bearer ${jwt}` } },
     });
 
-    const { data: { user }, error: authErr } = await userClient.auth.getUser();
+    const { data: { user }, error: authErr } = await userClient.auth.getUser(jwt);
     if (authErr || !user) {
-        console.warn(JSON.stringify({ function: "get-entitlement", event: "invalid_jwt", ip, ts: new Date().toISOString() }));
-        return new Response(JSON.stringify({ error: "Invalid or expired session" }), {
+        console.warn(JSON.stringify({ function: "get-entitlement", event: "invalid_jwt", error: authErr?.message, ip, ts: new Date().toISOString() }));
+        return new Response(JSON.stringify({ error: authErr?.message || "Invalid or expired session" }), {
             status: 401,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
