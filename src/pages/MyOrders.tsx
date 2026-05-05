@@ -57,36 +57,26 @@ const MyOrders = () => {
     useEffect(() => {
         let cancelled = false;
 
-        async function bootstrap() {
-            const { data: { session } } = await supabase.auth.getSession();
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (cancelled) return;
 
-            if (!cancelled) {
-                if (sessionId) {
-                    // Always clear cart on post-checkout landing
-                    clearCart();
+            if (sessionId) {
+                // Always clear cart on post-checkout landing
+                clearCart();
 
-                    if (session) {
-                        // Authenticated — verify session then load their orders
-                        await verifySession(sessionId);
-                        if (!cancelled) await loadOrders(session.access_token);
-                    } else {
-                        // Not authenticated — show activation UX
-                        setPageState("post-checkout");
-                        verifySession(sessionId); // run in background to confirm purchase
-                    }
-                } else if (session) {
-                    await loadOrders(session.access_token);
-                } else {
-                    setPageState("unauthenticated");
+                if (session) {
+                    // Authenticated — verify session then load their orders
+                    await verifySession(sessionId);
+                    if (!cancelled) await loadOrders(session.access_token);
+                } else if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
+                    // Not authenticated — show activation UX
+                    setPageState("post-checkout");
+                    verifySession(sessionId); // run in background to confirm purchase
                 }
-            }
-        }
-
-        bootstrap();
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            if (!cancelled && session) {
-                loadOrders(session.access_token);
+            } else if (session) {
+                await loadOrders(session.access_token);
+            } else if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
+                setPageState("unauthenticated");
             }
         });
 

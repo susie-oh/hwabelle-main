@@ -67,41 +67,27 @@ const DesignerChat = () => {
     useEffect(() => {
         let cancelled = false;
 
-        async function bootstrap() {
+        // Listen for auth state changes (fires INITIAL_SESSION immediately)
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (cancelled) return;
+
             // If there's a session_id in the URL, the user just came from checkout.
-            // Show the activation step before asking them to sign in.
             if (sessionIdFromUrl) {
-                // Briefly check if they're already signed in
-                const { data: { session } } = await supabase.auth.getSession();
-                if (!cancelled) {
-                    if (session) {
-                        // Already authenticated — skip activation, go straight to entitlement check
-                        checkEntitlement(session.access_token);
-                    } else {
-                        // Show activation step (post-checkout sign-in/up prompt)
-                        setAccessState("activation");
-                    }
+                if (session) {
+                    // Already authenticated — skip activation, go straight to entitlement check
+                    checkEntitlement(session.access_token);
+                } else if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
+                    // Show activation step (post-checkout sign-in/up prompt)
+                    setAccessState("activation");
                 }
                 return;
             }
 
-            // Normal navigation — check current session
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!cancelled) {
-                if (session) {
-                    checkEntitlement(session.access_token);
-                } else {
-                    setAccessState("unauthenticated");
-                }
-            }
-        }
-
-        bootstrap();
-
-        // Listen for auth state changes (e.g. user signs in from another tab)
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            if (!cancelled && session) {
+            // Normal navigation
+            if (session) {
                 checkEntitlement(session.access_token);
+            } else if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
+                setAccessState("unauthenticated");
             }
         });
 
