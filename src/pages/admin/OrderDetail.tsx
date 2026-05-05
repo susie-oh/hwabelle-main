@@ -16,22 +16,34 @@ const OrderDetail = () => {
   const queryClient = useQueryClient();
   const [statusUpdating, setStatusUpdating] = useState(false);
 
-  const { data: order, isLoading } = useQuery({
+  const { data: orderData, isLoading, error, isError } = useQuery({
     queryKey: ["admin-order", id],
     queryFn: async () => {
       if (!id) throw new Error("No order ID provided");
       
-      const { data, error } = await supabase
+      // 1. Fetch the order
+      const { data: order, error: orderError } = await supabase
         .from("orders")
-        .select(`
-          *,
-          order_items (*)
-        `)
+        .select("*")
         .eq("id", id)
         .single();
 
-      if (error) throw error;
-      return data;
+      if (orderError) throw orderError;
+      
+      // 2. Fetch the order items separately to avoid PostgREST relationship cache issues
+      const { data: items, error: itemsError } = await supabase
+        .from("order_items")
+        .select("*")
+        .eq("order_id", id);
+        
+      if (itemsError) {
+        console.warn("Could not fetch order_items:", itemsError);
+      }
+
+      return {
+        ...order,
+        order_items: items || []
+      };
     },
     enabled: !!id,
   });
@@ -63,13 +75,30 @@ const OrderDetail = () => {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading order details...</p>
+          </div>
         </div>
       </AdminLayout>
     );
   }
 
-  if (!order) {
+  if (isError) {
+    return (
+      <AdminLayout>
+        <div className="text-center py-24">
+          <h2 className="text-2xl font-serif mb-2 text-destructive">Error Loading Order</h2>
+          <p className="text-muted-foreground mb-6">{(error as Error)?.message || "An unknown error occurred."}</p>
+          <Button asChild>
+            <Link to="/admin/orders">Back to Orders</Link>
+          </Button>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (!orderData) {
     return (
       <AdminLayout>
         <div className="text-center py-24">
@@ -83,9 +112,10 @@ const OrderDetail = () => {
     );
   }
 
-  const items = order.order_items || (Array.isArray(order.items) ? order.items : []);
-  const shipping = order.shipping_address as Record<string, string> | null;
-  const orderNumber = order.order_number || `HW-${order.id.substring(0, 8).toUpperCase()}`;
+  const items = orderData.order_items?.length ? orderData.order_items : (Array.isArray(orderData.items) ? orderData.items : []);
+  const shipping = orderData.shipping_address as Record<string, string> | null;
+  const orderNumber = orderData.order_number || `HW-${orderData.id.substring(0, 8).toUpperCase()}`;
+  const order = orderData;
 
   return (
     <AdminLayout>
