@@ -296,7 +296,7 @@ serve(async (req) => {
   const userClient = createClient(supabaseUrl, anonKey, {
     global: { headers: { Authorization: `Bearer ${jwt}` } },
   });
-  const { data: { user }, error: authErr } = await userClient.auth.getUser();
+  const { data: { user }, error: authErr } = await userClient.auth.getUser(jwt);
   if (authErr || !user) {
     console.warn(JSON.stringify({ function: "ai-designer", event: "invalid_jwt", ip, ts: new Date().toISOString() }));
     return new Response(JSON.stringify({ error: "Invalid or expired session" }), {
