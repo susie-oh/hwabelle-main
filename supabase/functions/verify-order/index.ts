@@ -64,37 +64,45 @@ async function verifyAmazonOrder(orderId: string): Promise<boolean> {
         let validItemFound = false;
 
         // Try organic Orders API first
-        const orderRes = await fetch(`${endpoint}/orders/v0/orders/${orderId}`, {
-            headers: { "x-amz-access-token": accessToken },
-        });
-
-        if (orderRes.ok) {
-            isOrganic = true;
-            // Fetch order items
-            const itemsRes = await fetch(`${endpoint}/orders/v0/orders/${orderId}/orderItems`, {
+        try {
+            const orderRes = await fetch(`${endpoint}/orders/v0/orders/${orderId}`, {
                 headers: { "x-amz-access-token": accessToken },
             });
-            if (itemsRes.ok) {
-                const itemsData = await itemsRes.json();
-                const items = itemsData.payload?.OrderItems || [];
-                validItemFound = items.some((item: any) => 
-                    item.SellerSKU === FLOWER_PRESS_SKU || item.ASIN === FLOWER_PRESS_ASIN
-                );
+
+            if (orderRes.ok) {
+                isOrganic = true;
+                // Fetch order items
+                const itemsRes = await fetch(`${endpoint}/orders/v0/orders/${orderId}/orderItems`, {
+                    headers: { "x-amz-access-token": accessToken },
+                });
+                if (itemsRes.ok) {
+                    const itemsData = await itemsRes.json();
+                    const items = itemsData.payload?.OrderItems || [];
+                    validItemFound = items.some((item: any) => 
+                        item.SellerSKU === FLOWER_PRESS_SKU || item.ASIN === FLOWER_PRESS_ASIN
+                    );
+                }
             }
+        } catch (e) {
+            console.error("Organic check error", e);
         }
 
         // If not found in organic orders or failed, try MCF Outbound API
         if (!isOrganic || !validItemFound) {
-            const mcfRes = await fetch(`${endpoint}/fba/outbound/2020-07-01/fulfillmentOrders/${orderId}`, {
-                headers: { "x-amz-access-token": accessToken },
-            });
+            try {
+                const mcfRes = await fetch(`${endpoint}/fba/outbound/2020-07-01/fulfillmentOrders/${orderId}`, {
+                    headers: { "x-amz-access-token": accessToken },
+                });
 
-            if (mcfRes.ok) {
-                const mcfData = await mcfRes.json();
-                const items = mcfData.payload?.fulfillmentOrderItems || mcfData.fulfillmentOrderItems || [];
-                validItemFound = items.some((item: any) => 
-                    item.sellerSku === FLOWER_PRESS_SKU || item.sellerFulfillmentOrderItemId?.includes(FLOWER_PRESS_SKU)
-                );
+                if (mcfRes.ok) {
+                    const mcfData = await mcfRes.json();
+                    const items = mcfData.payload?.fulfillmentOrderItems || mcfData.fulfillmentOrderItems || [];
+                    validItemFound = items.some((item: any) => 
+                        item.sellerSku === FLOWER_PRESS_SKU || item.sellerFulfillmentOrderItemId?.includes(FLOWER_PRESS_SKU)
+                    );
+                }
+            } catch (e) {
+                console.error("MCF check error", e);
             }
         }
 
