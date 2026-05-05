@@ -47,6 +47,7 @@ const DesignerChat = () => {
 
     // ─── Access state ──────────────────────────────────────────────────────────
     const [accessState, setAccessState] = useState<AccessState>("authenticating");
+    const [sessionJwt, setSessionJwt] = useState<string | null>(null);
     const [authMode, setAuthMode] = useState<AuthMode>("signin");
     const [authEmail, setAuthEmail] = useState("");
     const [authPassword, setAuthPassword] = useState("");
@@ -70,6 +71,9 @@ const DesignerChat = () => {
         // Listen for auth state changes (fires INITIAL_SESSION immediately)
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             if (cancelled) return;
+
+            // Store JWT for use in sendMessage without re-calling getSession
+            setSessionJwt(session?.access_token ?? null);
 
             // If there's a session_id in the URL, the user just came from checkout.
             if (sessionIdFromUrl) {
@@ -185,11 +189,12 @@ const DesignerChat = () => {
         const text = messageText ?? input.trim();
         if (!text && !image) return;
 
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
+        if (!sessionJwt) {
             setAccessState("unauthenticated");
             return;
         }
+        // Use the JWT stored in state — avoids navigator.locks deadlock from getSession()
+        const session = { access_token: sessionJwt };
 
         const userMsg: Message = {
             role: "user",

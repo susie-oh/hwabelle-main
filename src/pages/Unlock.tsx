@@ -106,9 +106,7 @@ const UnlockPage = () => {
     const [authError, setAuthError] = useState<string | null>(null);
 
     useEffect(() => {
-        // Init session
-        supabase.auth.getSession().then(({ data }) => setSession(data.session));
-
+        // Init session via onAuthStateChange (fires INITIAL_SESSION immediately, no lock needed)
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session);
         });
