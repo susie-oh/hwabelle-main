@@ -164,6 +164,7 @@ Deno.serve(async (req) => {
             .select("id, status, customer_email")
             .or(`order_number.eq.${order_number},mcf_order_id.eq.${order_number}`)
             .eq("customer_email", email.toLowerCase())
+            .limit(1)
             .maybeSingle();
 
         // ── Check if order has items; if not, delete the broken stub ──
@@ -251,12 +252,14 @@ Deno.serve(async (req) => {
             .select("id, user_id")
             .eq("order_id", order.id)
             .eq("product_type", "ai-designer")
+            .limit(1)
             .maybeSingle();
 
         const { data: requestState } = await adminClient
             .from("access_requests")
             .select("status, redemption_count, max_redemptions")
             .eq("order_id", order.id)
+            .limit(1)
             .maybeSingle();
 
         const maxRedemptions = requestState?.max_redemptions ?? 1;

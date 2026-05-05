@@ -96,6 +96,7 @@ Deno.serve(async (req) => {
             .eq("user_id", userId)
             .eq("product_type", "ai-designer")
             .eq("status", "active")
+            .limit(1)
             .maybeSingle();
 
         if (entErr) throw entErr;
