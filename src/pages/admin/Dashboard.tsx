@@ -1,6 +1,6 @@
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, HelpCircle, Eye, Edit } from "lucide-react";
+import { FileText, HelpCircle, Eye, Edit, Package } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,6 +34,20 @@ const Dashboard = () => {
     },
   });
 
+  const { data: orderStats } = useQuery({
+    queryKey: ["admin-order-stats"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("status");
+      
+      if (error) throw error;
+      
+      const pending = data?.filter(o => o.status === "pending" || o.status === "paid").length || 0;
+      return { total: data?.length || 0, pending };
+    },
+  });
+
   return (
     <AdminLayout>
       <div className="space-y-8">
@@ -64,6 +78,18 @@ const Dashboard = () => {
             <CardContent>
               <div className="text-2xl font-bold">{faqCount || 0}</div>
               <p className="text-xs text-muted-foreground">Active questions</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Orders</CardTitle>
+              <Package className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{orderStats?.total || 0}</div>
+              <p className="text-xs text-muted-foreground">
+                {orderStats?.pending || 0} pending fulfillment
+              </p>
             </CardContent>
           </Card>
         </div>

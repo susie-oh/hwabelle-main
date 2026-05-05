@@ -31,6 +31,8 @@ import MyOrders from "./pages/MyOrders";
 import UnlockPage from "./pages/Unlock";
 import AdminLogin from "./pages/AdminLogin";
 import Dashboard from "./pages/admin/Dashboard";
+import OrdersManager from "./pages/admin/OrdersManager";
+import OrderDetail from "./pages/admin/OrderDetail";
 import BlogManager from "./pages/admin/BlogManager";
 import FAQManager from "./pages/admin/FAQManager";
 import EmailDashboard from "./pages/admin/EmailDashboard";
@@ -81,6 +83,8 @@ const App = () => (
               {/* Admin Routes */}
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/dashboard" element={<Dashboard />} />
+              <Route path="/admin/orders" element={<OrdersManager />} />
+              <Route path="/admin/orders/:id" element={<OrderDetail />} />
               <Route path="/admin/blog" element={<BlogManager />} />
               <Route path="/admin/faqs" element={<FAQManager />} />
               <Route path="/admin/email" element={<EmailDashboard />} />

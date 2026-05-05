@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Loader2, LayoutDashboard, FileText, HelpCircle, LogOut, Home, Mail, Menu, X } from "lucide-react";
+import { Loader2, LayoutDashboard, FileText, HelpCircle, LogOut, Home, Mail, Menu, X, Package } from "lucide-react";
 import logoImage from "@/assets/hwabelle-logo.png";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +12,7 @@ interface AdminLayoutProps {
 
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/orders", label: "Orders", icon: Package },
   { href: "/admin/blog", label: "Website SEAL Generator", icon: FileText },
   { href: "/admin/faqs", label: "FAQ Manager", icon: HelpCircle },
   { href: "/admin/email", label: "Email Campaigns", icon: Mail },
