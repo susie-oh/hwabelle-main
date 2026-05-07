@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -97,6 +97,7 @@ const UnlockPage = () => {
     const [email, setEmail] = useState("");
     const [submitState, setSubmitState] = useState<SubmitState>("idle");
     const [touched, setTouched] = useState({ orderId: false, email: false });
+    const navigate = useNavigate();
 
     // Auth Form State (when auth-required)
     const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
@@ -266,8 +267,8 @@ const UnlockPage = () => {
                         </div>
 
                         <div className="px-6 py-6">
-                            {/* Hide the source tabs and initial form if auth is required */}
-                            {submitState !== "auth-required" && (
+                            {/* Hide the source tabs and initial form if auth is required OR if success */}
+                            {submitState !== "auth-required" && submitState !== "success" && (
                                 <>
                                     <div className="mb-5">
                                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-2.5">
@@ -278,7 +279,7 @@ const UnlockPage = () => {
                                                 <button
                                                     key={tab.key}
                                                     type="button"
-                                                    disabled={isLoading || submitState === "success"}
+                                                    disabled={isLoading}
                                                     onClick={() => {
                                                         setSource(tab.key);
                                                         setOrderId("");
@@ -319,11 +320,6 @@ const UnlockPage = () => {
                                                 <div className="min-w-0">
                                                     <p className="text-sm font-medium mb-0.5">{STATE_CONFIG[resultState].title}</p>
                                                     <p className="text-xs text-muted-foreground leading-relaxed">{STATE_CONFIG[resultState].body}</p>
-                                                    {resultState === "success" && (
-                                                        <Button size="sm" className="mt-3 bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 text-xs h-8 px-3" asChild>
-                                                            <Link to="/designer-chat"><Sparkles size={12} /> Open AI Designer</Link>
-                                                        </Button>
-                                                    )}
                                                     {(resultState === "already-redeemed") && (
                                                         <Button size="sm" variant="outline" className="mt-3 gap-1.5 text-xs h-8 px-3" asChild>
                                                             <Link to="/designer-chat">Sign In to Chat</Link>
@@ -383,6 +379,28 @@ const UnlockPage = () => {
                                         </form>
                                     )}
                                 </>
+                            )}
+
+                            {/* Full Page Success State */}
+                            {submitState === "success" && (
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    className="flex flex-col items-center text-center py-8"
+                                >
+                                    <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-500/20 rounded-full flex items-center justify-center mb-6 border-4 border-white dark:border-background shadow-sm">
+                                        <Sparkles className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+                                    </div>
+                                    <h3 className="font-serif text-2xl mb-2 text-foreground">Access Activated!</h3>
+                                    <p className="text-muted-foreground text-sm mb-8 max-w-sm">
+                                        Your order has been successfully linked to your account. You now have full access to the AI Botanical Designer.
+                                    </p>
+                                    <Button className="w-full max-w-xs bg-emerald-600 hover:bg-emerald-700 text-white gap-2 h-11" asChild>
+                                        <Link to="/designer-chat">
+                                            Launch AI Designer <Sparkles size={16} />
+                                        </Link>
+                                    </Button>
+                                </motion.div>
                             )}
 
                             {/* Auth Required State */}
