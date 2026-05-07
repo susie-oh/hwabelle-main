@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -114,9 +114,11 @@ const UnlockPage = () => {
         return () => subscription.unsubscribe();
     }, []);
 
+    const autoClaimLock = useRef(false);
+
     // Auto-claim if they authenticate while in auth-required state or return from email link
     useEffect(() => {
-        if (!session) return;
+        if (!session || autoClaimLock.current) return;
 
         // Auto-claim from localStorage (email link return)
         const pendingClaimStr = localStorage.getItem("pending_designer_claim");
@@ -124,6 +126,7 @@ const UnlockPage = () => {
             try {
                 const pendingClaim = JSON.parse(pendingClaimStr);
                 if (pendingClaim.orderId && pendingClaim.email) {
+                    autoClaimLock.current = true;
                     setOrderId(pendingClaim.orderId);
                     setEmail(pendingClaim.email);
                     verifyOrder(pendingClaim.orderId, pendingClaim.email);
@@ -135,6 +138,7 @@ const UnlockPage = () => {
         } 
         // Auto-claim from immediate signin without page reload
         else if (submitState === "auth-required") {
+            autoClaimLock.current = true;
             verifyOrder(orderId, email);
         }
     }, [session]);
