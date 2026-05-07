@@ -54,13 +54,12 @@ async function getAccessToken(): Promise<string> {
 const FLOWER_PRESS_SKU = Deno.env.get("AMAZON_SKU_FLOWER_PRESS") || "FPK-1-2026";
 const FLOWER_PRESS_ASIN = "B0GFGY8DGW"; // As documented in KI
 
-async function verifyAmazonOrder(orderId: string): Promise<boolean> {
+async function verifyAmazonOrder(orderId: string): Promise<{ status: "valid" | "not-found" | "invalid-items" }> {
     try {
         const accessToken = await getAccessToken();
         const endpoint = "https://sellingpartnerapi-na.amazon.com";
 
-        let isOrganic = false;
-        let isMcf = false;
+        let orderFound = false;
         let validItemFound = false;
 
         // Try organic Orders API first
@@ -70,17 +69,19 @@ async function verifyAmazonOrder(orderId: string): Promise<boolean> {
             });
 
             if (orderRes.ok) {
-                isOrganic = true;
-                // Fetch order items
-                const itemsRes = await fetch(`${endpoint}/orders/v0/orders/${orderId}/orderItems`, {
-                    headers: { "x-amz-access-token": accessToken },
-                });
-                if (itemsRes.ok) {
-                    const itemsData = await itemsRes.json();
-                    const items = itemsData.payload?.OrderItems || [];
-                    validItemFound = items.some((item: any) => 
-                        item.SellerSKU === FLOWER_PRESS_SKU || item.ASIN === FLOWER_PRESS_ASIN
-                    );
+                const orderData = await orderRes.json();
+                if (orderData.payload?.AmazonOrderId) {
+                    orderFound = true;
+                    const itemsRes = await fetch(`${endpoint}/orders/v0/orders/${orderId}/orderItems`, {
+                        headers: { "x-amz-access-token": accessToken },
+                    });
+                    if (itemsRes.ok) {
+                        const itemsData = await itemsRes.json();
+                        const items = itemsData.payload?.OrderItems || [];
+                        validItemFound = items.some((item: any) => 
+                            item.SellerSKU === FLOWER_PRESS_SKU || item.ASIN === FLOWER_PRESS_ASIN
+                        );
+                    }
                 }
             }
         } catch (e) {
@@ -88,7 +89,7 @@ async function verifyAmazonOrder(orderId: string): Promise<boolean> {
         }
 
         // If not found in organic orders or failed, try MCF Outbound API
-        if (!isOrganic || !validItemFound) {
+        if (!orderFound) {
             try {
                 const mcfRes = await fetch(`${endpoint}/fba/outbound/2020-07-01/fulfillmentOrders/${orderId}`, {
                     headers: { "x-amz-access-token": accessToken },
@@ -96,20 +97,25 @@ async function verifyAmazonOrder(orderId: string): Promise<boolean> {
 
                 if (mcfRes.ok) {
                     const mcfData = await mcfRes.json();
-                    const items = mcfData.payload?.fulfillmentOrderItems || mcfData.fulfillmentOrderItems || [];
-                    validItemFound = items.some((item: any) => 
-                        item.sellerSku === FLOWER_PRESS_SKU || item.sellerFulfillmentOrderItemId?.includes(FLOWER_PRESS_SKU)
-                    );
+                    if (mcfData.payload?.fulfillmentOrder || mcfData.fulfillmentOrder) {
+                        orderFound = true;
+                        const items = mcfData.payload?.fulfillmentOrderItems || mcfData.fulfillmentOrderItems || [];
+                        validItemFound = items.some((item: any) => 
+                            item.sellerSku === FLOWER_PRESS_SKU || item.sellerFulfillmentOrderItemId?.includes(FLOWER_PRESS_SKU)
+                        );
+                    }
                 }
-            } catch (e) {
+            } catch (e: any) {
                 console.error("MCF check error", e);
             }
         }
 
-        return validItemFound;
+        if (!orderFound) return { status: "not-found" };
+        if (!validItemFound) return { status: "invalid-items" };
+        return { status: "valid" };
     } catch (e: any) {
         console.error("verifyAmazonOrder error:", e);
-        return false;
+        return { status: "not-found", debug: e.message };
     }
 }
 
@@ -146,14 +152,25 @@ Deno.serve(async (req) => {
         // ── Verify JWT to determine Stage A vs B ──
         const authHeader = req.headers.get("Authorization") || "";
         let authUser = null;
+        let isExpiredToken = false;
+        
         if (authHeader.startsWith("Bearer ")) {
             const jwt = authHeader.replace("Bearer ", "");
             const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-            const userClient = createClient(supabaseUrl, anonKey, {
-                global: { headers: { Authorization: `Bearer ${jwt}` } },
-            });
-            const { data: { user } } = await userClient.auth.getUser(jwt);
-            if (user) authUser = user;
+            
+            // Only try to authenticate if it's a real user token, not the fallback anon key
+            if (jwt !== anonKey) {
+                const userClient = createClient(supabaseUrl, anonKey, {
+                    global: { headers: { Authorization: `Bearer ${jwt}` } },
+                });
+                const { data: { user } } = await userClient.auth.getUser(jwt);
+                
+                if (user) {
+                    authUser = user;
+                } else {
+                    isExpiredToken = true;
+                }
+            }
         }
 
         // ── Validation (Both Stages) ──
@@ -180,9 +197,9 @@ Deno.serve(async (req) => {
         // ── Amazon SP-API Verification Fallback ──
         if (!order) {
             console.log(JSON.stringify({ function: "verify-order", event: "checking_amazon_spapi", order_number, ts: new Date().toISOString() }));
-            const isAmazonValid = await verifyAmazonOrder(order_number);
+            const amazonResult = await verifyAmazonOrder(order_number);
             
-            if (isAmazonValid) {
+            if (amazonResult.status === "valid") {
                 console.log(JSON.stringify({ function: "verify-order", event: "amazon_order_valid", order_number, ts: new Date().toISOString() }));
                 
                 // Inject the mock order so that we can proceed with standard logic
@@ -221,6 +238,11 @@ Deno.serve(async (req) => {
                     console.error("Failed to inject order_items:", itemErr);
                     throw new Error(`Failed to inject order_items: ${itemErr.message}`);
                 }
+            } else if (amazonResult.status === "invalid-items") {
+                console.log(JSON.stringify({ function: "verify-order", event: "amazon_order_invalid_items", order_number, ts: new Date().toISOString() }));
+                return new Response(JSON.stringify({ state: "invalid-order" }), {
+                    status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" }
+                });
             }
         }
 
@@ -241,7 +263,7 @@ Deno.serve(async (req) => {
 
         if (!orderItems || orderItems.length === 0) {
             console.log(JSON.stringify({ function: "verify-order", event: "no_ai_access_in_order", order_id: order.id, ts: new Date().toISOString() }));
-            return new Response(JSON.stringify({ state: "invalid-order" }), {
+            return new Response(JSON.stringify({ state: "invalid-order", debug_order_id: order.id, debug_email: order.customer_email }), {
                 status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" }
             });
         }
@@ -276,6 +298,11 @@ Deno.serve(async (req) => {
 
         // ── Stage A: Anonymous Precheck ──
         if (!authUser) {
+            if (isExpiredToken) {
+                return new Response(JSON.stringify({ state: "auth-required" }), {
+                    status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" }
+                });
+            }
             return new Response(JSON.stringify({ state: "success", message: "Ready to claim" }), {
                 status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" }
             });

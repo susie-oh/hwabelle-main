@@ -133,6 +133,12 @@ function resolveProductType(
 ): "ai-designer" | "flower-press-kit" | "other" {
     const mapped = lineItemTypes[itemName];
     if (mapped === "ai-designer" || mapped === "flower-press-kit") return mapped;
+    
+    // Fallback heuristic for legacy checkout links without metadata
+    const name = itemName.toLowerCase();
+    if (name.includes("ai designer") || name.includes("ai-designer")) return "ai-designer";
+    if (name.includes("flower press") || name.includes("botanical kit") || name.includes("preservation kit")) return "flower-press-kit";
+    
     return "other";
 }
 

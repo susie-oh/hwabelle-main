@@ -127,7 +127,7 @@ const UnlockPage = () => {
                     setEmail(pendingClaim.email);
                     verifyOrder(pendingClaim.orderId, pendingClaim.email);
                 }
-                localStorage.removeItem("pending_designer_claim");
+                // Do not remove item here. verifyOrder will remove it on success.
             } catch (e) {
                 localStorage.removeItem("pending_designer_claim");
             }

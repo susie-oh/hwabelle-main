@@ -38,17 +38,23 @@ const FAQManager = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: faqs, isLoading } = useQuery({
+  const { data: faqs, isLoading, isError, error } = useQuery({
     queryKey: ["admin-faqs"],
     queryFn: async () => {
+      console.log("Fetching FAQs...");
       const { data, error } = await supabase
         .from("faqs")
         .select("*")
         .order("sort_order", { ascending: true });
       
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase FAQ fetch error:", error);
+        throw error;
+      }
+      console.log("Fetched FAQs successfully:", data);
       return data as FAQ[];
     },
+    retry: false, // Fail fast to show error
   });
 
   const saveMutation = useMutation({
@@ -163,6 +169,10 @@ const FAQManager = () => {
             {isLoading ? (
               <div className="flex justify-center py-8">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : isError ? (
+              <div className="text-center py-8 text-destructive">
+                Error loading FAQs: {error?.message || "Unknown error"}
               </div>
             ) : !faqs?.length ? (
               <div className="text-center py-8 text-muted-foreground">

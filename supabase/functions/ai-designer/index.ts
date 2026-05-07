@@ -7,6 +7,8 @@ const ALLOWED_ORIGINS = [
   "https://hwabelle.shop",
   "https://www.hwabelle.shop",
   "http://localhost:8080",
+  "http://localhost:8081",
+  "http://localhost:5173",
 ];
 
 function getCorsHeaders(req: Request) {
