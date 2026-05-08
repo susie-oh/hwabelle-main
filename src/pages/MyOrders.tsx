@@ -1,5 +1,6 @@
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,7 +8,7 @@ import { useCart } from "@/hooks/useCart";
 import { motion } from "framer-motion";
 import {
     Package, CheckCircle2, Sparkles, Loader2, AlertCircle,
-    ShieldCheck, LogIn, ChevronRight, ExternalLink,
+    ShieldCheck, LogIn, ChevronRight, ExternalLink, Mail, Lock,
 } from "lucide-react";
 
 interface Order {
@@ -29,6 +30,72 @@ const statusColors: Record<string, string> = {
     shipped: "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-800/40",
     delivered: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800/40",
     cancelled: "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/40",
+};
+
+// ─── Inline Login Form ────────────────────────────────────────────────────────
+const LoginForm = ({ onSuccess }: { onSuccess: () => void }) => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
+        setLoading(true);
+        try {
+            const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+            if (authError) throw authError;
+            onSuccess();
+        } catch (err: any) {
+            setError(err.message || "Invalid email or password");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-3">
+            <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Email</label>
+                <div className="relative">
+                    <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                        type="email"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="pl-9 text-sm"
+                        autoComplete="email"
+                        required
+                    />
+                </div>
+            </div>
+            <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Password</label>
+                <div className="relative">
+                    <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                        type="password"
+                        placeholder="••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="pl-9 text-sm"
+                        autoComplete="current-password"
+                        required
+                    />
+                </div>
+            </div>
+            {error && (
+                <p className="text-xs text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-lg px-3 py-2">
+                    {error}
+                </p>
+            )}
+            <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white gap-2" disabled={loading}>
+                {loading ? <><Loader2 size={14} className="animate-spin" /> Signing in…</> : <><LogIn size={14} /> Sign In</>}
+            </Button>
+        </form>
+    );
 };
 
 type PageState =
@@ -161,21 +228,34 @@ const MyOrders = () => {
                     <motion.div
                         initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="border border-border rounded-2xl p-8 text-center max-w-sm mx-auto"
+                        className="border border-border rounded-2xl overflow-hidden max-w-sm mx-auto"
                     >
-                        <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-secondary flex items-center justify-center">
-                            <LogIn size={24} className="text-muted-foreground" />
+                        <div className="px-6 py-5 border-b border-border bg-secondary/20 flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                                <LogIn size={19} className="text-emerald-600" />
+                            </div>
+                            <div>
+                                <h2 className="font-serif text-lg leading-tight">Welcome Back</h2>
+                                <p className="text-xs text-muted-foreground">
+                                    Sign in to access your orders &amp; AI Designer
+                                </p>
+                            </div>
                         </div>
-                        <h2 className="font-serif text-xl mb-2">Sign In to View Orders</h2>
-                        <p className="text-sm text-muted-foreground mb-6">
-                            Your order history is linked to your account.
-                        </p>
-                        <Button className="gap-2" asChild>
-                            <Link to="/designer-chat">
-                                <LogIn size={14} />
-                                Sign In
-                            </Link>
-                        </Button>
+                        <div className="px-6 py-6">
+                            <LoginForm onSuccess={async () => {
+                                const { data: { session } } = await supabase.auth.getSession();
+                                if (session) await loadOrders(session.access_token);
+                            }} />
+                            <div className="mt-5 pt-5 border-t border-border text-center">
+                                <p className="text-xs text-muted-foreground mb-2">Just purchased? Redeem your order first:</p>
+                                <Button variant="outline" size="sm" className="gap-1.5 text-xs" asChild>
+                                    <Link to="/unlock">
+                                        <Sparkles size={12} />
+                                        Activate Purchase
+                                    </Link>
+                                </Button>
+                            </div>
+                        </div>
                     </motion.div>
                 )}
 
