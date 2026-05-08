@@ -106,38 +106,37 @@ const UnlockPage = () => {
     const [authLoading, setAuthLoading] = useState(false);
     const [authError, setAuthError] = useState<string | null>(null);
 
+    const autoClaimLock = useRef(false);
+
     useEffect(() => {
         // Init session via onAuthStateChange (fires INITIAL_SESSION immediately, no lock needed)
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             setSession(session);
+            // Auto-claim immediately when we detect a confirmed sign-in from email link
+            if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session) {
+                const pendingClaimStr = localStorage.getItem("pending_designer_claim");
+                if (pendingClaimStr) {
+                    try {
+                        const pendingClaim = JSON.parse(pendingClaimStr);
+                        if (pendingClaim.orderId && pendingClaim.email) {
+                            if (!autoClaimLock.current) {
+                                autoClaimLock.current = true;
+                                verifyOrder(pendingClaim.orderId, pendingClaim.email);
+                            }
+                        }
+                    } catch (e) {
+                        localStorage.removeItem("pending_designer_claim");
+                    }
+                }
+            }
         });
         return () => subscription.unsubscribe();
     }, []);
 
-    const autoClaimLock = useRef(false);
-
-    // Auto-claim if they authenticate while in auth-required state or return from email link
+    // Auto-claim fallback: handles case where sign-in happened in same tab without page reload
     useEffect(() => {
         if (!session || autoClaimLock.current) return;
-
-        // Auto-claim from localStorage (email link return)
-        const pendingClaimStr = localStorage.getItem("pending_designer_claim");
-        if (pendingClaimStr && submitState === "idle") {
-            try {
-                const pendingClaim = JSON.parse(pendingClaimStr);
-                if (pendingClaim.orderId && pendingClaim.email) {
-                    autoClaimLock.current = true;
-                    setOrderId(pendingClaim.orderId);
-                    setEmail(pendingClaim.email);
-                    verifyOrder(pendingClaim.orderId, pendingClaim.email);
-                }
-                // Do not remove item here. verifyOrder will remove it on success.
-            } catch (e) {
-                localStorage.removeItem("pending_designer_claim");
-            }
-        } 
-        // Auto-claim from immediate signin without page reload
-        else if (submitState === "auth-required") {
+        if (submitState === "auth-required") {
             autoClaimLock.current = true;
             verifyOrder(orderId, email);
         }
