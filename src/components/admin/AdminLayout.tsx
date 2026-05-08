@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Loader2, LayoutDashboard, FileText, HelpCircle, LogOut, Home, Mail, Menu, X, Package } from "lucide-react";
-import logoImage from "@/assets/hwabelle-logo.png";
+import logoImage from "@/assets/hwabelle-full-logo.jpg";
 import { cn } from "@/lib/utils";
 
 interface AdminLayoutProps {
@@ -54,11 +54,11 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   const sidebarContent = (
     <>
-      <div className="p-6 border-b border-divider">
+      <div className="p-5 border-b border-divider">
         <Link to="/" className="flex items-center gap-2">
-          <img src={logoImage} alt="Hwabelle" className="h-8" />
-          <span className="text-xs text-muted-foreground">Admin</span>
+          <img src={logoImage} alt="Hwabelle" className="h-10 w-auto object-contain" />
         </Link>
+        <p className="text-[10px] text-muted-foreground mt-1 tracking-wider uppercase">Admin Dashboard</p>
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
@@ -108,8 +108,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
           <Menu className="h-5 w-5" />
         </button>
         <Link to="/" className="flex items-center gap-2">
-          <img src={logoImage} alt="Hwabelle" className="h-6" />
-          <span className="text-xs text-muted-foreground">Admin</span>
+          <img src={logoImage} alt="Hwabelle" className="h-8 w-auto object-contain" />
         </Link>
       </div>
 
