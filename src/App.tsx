@@ -29,6 +29,7 @@ import DesignerChat from "./pages/DesignerChat";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import MyOrders from "./pages/MyOrders";
 import UnlockPage from "./pages/Unlock";
+import ClaimSuccess from "./pages/ClaimSuccess";
 import AdminLogin from "./pages/AdminLogin";
 import Dashboard from "./pages/admin/Dashboard";
 import OrdersManager from "./pages/admin/OrdersManager";
@@ -80,6 +81,7 @@ const App = () => (
               <Route path="/order-confirmation" element={<OrderConfirmation />} />
               <Route path="/my-orders" element={<MyOrders />} />
               <Route path="/unlock" element={<UnlockPage />} />
+              <Route path="/claim-success" element={<ClaimSuccess />} />
               {/* Admin Routes */}
               <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="/admin/login" element={<AdminLogin />} />

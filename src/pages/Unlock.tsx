@@ -208,7 +208,7 @@ const UnlockPage = () => {
                 const { error } = await supabase.auth.signUp({
                     email: authEmail,
                     password: authPassword,
-                    options: { emailRedirectTo: `${window.location.origin}/unlock` },
+                    options: { emailRedirectTo: `${window.location.origin}/claim-success` },
                 });
                 if (error) throw error;
                 setAuthError("Check your email for a confirmation link to activate your account.");
