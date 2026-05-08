@@ -13,7 +13,7 @@ interface AdminLayoutProps {
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/orders", label: "Orders", icon: Package },
-  { href: "/admin/blog", label: "Website SEAL Generator", icon: FileText },
+  { href: "/admin/blog", label: "Blog / SEO", icon: FileText },
   { href: "/admin/faqs", label: "FAQ Manager", icon: HelpCircle },
   { href: "/admin/email", label: "Email Campaigns", icon: Mail },
 ];

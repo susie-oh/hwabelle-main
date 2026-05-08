@@ -41,7 +41,7 @@ const FAQManager = () => {
   const { data: faqs, isLoading, isError, error } = useQuery({
     queryKey: ["admin-faqs"],
     queryFn: async () => {
-      console.log("Fetching FAQs...");
+
       const { data, error } = await supabase
         .from("faqs")
         .select("*")
@@ -51,7 +51,7 @@ const FAQManager = () => {
         console.error("Supabase FAQ fetch error:", error);
         throw error;
       }
-      console.log("Fetched FAQs successfully:", data);
+
       return data as FAQ[];
     },
     retry: false, // Fail fast to show error

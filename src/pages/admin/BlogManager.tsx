@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Plus, Edit, Trash2, Sparkles, Eye } from "lucide-react";
+import { Loader2, Plus, Edit, Trash2, Sparkles, Eye, ChevronDown, ChevronUp, FileText, Search } from "lucide-react";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 
@@ -45,6 +45,8 @@ const initialFormData = {
   status: "draft" as "draft" | "published",
 };
 
+type PostFilter = "all" | "published" | "draft";
+
 const BlogManager = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
@@ -52,6 +54,9 @@ const BlogManager = () => {
   const [aiTopic, setAiTopic] = useState("");
   const [aiContext, setAiContext] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [filter, setFilter] = useState<PostFilter>("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -67,6 +72,19 @@ const BlogManager = () => {
       return data as BlogPost[];
     },
   });
+
+  const publishedCount = posts?.filter(p => p.status === "published").length || 0;
+  const draftCount = posts?.filter(p => p.status === "draft").length || 0;
+
+  const filteredPosts = posts?.filter(post => {
+    if (filter === "published" && post.status !== "published") return false;
+    if (filter === "draft" && post.status !== "draft") return false;
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      return post.title.toLowerCase().includes(term) || post.slug.toLowerCase().includes(term);
+    }
+    return true;
+  }) || [];
 
   const saveMutation = useMutation({
     mutationFn: async (data: typeof formData & { id?: string }) => {
@@ -187,6 +205,8 @@ const BlogManager = () => {
           author_name: "",
           status: "draft",
         });
+        setAiPanelOpen(false);
+        setIsDialogOpen(true);
         toast({ title: "Success", description: "Blog post generated! Review and edit before publishing." });
       }
     } catch (error: any) {
@@ -210,99 +230,150 @@ const BlogManager = () => {
 
   return (
     <AdminLayout>
-      <div className="space-y-8">
-        <div className="flex items-center justify-between">
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <h1 className="font-serif text-display mb-2">Website SEAL Generator</h1>
-            <p className="text-muted-foreground">Create and manage website SEAL content with AI assistance</p>
+            <h1 className="font-serif text-display mb-2">Blog Manager</h1>
+            <p className="text-muted-foreground">Create SEO-optimized content with AI assistance</p>
           </div>
-          <Button onClick={openNewDialog}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Post
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setAiPanelOpen(!aiPanelOpen)} className="gap-2">
+              <Sparkles size={14} />
+              AI Generate
+              {aiPanelOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </Button>
+            <Button onClick={openNewDialog}>
+              <Plus className="h-4 w-4 mr-2" />
+              New Post
+            </Button>
+          </div>
         </div>
 
-        {/* AI Generation Panel */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
-              AI SEAL Generator
-            </CardTitle>
-            <CardDescription>
-              Generate AEO-optimized blog content using AI
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="topic">Topic</Label>
-                <Input
-                  id="topic"
-                  placeholder="e.g., How to press wedding flowers"
-                  value={aiTopic}
-                  onChange={(e) => setAiTopic(e.target.value)}
-                />
+        {/* AI Generation Panel — collapsible */}
+        {aiPanelOpen && (
+          <Card className="border-primary/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                AI Content Generator
+              </CardTitle>
+              <CardDescription>
+                Generate SEO-optimized blog content using AI. The post will open in the editor for review.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="topic">Topic</Label>
+                  <Input
+                    id="topic"
+                    placeholder="e.g., How to press wedding flowers"
+                    value={aiTopic}
+                    onChange={(e) => setAiTopic(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="context">Additional Context (optional)</Label>
+                  <Input
+                    id="context"
+                    placeholder="e.g., Focus on beginners, include tips for roses"
+                    value={aiContext}
+                    onChange={(e) => setAiContext(e.target.value)}
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="context">Additional Context (optional)</Label>
-                <Input
-                  id="context"
-                  placeholder="e.g., Focus on beginners, include tips for roses"
-                  value={aiContext}
-                  onChange={(e) => setAiContext(e.target.value)}
-                />
-              </div>
-            </div>
-            <Button onClick={handleGenerateAI} disabled={isGenerating}>
-              {isGenerating ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Generate Blog Post
-                </>
-              )}
-            </Button>
-          </CardContent>
-        </Card>
+              <Button onClick={handleGenerateAI} disabled={isGenerating}>
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Generate Blog Post
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Posts List */}
         <Card>
           <CardHeader>
-            <CardTitle>All Posts</CardTitle>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <CardTitle>All Posts</CardTitle>
+              <div className="flex items-center gap-2">
+                {/* Filter tabs */}
+                <div className="flex gap-1 p-1 bg-secondary/50 rounded-xl">
+                  {([
+                    { key: "all" as PostFilter, label: "All", count: posts?.length || 0 },
+                    { key: "published" as PostFilter, label: "Published", count: publishedCount },
+                    { key: "draft" as PostFilter, label: "Drafts", count: draftCount },
+                  ]).map((tab) => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setFilter(tab.key)}
+                      className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                        filter === tab.key
+                          ? "bg-background shadow-sm text-foreground"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {tab.label}
+                      <span className="text-[10px] opacity-60">({tab.count})</span>
+                    </button>
+                  ))}
+                </div>
+                {/* Search */}
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Search posts..."
+                    className="pl-8 h-9 w-48 text-sm"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             {isLoading ? (
               <div className="flex justify-center py-8">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
               </div>
-            ) : posts?.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                No blog posts yet. Create your first post above!
+            ) : filteredPosts.length === 0 ? (
+              <div className="text-center py-12">
+                <FileText className="h-12 w-12 mx-auto text-muted-foreground opacity-40 mb-4" />
+                <h3 className="text-lg font-medium mb-1">No posts found</h3>
+                <p className="text-sm text-muted-foreground">
+                  {searchTerm || filter !== "all"
+                    ? "Try adjusting your search or filter."
+                    : "Create your first post to get started!"}
+                </p>
               </div>
             ) : (
-              <div className="space-y-4">
-                {posts?.map((post) => (
+              <div className="space-y-3">
+                {filteredPosts.map((post) => (
                   <div
                     key={post.id}
-                    className="flex items-center justify-between p-4 border border-divider rounded-lg hover:bg-secondary/50 transition-colors"
+                    className="flex items-center justify-between p-4 border border-divider rounded-xl hover:bg-secondary/50 transition-colors"
                   >
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1">
-                        <h3 className="font-medium">{post.title}</h3>
-                        <Badge variant={post.status === "published" ? "default" : "secondary"}>
+                        <h3 className="font-medium truncate">{post.title}</h3>
+                        <Badge variant={post.status === "published" ? "default" : "secondary"} className="shrink-0">
                           {post.status}
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        /{post.slug} • Created {format(new Date(post.created_at), "MMM d, yyyy")}
+                        /{post.slug} • {format(new Date(post.created_at), "MMM d, yyyy")}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 shrink-0 ml-3">
                       {post.status === "published" && (
                         <Button variant="ghost" size="icon" asChild>
                           <Link to={`/blog/${post.slug}`} target="_blank">
