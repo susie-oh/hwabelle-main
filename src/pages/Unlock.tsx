@@ -108,12 +108,48 @@ const UnlockPage = () => {
 
     const autoClaimLock = useRef(false);
 
+    // Core verification function — checks live Supabase session, not stale React state
+    const verifyOrder = async (targetOrderId = orderId, targetEmail = email) => {
+        setSubmitState("loading");
+        try {
+            const { data, error } = await supabase.functions.invoke("verify-order", {
+                body: { order_number: targetOrderId, email: targetEmail },
+            });
+
+            if (error) throw new Error(error.message);
+            if (!data || !data.state) throw new Error("Invalid response");
+
+            if (data.state === "success") {
+                // Always check the LIVE session from Supabase, not the React state closure
+                const { data: sessionData } = await supabase.auth.getSession();
+                if (sessionData?.session) {
+                    setSubmitState("success");
+                    localStorage.removeItem("pending_designer_claim");
+                } else {
+                    // Stage A passed, need Stage B
+                    setAuthEmail(targetEmail); // prepopulate auth email with order email
+                    setSubmitState("auth-required");
+                    localStorage.setItem("pending_designer_claim", JSON.stringify({ 
+                        orderId: targetOrderId, 
+                        email: targetEmail 
+                    }));
+                }
+            } else {
+                setSubmitState(data.state as SubmitState);
+            }
+        } catch (err) {
+            console.error("Verification failed:", err);
+            setSubmitState("not-found"); // Safe generic fallback
+        }
+    };
+
     useEffect(() => {
-        // Init session via onAuthStateChange (fires INITIAL_SESSION immediately, no lock needed)
+        // Init session via onAuthStateChange
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             setSession(session);
-            // Auto-claim immediately when we detect a confirmed sign-in from email link
-            if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session) {
+            // Auto-claim when user arrives from email confirmation link OR signs in
+            // INITIAL_SESSION fires on email link redirects, SIGNED_IN fires on password login
+            if ((event === "INITIAL_SESSION" || event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session) {
                 const pendingClaimStr = localStorage.getItem("pending_designer_claim");
                 if (pendingClaimStr) {
                     try {
@@ -148,38 +184,6 @@ const UnlockPage = () => {
 
     const orderIdEmpty = orderId.trim() === "";
     const emailInvalid = email.trim() === "" || !email.includes("@");
-
-    const verifyOrder = async (targetOrderId = orderId, targetEmail = email) => {
-        setSubmitState("loading");
-        try {
-            const { data, error } = await supabase.functions.invoke("verify-order", {
-                body: { order_number: targetOrderId, email: targetEmail },
-            });
-
-            if (error) throw new Error(error.message);
-            if (!data || !data.state) throw new Error("Invalid response");
-
-            if (data.state === "success") {
-                if (session) {
-                    setSubmitState("success");
-                    localStorage.removeItem("pending_designer_claim");
-                } else {
-                    // Stage A passed, need Stage B
-                    setAuthEmail(targetEmail); // prepopulate auth email with order email
-                    setSubmitState("auth-required");
-                    localStorage.setItem("pending_designer_claim", JSON.stringify({ 
-                        orderId: targetOrderId, 
-                        email: targetEmail 
-                    }));
-                }
-            } else {
-                setSubmitState(data.state as SubmitState);
-            }
-        } catch (err) {
-            console.error("Verification failed:", err);
-            setSubmitState("not-found"); // Safe generic fallback
-        }
-    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
