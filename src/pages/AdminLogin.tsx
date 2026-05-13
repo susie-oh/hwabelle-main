@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -17,11 +17,12 @@ const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Redirect if already logged in as admin
-  if (!isLoading && user && isAdmin) {
-    navigate("/admin/dashboard");
-    return null;
-  }
+  // Redirect when admin status is confirmed (works for both fresh login and already-logged-in)
+  useEffect(() => {
+    if (!isLoading && user && isAdmin) {
+      navigate("/admin/dashboard");
+    }
+  }, [user, isAdmin, isLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,12 +41,16 @@ const AdminLogin = () => {
         return;
       }
 
-      // Give the auth state a moment to resolve isAdmin, then check
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      toast({
+        title: "Login successful",
+        description: "Checking admin privileges...",
+      });
 
-      // If still not admin after waiting, the user doesn't have the role
-      // The redirect on line 21 handles it if they do — so nothing to do here.
-      setIsSubmitting(false);
+      // The useEffect above handles navigation once isAdmin becomes true.
+      // Fallback: unlock the button after 3s if user isn't admin.
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, 3000);
     } catch (err) {
       toast({
         title: "Error",

@@ -1,4 +1,4 @@
-import { useEffect, useState, createContext, useContext, ReactNode } from "react";
+import { useEffect, useState, useCallback, createContext, useContext, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -44,6 +44,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen for auth changes (fires INITIAL_SESSION immediately)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        // Keep isLoading true while we resolve everything
+        setIsLoading(true);
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
@@ -52,6 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           setIsAdmin(false);
         }
+        // Only set isLoading false AFTER all state is resolved
         setIsLoading(false);
       }
     );
