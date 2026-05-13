@@ -126,6 +126,9 @@ const MyOrders = () => {
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (cancelled) return;
+            
+            // Ignore background token refreshes to prevent UI flashing/unmounting
+            if (event === "TOKEN_REFRESHED") return;
 
             if (sessionId) {
                 // Always clear cart on post-checkout landing
