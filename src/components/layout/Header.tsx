@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ShoppingBag, User } from "lucide-react";
 import { useState } from "react";
-import logo from "@/assets/hwabelle-full-logo.jpg";
+import logo from "@/assets/hwabelle-logo.png";
 import { useCart } from "@/hooks/useCart";
 
 const Header = () => {

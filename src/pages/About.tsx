@@ -204,26 +204,36 @@ const About = () => {
       <section className="py-16 md:py-24 bg-secondary">
         <div className="container">
           <h2 className="font-serif text-display mb-10 text-center">Meet the Founder</h2>
-          <div className="max-w-md mx-auto px-6">
+          <div className="max-w-4xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <Dialog>
               <DialogTrigger asChild>
                 <div className="overflow-hidden rounded-xl aspect-square md:aspect-[4/5] cursor-pointer shadow-sm">
                   <img
                     src="/founders-photos/hwabelle-founder.jpeg"
-                    alt="Founder of Hwabelle"
+                    alt="Susie Oh - Founder of Hwabelle"
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                   />
                 </div>
               </DialogTrigger>
               <DialogContent className="max-w-[90vw] md:max-w-4xl bg-transparent border-none shadow-none p-0 flex justify-center items-center [&>button]:text-white">
-                <DialogTitle className="sr-only">Founder of Hwabelle</DialogTitle>
+                <DialogTitle className="sr-only">Susie Oh - Founder of Hwabelle</DialogTitle>
                 <img
                   src="/founders-photos/hwabelle-founder.jpeg"
-                  alt="Founder of Hwabelle"
+                  alt="Susie Oh - Founder of Hwabelle"
                   className="w-auto h-auto max-w-full max-h-[85vh] object-contain rounded-md"
                 />
               </DialogContent>
             </Dialog>
+
+            <div className="space-y-6 text-muted-foreground leading-relaxed text-center md:text-left">
+              <h3 className="font-serif text-3xl text-foreground">Susie Oh</h3>
+              <p>
+                As the founder of Hwabelle, Susie draws inspiration from her Korean heritage and a deep-rooted love for botanical arts passed down from her father. With an eye for design and a passion for preservation, she created Hwabelle to bring the timeless craft of flower pressing to a modern audience.
+              </p>
+              <p>
+                Her mission is simple: to provide beautiful, high-quality tools that help everyone capture the fleeting beauty of nature and turn it into lasting memories. Through Hwabelle, she hopes to share the meditative, calming experience of pressing flowers with creators everywhere.
+              </p>
+            </div>
           </div>
         </div>
       </section>

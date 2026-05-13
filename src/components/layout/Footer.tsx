@@ -2,20 +2,39 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Instagram, Facebook } from "lucide-react";
+import { Instagram, Facebook, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import logoWhite from "@/assets/hwabelle-logo-white.png";
 
 const Footer = () => {
   const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
-    toast.success("Thanks for subscribing!", {
-      description: "You'll receive our latest tips and updates.",
-    });
-    setEmail("");
+    
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.functions.invoke('subscribe-newsletter', {
+        body: { email }
+      });
+
+      if (error) throw error;
+
+      toast.success("Thanks for subscribing!", {
+        description: "You'll receive our latest tips and updates.",
+      });
+      setEmail("");
+    } catch (error) {
+      console.error("Error subscribing:", error);
+      toast.error("Failed to subscribe", {
+        description: "Please try again later."
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -37,10 +56,11 @@ const Footer = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isSubmitting}
                 className="bg-transparent border-primary-foreground/30 text-primary-foreground placeholder:text-primary-foreground/50 flex-1"
               />
-              <Button variant="outline" type="submit" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-foreground">
-                Subscribe
+              <Button variant="outline" type="submit" disabled={isSubmitting} className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-foreground">
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Subscribe"}
               </Button>
             </form>
           </div>
@@ -56,7 +76,7 @@ const Footer = () => {
               <img
                 src={logoWhite}
                 alt="Hwabelle"
-                className="h-12 w-auto mb-4"
+                className="h-16 w-auto mb-6"
               />
             </Link>
             <p className="text-sm text-primary-foreground/60 leading-relaxed">
