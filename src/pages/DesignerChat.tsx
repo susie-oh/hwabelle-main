@@ -10,6 +10,7 @@ import {
     ImagePlus, Send, X, Sparkles, Loader2, ArrowDown,
     Leaf, Flower2, Camera, Upload, Lock, AlertCircle,
     Check, ChevronRight, LogIn, UserPlus, ShieldCheck,
+    Plus, Menu, MessageSquare,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,6 +56,9 @@ const DesignerChat = () => {
     const [authLoading, setAuthLoading] = useState(false);
 
     // ─── Chat state ────────────────────────────────────────────────────────────
+    const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+    const [sessions, setSessions] = useState<{ id: string; title: string; updated_at: string }[]>([]);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [image, setImage] = useState<File | null>(null);
@@ -124,6 +128,57 @@ const DesignerChat = () => {
             setAccessState("error");
         }
     }, []);
+
+    const loadSessions = useCallback(async () => {
+        if (!sessionJwt) return;
+        try {
+            const { data, error } = await supabase
+                .from('ai_chat_sessions')
+                .select('id, title, updated_at')
+                .order('updated_at', { ascending: false });
+            if (!error && data) {
+                setSessions(data);
+            }
+        } catch (e) { console.error(e); }
+    }, [sessionJwt]);
+
+    useEffect(() => {
+        if (accessState === 'entitled') {
+            loadSessions();
+        }
+    }, [accessState, loadSessions]);
+
+    const loadSessionMessages = async (sessionId: string) => {
+        setIsLoading(true);
+        setActiveSessionId(sessionId);
+        setMessages([]);
+        try {
+            const { data, error } = await supabase
+                .from('ai_chat_messages')
+                .select('role, content, image_url, created_at')
+                .eq('session_id', sessionId)
+                .order('created_at', { ascending: true });
+                
+            if (!error && data) {
+                setMessages(data.map(m => ({
+                    role: m.role as "user" | "assistant",
+                    content: m.content,
+                    imagePreview: m.image_url || undefined
+                })));
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsLoading(false);
+        }
+        setIsSidebarOpen(false); // Close sidebar on mobile
+    };
+
+    const startNewChat = () => {
+        setActiveSessionId(null);
+        setMessages([]);
+        setIsSidebarOpen(false);
+    };
 
     // ─── Auth handlers ─────────────────────────────────────────────────────────
     const handleAuth = async (e: React.FormEvent) => {
@@ -224,12 +279,13 @@ const DesignerChat = () => {
                 formData.append("message", text);
                 formData.append("image", currentImage);
                 formData.append("history", JSON.stringify(history));
+                if (activeSessionId) formData.append("session_id", activeSessionId);
                 response = await fetch(DESIGNER_URL, { method: "POST", headers: authHeader, body: formData });
             } else {
                 response = await fetch(DESIGNER_URL, {
                     method: "POST",
                     headers: { ...authHeader, "Content-Type": "application/json" },
-                    body: JSON.stringify({ message: text, history }),
+                    body: JSON.stringify({ message: text, history, session_id: activeSessionId }),
                 });
             }
 
@@ -243,6 +299,11 @@ const DesignerChat = () => {
             }
 
             setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+
+            if (data.session_id && data.session_id !== activeSessionId) {
+                setActiveSessionId(data.session_id);
+                loadSessions(); // refresh sidebar
+            }
         } catch (err) {
             setMessages((prev) => [
                 ...prev,
@@ -544,29 +605,65 @@ const DesignerChat = () => {
 
                 {/* ── Active chat ── */}
                 {accessState === "entitled" && (
-                    <>
-                        {/* Chat sub-header */}
-                        <div className="border-b border-divider/50 backdrop-blur-md z-10 flex-shrink-0 pt-16 md:pt-20" style={{ background: "hsla(var(--background), 0.85)" }}>
-                            <div className="container max-w-3xl py-4 px-4 flex items-center gap-3">
-                                <div className="relative">
-                                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-green-600/20 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                                        <Sparkles size={18} className="text-emerald-600 dark:text-emerald-400" />
-                                    </div>
-                                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-background" />
-                                </div>
-                                <div>
-                                    <h1 className="font-serif text-lg leading-tight">Floral Designer</h1>
-                                    <p className="text-xs text-muted-foreground">Your botanical companion</p>
-                                </div>
+                    <div className="absolute inset-0 flex flex-row overflow-hidden pt-16 md:pt-20">
+                        {/* Sidebar */}
+                        <div className={`w-64 border-r border-divider/50 bg-background/50 backdrop-blur-lg flex-col transition-all z-20 absolute md:relative h-full ${isSidebarOpen ? "flex left-0" : "hidden md:flex left-[-256px] md:left-0"} shadow-xl md:shadow-none`}>
+                            <div className="p-4 border-b border-divider/50 flex justify-between items-center bg-background/80">
+                                <h3 className="font-medium text-sm text-foreground flex items-center gap-2"><MessageSquare size={16}/> Conversations</h3>
+                                <Button variant="ghost" size="icon" onClick={startNewChat} className="h-8 w-8 rounded-full bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20" title="New chat">
+                                    <Plus size={16} />
+                                </Button>
                             </div>
+                            <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                                {sessions.length === 0 ? (
+                                    <p className="text-xs text-muted-foreground text-center mt-6">No past conversations</p>
+                                ) : (
+                                    sessions.map(s => (
+                                        <button 
+                                            key={s.id} 
+                                            onClick={() => loadSessionMessages(s.id)}
+                                            className={`w-full text-left px-3 py-2.5 text-sm rounded-xl truncate transition-colors ${activeSessionId === s.id ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-medium' : 'hover:bg-black/5 dark:hover:bg-white/5 text-muted-foreground hover:text-foreground'}`}
+                                        >
+                                            {s.title}
+                                        </button>
+                                    ))
+                                )}
+                            </div>
+                            {/* Mobile close overlay */}
+                            {isSidebarOpen && (
+                                <button className="md:hidden absolute top-0 -right-12 w-12 h-12 flex items-center justify-center text-foreground bg-background/50 backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)}>
+                                    <X size={20} />
+                                </button>
+                            )}
                         </div>
 
-                        {/* Messages */}
-                        <div
-                            ref={messagesContainerRef}
-                            onScroll={handleScroll}
-                            className="flex-1 overflow-y-auto min-h-0"
-                        >
+                        {/* Main Chat Area */}
+                        <div className="flex-1 flex flex-col overflow-hidden relative min-w-0">
+                            {/* Chat sub-header */}
+                            <div className="border-b border-divider/50 backdrop-blur-md z-10 flex-shrink-0" style={{ background: "hsla(var(--background), 0.85)" }}>
+                                <div className="container max-w-3xl py-3 px-4 flex items-center gap-3">
+                                    <button className="md:hidden mr-1 text-muted-foreground hover:text-foreground" onClick={() => setIsSidebarOpen(true)}>
+                                        <Menu size={24} />
+                                    </button>
+                                    <div className="relative">
+                                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-green-600/20 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                                            <Sparkles size={18} className="text-emerald-600 dark:text-emerald-400" />
+                                        </div>
+                                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-background" />
+                                    </div>
+                                    <div>
+                                        <h1 className="font-serif text-lg leading-tight">Floral Designer</h1>
+                                        <p className="text-xs text-muted-foreground">Your botanical companion</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Messages */}
+                            <div
+                                ref={messagesContainerRef}
+                                onScroll={handleScroll}
+                                className="flex-1 overflow-y-auto min-h-0"
+                            >
                             {isEmpty ? (
                                 <div className="container max-w-2xl py-12 px-4 flex flex-col items-center">
                                     <motion.div
@@ -723,8 +820,9 @@ const DesignerChat = () => {
                                 </div>
                                 <p className="text-[11px] text-muted-foreground/60 mt-2 text-center">Enter to send · Shift+Enter for new line</p>
                             </div>
+                            </div>
                         </div>
-                    </>
+                    </div>
                 )}
             </div>
         </div>

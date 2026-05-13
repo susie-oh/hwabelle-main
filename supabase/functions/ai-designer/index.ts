@@ -337,7 +337,7 @@ serve(async (req) => {
     });
   }
 
-  // ── Entitlement verified — proceed with AI request ────────────────────────
+    // ── Entitlement verified — proceed with AI request ────────────────────────
   try {
     const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
     if (!GOOGLE_API_KEY) throw new Error("GOOGLE_API_KEY is not configured");
@@ -348,10 +348,13 @@ serve(async (req) => {
     let imageBase64: string | null = null;
     let imageMimeType = "image/jpeg";
     let history: Array<{ role: string; content: string }> = [];
+    let sessionId: string | null = null;
+    let imageUrl: string | null = null;
 
     if (contentType.includes("multipart/form-data")) {
       const formData = await req.formData();
       userMessage = (formData.get("message") as string) || "";
+      sessionId = formData.get("session_id") as string | null;
       const historyStr = formData.get("history") as string;
       if (historyStr) {
         try { history = JSON.parse(historyStr); } catch { /* ignore */ }
@@ -366,11 +369,51 @@ serve(async (req) => {
           binary += String.fromCharCode(uint8Array[i]);
         }
         imageBase64 = btoa(binary);
+
+        // Upload to Supabase Storage to get a public URL for chat history
+        const filePath = `${user.id}/${Date.now()}-${imageFile.name || 'uploaded_image'}`;
+        const { data: uploadData, error: uploadErr } = await userClient.storage
+          .from('chat-images')
+          .upload(filePath, arrayBuffer, { contentType: imageMimeType });
+          
+        if (!uploadErr && uploadData) {
+          const { data: publicUrlData } = userClient.storage.from('chat-images').getPublicUrl(filePath);
+          imageUrl = publicUrlData.publicUrl;
+        }
       }
     } else {
       const body = await req.json();
       userMessage = body.message || "";
+      sessionId = body.session_id || null;
       history = body.history || [];
+    }
+
+    // ── Database: Manage Session & Save User Message ──
+    if (!sessionId) {
+      // Create new session
+      const title = userMessage ? (userMessage.length > 30 ? userMessage.substring(0, 30) + '...' : userMessage) : 'Image Analysis';
+      const { data: sessionData, error: sessionErr } = await userClient
+        .from('ai_chat_sessions')
+        .insert({ user_id: user.id, title })
+        .select()
+        .single();
+      
+      if (!sessionErr && sessionData) {
+        sessionId = sessionData.id;
+      }
+    } else {
+      // Update updated_at
+      await userClient.from('ai_chat_sessions').update({ updated_at: new Date().toISOString() }).eq('id', sessionId);
+    }
+
+    if (sessionId) {
+      // Save user message
+      await userClient.from('ai_chat_messages').insert({
+        session_id: sessionId,
+        role: 'user',
+        content: userMessage || 'Uploaded an image',
+        image_url: imageUrl
+      });
     }
 
     // Build Gemini multi-turn conversation using proper system_instruction
@@ -415,15 +458,25 @@ serve(async (req) => {
     const aiResponse = await response.json();
     const reply = aiResponse.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
 
+    // ── Database: Save Assistant Message ──
+    if (sessionId) {
+      await userClient.from('ai_chat_messages').insert({
+        session_id: sessionId,
+        role: 'assistant',
+        content: reply
+      });
+    }
+
     console.log(JSON.stringify({
       function: "ai-designer",
       event: "response_ok",
       user_id: user.id,
+      session_id: sessionId,
       latency_ms: Date.now() - t0,
       ts: new Date().toISOString(),
     }));
 
-    return new Response(JSON.stringify({ reply }), {
+    return new Response(JSON.stringify({ reply, session_id: sessionId }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
