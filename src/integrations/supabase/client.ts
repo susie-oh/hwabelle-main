@@ -13,5 +13,10 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
+    // Add custom lock to prevent gotrue-js deadlocks on simultaneous queries (e.g. Admin Dashboard)
+    lock: async (name, acquireTimeout, acquire) => {
+      // By executing acquire() directly, we bypass navigator.locks which causes contention
+      await acquire();
+    },
   }
 });
