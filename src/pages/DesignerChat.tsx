@@ -89,7 +89,7 @@ const DesignerChat = () => {
             if (sessionIdFromUrl) {
                 if (session) {
                     // Already authenticated — skip activation, go straight to entitlement check
-                    checkEntitlement(session.access_token);
+                    checkEntitlement(session.access_token, session.user?.id);
                 } else if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
                     // Show activation step (post-checkout sign-in/up prompt)
                     setAccessState("activation");
@@ -99,7 +99,7 @@ const DesignerChat = () => {
 
             // Normal navigation
             if (session) {
-                checkEntitlement(session.access_token);
+                checkEntitlement(session.access_token, session.user?.id);
             } else if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
                 setAccessState("unauthenticated");
             }
@@ -111,8 +111,18 @@ const DesignerChat = () => {
         };
     }, [sessionIdFromUrl]);
 
-    // ─── Server-side entitlement check ────────────────────────────────────────
-    const checkEntitlement = useCallback(async (jwt: string) => {
+    // ─── Server-side entitlement check (with session cache) ───────────────────
+    const checkEntitlement = useCallback(async (jwt: string, userId?: string) => {
+        // Fast path: if we already verified this user in this browser session, skip the network call
+        const cacheKey = userId ? `hwb_ent_${userId}` : null;
+        if (cacheKey) {
+            const cached = sessionStorage.getItem(cacheKey);
+            if (cached === "entitled") {
+                setAccessState("entitled");
+                return;
+            }
+        }
+
         setAccessState("checking");
         try {
             const res = await supabase.functions.invoke("get-entitlement", {
@@ -122,7 +132,13 @@ const DesignerChat = () => {
             if (res.error) throw new Error(res.error.message);
 
             const data = res.data as { has_access: boolean };
-            setAccessState(data.has_access ? "entitled" : "no-access");
+            const result = data.has_access ? "entitled" : "no-access";
+            setAccessState(result);
+
+            // Cache the result so navigating away and back is instant
+            if (cacheKey && result === "entitled") {
+                sessionStorage.setItem(cacheKey, result);
+            }
         } catch (err) {
             console.error("Entitlement check failed:", err);
             setAccessState("error");
