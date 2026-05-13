@@ -43,17 +43,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Listen for auth changes (fires INITIAL_SESSION immediately)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        // Keep isLoading true while we resolve everything
+      async (event, session) => {
+        // If the token is just refreshing, we don't want to show a loading screen 
+        // because that unmounts the dashboard and causes severe UI lag.
+        if (event === "TOKEN_REFRESHED") {
+          setSession(session);
+          setUser(session?.user ?? null);
+          return;
+        }
+
+        // For INITIAL_SESSION, SIGNED_IN, SIGNED_OUT, etc.
         setIsLoading(true);
         setSession(session);
         setUser(session?.user ?? null);
+        
         if (session?.user) {
           const adminStatus = await checkAdminRole(session.user.id);
           setIsAdmin(adminStatus);
         } else {
           setIsAdmin(false);
         }
+        
         // Only set isLoading false AFTER all state is resolved
         setIsLoading(false);
       }

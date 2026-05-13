@@ -45,7 +45,13 @@ import EmailCompose from "./pages/admin/EmailCompose";
 import EmailCustomers from "./pages/admin/EmailCustomers";
 import EmailSettings from "./pages/admin/EmailSettings";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // Initialize Google Analytics
 initGA();
