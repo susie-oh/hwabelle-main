@@ -40,16 +40,12 @@ const AdminLogin = () => {
         return;
       }
 
-      // Check if user has admin role after login
-      toast({
-        title: "Login successful",
-        description: "Checking admin privileges...",
-      });
+      // Give the auth state a moment to resolve isAdmin, then check
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      // Small delay to let auth state update
-      setTimeout(() => {
-        navigate("/admin/dashboard");
-      }, 500);
+      // If still not admin after waiting, the user doesn't have the role
+      // The redirect on line 21 handles it if they do — so nothing to do here.
+      setIsSubmitting(false);
     } catch (err) {
       toast({
         title: "Error",
