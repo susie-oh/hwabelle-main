@@ -371,14 +371,21 @@ serve(async (req) => {
         imageBase64 = btoa(binary);
 
         // Upload to Supabase Storage to get a public URL for chat history
-        const filePath = `${user.id}/${Date.now()}-${imageFile.name || 'uploaded_image'}`;
-        const { data: uploadData, error: uploadErr } = await userClient.storage
-          .from('chat-images')
-          .upload(filePath, arrayBuffer, { contentType: imageMimeType });
-          
-        if (!uploadErr && uploadData) {
-          const { data: publicUrlData } = userClient.storage.from('chat-images').getPublicUrl(filePath);
-          imageUrl = publicUrlData.publicUrl;
+        try {
+          const ext = imageMimeType.split('/')[1] || 'jpg';
+          const filePath = `${user.id}/${Date.now()}.${ext}`;
+          const { data: uploadData, error: uploadErr } = await adminClient.storage
+            .from('chat-images')
+            .upload(filePath, uint8Array, { contentType: imageMimeType, upsert: false });
+            
+          if (uploadErr) {
+            console.error(JSON.stringify({ function: "ai-designer", event: "storage_upload_error", error: uploadErr.message, user_id: user.id }));
+          } else if (uploadData) {
+            const { data: publicUrlData } = adminClient.storage.from('chat-images').getPublicUrl(filePath);
+            imageUrl = publicUrlData.publicUrl;
+          }
+        } catch (storageErr) {
+          console.error(JSON.stringify({ function: "ai-designer", event: "storage_upload_exception", error: String(storageErr), user_id: user.id }));
         }
       }
     } else {
@@ -388,32 +395,37 @@ serve(async (req) => {
       history = body.history || [];
     }
 
-    // ── Database: Manage Session & Save User Message ──
+    // ── Database: Manage Session & Save User Message (using adminClient to bypass RLS) ──
     if (!sessionId) {
       // Create new session
       const title = userMessage ? (userMessage.length > 30 ? userMessage.substring(0, 30) + '...' : userMessage) : 'Image Analysis';
-      const { data: sessionData, error: sessionErr } = await userClient
+      const { data: sessionData, error: sessionErr } = await adminClient
         .from('ai_chat_sessions')
         .insert({ user_id: user.id, title })
         .select()
         .single();
       
-      if (!sessionErr && sessionData) {
+      if (sessionErr) {
+        console.error(JSON.stringify({ function: "ai-designer", event: "session_create_error", error: sessionErr.message, user_id: user.id }));
+      } else if (sessionData) {
         sessionId = sessionData.id;
       }
     } else {
       // Update updated_at
-      await userClient.from('ai_chat_sessions').update({ updated_at: new Date().toISOString() }).eq('id', sessionId);
+      await adminClient.from('ai_chat_sessions').update({ updated_at: new Date().toISOString() }).eq('id', sessionId);
     }
 
     if (sessionId) {
       // Save user message
-      await userClient.from('ai_chat_messages').insert({
+      const { error: msgErr } = await adminClient.from('ai_chat_messages').insert({
         session_id: sessionId,
         role: 'user',
         content: userMessage || 'Uploaded an image',
         image_url: imageUrl
       });
+      if (msgErr) {
+        console.error(JSON.stringify({ function: "ai-designer", event: "msg_save_error", error: msgErr.message, session_id: sessionId }));
+      }
     }
 
     // Build Gemini multi-turn conversation using proper system_instruction
@@ -460,11 +472,14 @@ serve(async (req) => {
 
     // ── Database: Save Assistant Message ──
     if (sessionId) {
-      await userClient.from('ai_chat_messages').insert({
+      const { error: replyErr } = await adminClient.from('ai_chat_messages').insert({
         session_id: sessionId,
         role: 'assistant',
         content: reply
       });
+      if (replyErr) {
+        console.error(JSON.stringify({ function: "ai-designer", event: "reply_save_error", error: replyErr.message, session_id: sessionId }));
+      }
     }
 
     console.log(JSON.stringify({
