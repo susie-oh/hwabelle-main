@@ -75,6 +75,12 @@ const DesignerChat = () => {
             // Store JWT for use in sendMessage without re-calling getSession
             setSessionJwt(session?.access_token ?? null);
 
+            // Ignore silent background refreshes from tab focusing to prevent 
+            // unmounting the active chat UI and showing "Verifying access..."
+            if (event === "TOKEN_REFRESHED") {
+                return;
+            }
+
             // If there's a session_id in the URL, the user just came from checkout.
             if (sessionIdFromUrl) {
                 if (session) {
