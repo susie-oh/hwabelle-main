@@ -1,4 +1,5 @@
 import AdminLayout from "@/components/admin/AdminLayout";
+import { AmazonOrdersCard } from "@/components/admin/AmazonOrdersCard";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -269,6 +270,9 @@ const Dashboard = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* ── Amazon Orders ── */}
+        <AmazonOrdersCard />
 
         {/* ── Site Links ── */}
         <div className="flex gap-3">
