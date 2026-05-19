@@ -1,8 +1,21 @@
 import Layout from "@/components/layout/Layout";
+import Seo from "@/components/seo/Seo";
+import { breadcrumbSchema } from "@/lib/schema";
 
 const Terms = () => {
   return (
     <Layout>
+      <Seo
+        title="Terms of Service | Hwabelle"
+        description="Review the Hwabelle terms of service for site usage, product information, ordering, fulfillment, returns, and legal terms."
+        path="/terms"
+        schema={[
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Terms of Service", path: "/terms" },
+          ]),
+        ]}
+      />
       <section className="py-16 md:py-24 bg-background">
         <div className="container">
           <div className="max-w-3xl mx-auto">

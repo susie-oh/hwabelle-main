@@ -1,4 +1,6 @@
 import Layout from "@/components/layout/Layout";
+import Seo from "@/components/seo/Seo";
+import { breadcrumbSchema } from "@/lib/schema";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import productImage from "@/assets/capture-moment.jpeg";
@@ -6,27 +8,32 @@ import designerImage from "@/assets/digital-designer.jpeg";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import { ShoppingBag, Sparkles } from "lucide-react";
+import { PRODUCT_PATH, defaultKeywords } from "@/lib/site";
 
 const products = [
   {
     id: "flower-press-kit",
     name: "Acrylic Flower Press Kit",
-    variant: "For Beginners & Beyond",
+    variant: "For adults, beginners, and keepsake makers",
     price: 34.99,
-    description: "A complete DIY flower pressing kit with large and small acrylic press plates, blotting paper, and felt storage bags. Perfect for wedding bouquet preservation, botanical art, and everyday pressing.",
+    description:
+      "A complete acrylic flower pressing kit for preserving wedding bouquets, garden flowers, wildflowers, and meaningful blooms at home.",
     image: productImage,
-    detailUrl: "/product/flower-press-kit",
+    detailUrl: PRODUCT_PATH,
     type: "physical" as const,
+    alt: "Hwabelle acrylic flower press kit with preserved flowers",
   },
   {
     id: "ai-designer-access",
-    name: "AI Designer Access",
-    variant: "Digital Product",
+    name: "Flower Preservation Design Assistant",
+    variant: "Digital guidance for planning keepsakes",
     price: 19.99,
-    description: "Unlock your personal AI flower preservation expert. Get instant flower identification, pressing guidance, design inspiration, and access to the full 9-module preservation course.",
+    description:
+      "Get flower selection help, keepsake ideas, and beginner-friendly pressing guidance for bouquets, garden blooms, and botanical crafts.",
     image: designerImage,
     detailUrl: "/designer",
     type: "digital" as const,
+    alt: "Flower preservation design assistant preview for bouquet keepsakes",
   },
 ];
 
@@ -34,7 +41,7 @@ const Shop = () => {
   const { addItem } = useCart();
   const { toast } = useToast();
 
-  const handleAddToCart = (product: typeof products[0]) => {
+  const handleAddToCart = (product: (typeof products)[0]) => {
     addItem({
       id: product.id,
       name: product.name,
@@ -49,32 +56,61 @@ const Shop = () => {
 
   return (
     <Layout>
-      {/* Header */}
+      <Seo
+        title="Shop Hwabelle Flower Press Kits | Botanical Press Kits for Adults"
+        description="Explore Hwabelle flower press kits designed for beginners, crafters, gardeners, artists, and anyone preserving meaningful flowers at home."
+        path="/shop"
+        image={new URL(productImage, window.location.origin).toString()}
+        keywords={[...defaultKeywords, "botanical crafts", "flower preservation gift"]}
+        schema={[
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Shop", path: "/shop" },
+          ]),
+        ]}
+      />
+
       <section className="py-16 md:py-24 bg-secondary">
         <div className="container">
-          <div className="max-w-2xl">
+          <div className="max-w-3xl">
             <p className="caption mb-4">Shop</p>
-            <h1 className="font-serif text-display-lg mb-4">Shop Hwabelle</h1>
+            <h1 className="font-serif text-display-lg mb-4">
+              Shop Flower Press Kits for Meaningful Keepsakes
+            </h1>
             <p className="text-muted-foreground text-lg">
-              Flower press kits, AI-powered tools, and everything you need to preserve nature's beauty.
+              Explore flower pressing tools and guidance built for preserving wedding bouquets,
+              sentimental blooms, wildflowers, and garden flowers at home.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Products Grid */}
+      <section className="py-8 bg-background border-b border-divider">
+        <div className="container">
+          <div className="grid gap-4 text-sm text-muted-foreground md:grid-cols-4">
+            <p>Beginner-friendly setup</p>
+            <p>Ideal for bouquet and garden keepsakes</p>
+            <p>Clear what’s included before checkout</p>
+            <p>
+              Need planning help? <Link to="/designer" className="underline underline-offset-2">Try the design assistant</Link>
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section className="py-16 md:py-24 bg-background">
         <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 max-w-4xl">
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-12 max-w-5xl">
             {products.map((product) => (
-              <div key={product.id} className="group">
+              <article key={product.id} className="group">
                 <Link to={product.detailUrl} className="block">
-                  <div className="aspect-square mb-6 overflow-hidden bg-secondary rounded-lg relative">
+                  <div className="aspect-square mb-6 overflow-hidden rounded-lg bg-secondary relative">
                     {product.image ? (
                       <img
                         src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-105"
+                        alt={product.alt}
+                        className="h-full w-full object-contain p-4 transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
                       />
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-foreground/5 transition-colors group-hover:bg-foreground/10">
@@ -84,7 +120,7 @@ const Shop = () => {
                     )}
                   </div>
                 </Link>
-                <div className="flex justify-between items-start mb-2">
+                <div className="mb-2 flex items-start justify-between gap-4">
                   <div>
                     <h2 className="font-serif text-xl">{product.name}</h2>
                     <p className="text-muted-foreground text-sm">{product.variant}</p>
@@ -92,7 +128,7 @@ const Shop = () => {
                   <span className="font-serif text-lg">${product.price.toFixed(2)}</span>
                 </div>
                 <p className="text-muted-foreground text-sm mb-4">{product.description}</p>
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3">
                   <Button variant="hero-outline" size="sm" asChild>
                     <Link to={product.detailUrl}>View Details</Link>
                   </Button>
@@ -106,7 +142,7 @@ const Shop = () => {
                     Add to Cart
                   </Button>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         </div>

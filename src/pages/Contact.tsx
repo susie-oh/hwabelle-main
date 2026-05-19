@@ -1,4 +1,6 @@
 import Layout from "@/components/layout/Layout";
+import Seo from "@/components/seo/Seo";
+import { breadcrumbSchema } from "@/lib/schema";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -51,6 +53,17 @@ const Contact = () => {
 
   return (
     <Layout>
+      <Seo
+        title="Contact Hwabelle | Flower Press Kit Support"
+        description="Contact Hwabelle for flower pressing questions, bouquet preservation help, product details, and customer support."
+        path="/contact"
+        schema={[
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Contact", path: "/contact" },
+          ]),
+        ]}
+      />
       {/* Header */}
       <section className="py-16 md:py-24 bg-secondary">
         <div className="container">

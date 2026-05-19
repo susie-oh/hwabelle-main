@@ -1,8 +1,21 @@
 import Layout from "@/components/layout/Layout";
+import Seo from "@/components/seo/Seo";
+import { breadcrumbSchema } from "@/lib/schema";
 
 const Privacy = () => {
   return (
     <Layout>
+      <Seo
+        title="Privacy Policy | Hwabelle"
+        description="Read the Hwabelle privacy policy for information about data collection, order processing, shipping data, security, and customer privacy."
+        path="/privacy"
+        schema={[
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Privacy Policy", path: "/privacy" },
+          ]),
+        ]}
+      />
       <section className="py-16 md:py-24 bg-background">
         <div className="container">
           <div className="max-w-3xl mx-auto">

@@ -1,4 +1,6 @@
 import Layout from "@/components/layout/Layout";
+import Seo from "@/components/seo/Seo";
+import { breadcrumbSchema } from "@/lib/schema";
 import img1 from "@/assets/capture-moment.jpeg";
 import img2 from "@/assets/step-by-step.jpeg";
 import img3 from "@/assets/comparison.jpeg";
@@ -17,57 +19,66 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Autoplay from "embla-carousel-autoplay";
+import { defaultKeywords } from "@/lib/site";
 
 const About = () => {
   const carouselImages = [img1, img2, img3, img5];
   const values = [
     {
-      title: "Sustainability",
-      description: "We source materials responsibly and design products meant to last for generations."
+      title: "Thoughtful preservation",
+      description: "Hwabelle focuses on simple tools that help people preserve meaningful flowers before they fade.",
     },
     {
-      title: "Creativity",
-      description: "We believe in the power of hands-on crafting to spark joy and meaningful connection."
+      title: "Beginner accessibility",
+      description: "We want flower pressing to feel approachable for adults, first-time crafters, and sentimental keepsake makers.",
     },
     {
-      title: "Nature Appreciation",
-      description: "Every bloom tells a story. We help you preserve those stories beautifully."
-    }
+      title: "Botanical memory keeping",
+      description: "From wedding bouquets to garden blooms, we care about the emotional meaning behind what people choose to save.",
+    },
   ];
 
   const timeline = [
-    { year: "2023", event: "The idea blooms", description: "Inspired by a garden's fleeting beauty, Hwabelle was born." },
-    { year: "2024", event: "First prototype", description: "Months of design refinement to create the perfect press." },
-    { year: "2025", event: "Official launch", description: "Hwabelle Flower Press Kit available to the world." }
+    { year: "2023", event: "The idea blooms", description: "Hwabelle starts with a desire to preserve flowers that carry personal meaning." },
+    { year: "2024", event: "Product refinement", description: "The flower press kit is shaped around clarity, usability, and beautiful presentation." },
+    { year: "2025", event: "Launch", description: "Hwabelle begins helping customers turn bouquet flowers and garden blooms into keepsakes." },
   ];
 
   return (
     <Layout>
-      {/* Hero */}
+      <Seo
+        title="About Hwabelle | Flower Preservation & Botanical Keepsakes"
+        description="Learn how Hwabelle helps people preserve meaningful flowers, wedding bouquets, garden blooms, and botanical memories with simple flower pressing tools."
+        path="/about"
+        image={new URL(img1, window.location.origin).toString()}
+        keywords={[...defaultKeywords, "about flower preservation", "botanical keepsakes"]}
+        schema={[
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "About", path: "/about" },
+          ]),
+        ]}
+      />
+
       <section className="py-16 md:py-24 bg-secondary">
         <div className="container">
           <div className="max-w-2xl">
             <p className="caption mb-4">About</p>
             <h1 className="font-serif text-display-lg mb-6">
-              Preserving what matters
+              Helping You Preserve the Flowers That Matter
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Hwabelle creates thoughtful tools for those who find beauty in nature's
-              fleeting moments and want to hold onto them forever.
+              Hwabelle creates flower preservation tools for wedding bouquets, sentimental blooms,
+              garden flowers, and botanical keepsakes that deserve a longer life.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Story Gallery Carousel */}
       <section className="pb-16 md:pb-24 bg-secondary">
         <div className="container">
           <div className="max-w-5xl mx-auto relative px-12">
-            <Carousel
-              opts={{ align: "start", loop: true }}
-              plugins={[Autoplay({ delay: 3500, stopOnInteraction: true })]}
-              className="w-full"
-            >
+            <Carousel opts={{ align: "start", loop: true }} plugins={[Autoplay({ delay: 3500, stopOnInteraction: true })]} className="w-full">
               <CarouselContent className="-ml-4">
                 {carouselImages.map((src, index) => (
                   <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3">
@@ -76,16 +87,17 @@ const About = () => {
                         <div className="rounded-xl overflow-hidden bg-background shadow-sm border border-border cursor-pointer">
                           <img
                             src={src}
-                            alt={`The art of flower pressing ${index + 1}`}
+                            alt={`Hwabelle flower preservation story image ${index + 1}`}
                             className="w-full h-auto block hover:opacity-90 transition-opacity"
+                            loading="lazy"
                           />
                         </div>
                       </DialogTrigger>
                       <DialogContent className="max-w-[90vw] md:max-w-4xl bg-transparent border-none shadow-none p-0 flex justify-center items-center [&>button]:text-white">
-                        <DialogTitle className="sr-only">Flower pressing image {index + 1}</DialogTitle>
+                        <DialogTitle className="sr-only">Flower preservation image {index + 1}</DialogTitle>
                         <img
                           src={src}
-                          alt={`The art of flower pressing ${index + 1}`}
+                          alt={`Hwabelle flower preservation story image ${index + 1}`}
                           className="w-auto h-auto max-w-full max-h-[85vh] object-contain rounded-md"
                         />
                       </DialogContent>
@@ -100,35 +112,30 @@ const About = () => {
         </div>
       </section>
 
-      {/* Our Story */}
       <section className="py-16 md:py-24 bg-background">
         <div className="container">
           <div className="max-w-2xl mx-auto">
-            <h2 className="font-serif text-display mb-8 text-center">Our Story</h2>
+            <h2 className="font-serif text-display mb-8 text-center">Why Hwabelle exists</h2>
             <div className="prose-like space-y-6 text-muted-foreground leading-relaxed">
               <p>
-                Hwabelle was born from a simple observation: the most beautiful flowers
-                fade all too quickly. A garden in full bloom, a wedding bouquet, wildflowers
-                picked on a summer walk—these moments deserve to be preserved.
+                Hwabelle was built around a simple idea: flowers often mark the moments people most want to remember.
+                A wedding bouquet, a memorial arrangement, a first garden harvest, or a wildflower picked on an ordinary walk can all carry lasting meaning.
               </p>
               <p>
-                We set out to create a flower press that was not just functional, but
-                beautiful in its own right. Something you'd be proud to display, gift,
-                or pass down through generations.
+                The goal is not just to sell a flower press kit. It is to make preservation feel approachable, beautiful,
+                and practical for beginners who want to create a pressed flower keepsake at home.
               </p>
               <p>
-                Every Hwabelle kit is designed with care, crafted from sustainable materials,
-                and made to transform delicate blooms into lasting botanical art.
+                That is why Hwabelle focuses on clear tools, useful guidance, and resources that help people press flowers with confidence.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Values */}
       <section className="py-16 md:py-24 bg-secondary">
         <div className="container">
-          <h2 className="font-serif text-display mb-16 text-center">Our Values</h2>
+          <h2 className="font-serif text-display mb-16 text-center">What guides the brand</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 max-w-4xl mx-auto">
             {values.map((value, index) => (
               <div key={index} className="text-center">
@@ -140,48 +147,38 @@ const About = () => {
         </div>
       </section>
 
-      {/* Founder Note */}
       <section className="py-16 md:py-24 bg-background">
         <div className="container">
           <div className="max-w-2xl mx-auto text-center">
-            <h2 className="font-serif text-display mb-8">From the Founder</h2>
+            <h2 className="font-serif text-display mb-8">From the founder</h2>
             <blockquote className="font-serif text-xl md:text-2xl italic text-foreground/80 mb-6">
-              "Pressing flowers calms the soul—it's like meditating. Everyone should do it."
+              "Pressing flowers can turn fleeting blooms into something you can keep, display, and return to."
             </blockquote>
-            <p className="text-muted-foreground">
-              — Suzie Oh, Founder of Hwabelle
-            </p>
+            <p className="text-muted-foreground">Susie Oh, Founder of Hwabelle</p>
           </div>
         </div>
       </section>
 
-      {/* Personal Story */}
       <section className="py-16 md:py-24 bg-secondary">
         <div className="container">
           <div className="max-w-2xl mx-auto">
-            <h2 className="font-serif text-display mb-8 text-center">Where It Started</h2>
+            <h2 className="font-serif text-display mb-8 text-center">Where it started</h2>
             <div className="space-y-6 text-muted-foreground leading-relaxed">
               <p>
-                I grew up in a Korean home where plants—<em>hwa-cho</em>—were everywhere.
-                My parents filled our living room with them, and once they retired, even more
-                appeared. My father had a true green thumb; every plant he touched thrived.
-                He especially loved flowers, cosmos in particular.
+                The inspiration behind Hwabelle is deeply personal: a love of flowers, a respect for the stories people attach to them,
+                and a wish to preserve those moments more intentionally.
               </p>
               <p>
-                Back then, I didn't know anything about flower pressing. I wish I had—I would
-                have pressed some cosmos for him. Whenever I received flowers, I dried them
-                upside down and kept them until they finally crumbled. Maybe it was my own way
-                of holding on to moments, the same way my father held on to his garden.
+                That personal connection shapes the way the brand talks about bouquets, garden blooms, memorial flowers, and beginner flower pressing.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Timeline */}
       <section className="py-16 md:py-24 bg-background">
         <div className="container">
-          <h2 className="font-serif text-display mb-16 text-center">Our Journey</h2>
+          <h2 className="font-serif text-display mb-16 text-center">The journey</h2>
           <div className="max-w-2xl mx-auto">
             <div className="space-y-12">
               {timeline.map((item, index) => (
@@ -195,44 +192,6 @@ const About = () => {
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Meet the Founder */}
-      <section className="py-16 md:py-24 bg-secondary">
-        <div className="container">
-          <h2 className="font-serif text-display mb-10 text-center">Meet the Founder</h2>
-          <div className="max-w-4xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <Dialog>
-              <DialogTrigger asChild>
-                <div className="overflow-hidden rounded-xl aspect-square md:aspect-[4/5] cursor-pointer shadow-sm">
-                  <img
-                    src="/founders-photos/hwabelle-founder.jpeg"
-                    alt="Susie Oh - Founder of Hwabelle"
-                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                  />
-                </div>
-              </DialogTrigger>
-              <DialogContent className="max-w-[90vw] md:max-w-4xl bg-transparent border-none shadow-none p-0 flex justify-center items-center [&>button]:text-white">
-                <DialogTitle className="sr-only">Susie Oh - Founder of Hwabelle</DialogTitle>
-                <img
-                  src="/founders-photos/hwabelle-founder.jpeg"
-                  alt="Susie Oh - Founder of Hwabelle"
-                  className="w-auto h-auto max-w-full max-h-[85vh] object-contain rounded-md"
-                />
-              </DialogContent>
-            </Dialog>
-
-            <div className="space-y-6 text-muted-foreground leading-relaxed text-center md:text-left">
-              <h3 className="font-serif text-3xl text-foreground">Susie Oh</h3>
-              <p>
-                As the founder of Hwabelle, Susie draws inspiration from her Korean heritage and a deep-rooted love for botanical arts passed down from her father. With an eye for design and a passion for preservation, she created Hwabelle to bring the timeless craft of flower pressing to a modern audience.
-              </p>
-              <p>
-                Her mission is simple: to provide beautiful, high-quality tools that help everyone capture the fleeting beauty of nature and turn it into lasting memories. Through Hwabelle, she hopes to share the meditative, calming experience of pressing flowers with creators everywhere.
-              </p>
             </div>
           </div>
         </div>

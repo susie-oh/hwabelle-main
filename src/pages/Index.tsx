@@ -1,4 +1,7 @@
 import Layout from "@/components/layout/Layout";
+import Seo, {
+} from "@/components/seo/Seo";
+import { breadcrumbSchema, faqSchema, organizationSchema, websiteSchema } from "@/lib/schema";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/animations/ScrollReveal";
 import StaggerContainer, { StaggerItem } from "@/components/animations/StaggerContainer";
@@ -12,134 +15,220 @@ import heroFlowImage from "@/assets/hero-pressed-flow.png";
 import lifestyleImage from "@/assets/lifestyle-pressing-cropped.png";
 import pressedFlowersImage from "@/assets/pressed-flowers-collection.png";
 import blogImage from "@/assets/blog-botanical-art.jpg";
+import logoImage from "@/assets/hwabelle-logo.png";
+import { PRODUCT_PATH, buildCanonicalUrl, defaultKeywords } from "@/lib/site";
 
 const Index = () => {
   const productHighlights = [
     {
       icon: Leaf,
-      title: "Two Sizes for Every Bloom",
-      description: "A large and small press included — so you can preserve everything from full bridal bouquets to delicate wildflowers."
+      title: "Beginner-friendly flower preservation",
+      description:
+        "A clear acrylic flower press kit that helps you preserve wedding bouquets, garden flowers, and meaningful blooms at home.",
     },
     {
       icon: Gift,
-      title: "Ready to Gift",
-      description: "Beautifully packaged for birthdays, bridal showers, or any occasion worth remembering."
+      title: "Beautiful for keepsakes and gifting",
+      description:
+        "Designed for adults, crafters, gardeners, artists, and anyone creating a pressed flower keepsake or botanical gift.",
     },
     {
       icon: BookOpen,
-      title: "Beginner-Friendly Guide",
-      description: "Step-by-step instructions so your first press is your best press — no experience needed."
-    }
+      title: "Simple process, meaningful results",
+      description:
+        "Use the included layers and hardware to press flatter flowers, petals, and foliage into frame-ready botanical art.",
+    },
   ];
 
   const steps = [
-    { number: "01", title: "Pick", description: "Choose fresh flowers at peak bloom — seasonal varieties press especially well." },
-    { number: "02", title: "Press", description: "Layer between absorbent paper, tighten the bolts, and leave to dry." },
-    { number: "03", title: "Preserve", description: "Most flowers are ready in 2–4 weeks. Thicker blooms may need a little longer." },
-    { number: "04", title: "Create", description: "Frame them, add to greeting cards, journals, or preserve your wedding bouquet forever." }
+    {
+      number: "01",
+      title: "Choose",
+      description:
+        "Pick fresh flowers, petals, and greenery before they wilt, especially bouquet flowers you want to preserve.",
+    },
+    {
+      number: "02",
+      title: "Arrange",
+      description:
+        "Layer blooms between absorbent sheets and position them carefully so they dry in a shape you love.",
+    },
+    {
+      number: "03",
+      title: "Press",
+      description:
+        "Tighten the plates evenly and let the flowers dry fully over the next one to three weeks.",
+    },
+    {
+      number: "04",
+      title: "Create",
+      description:
+        "Turn your pressed flowers into a wedding bouquet keepsake, framed botanical art, cards, or bookmarks.",
+    },
   ];
 
   const aiFeatures = [
-    "Identify plants from photos instantly",
-    "Receive personalized care guides",
-    "Get design suggestions for events",
-    "Find options that fit your budget"
+    "Flower selection tips for bouquet and garden blooms",
+    "Event-aware keepsake and arrangement ideas",
+    "Beginner pressing guidance and troubleshooting",
+    "Layout inspiration for framed pressed flower art",
   ];
 
   const blogPosts = [
-    { title: "How to Preserve Your Wedding Bouquet with a Flower Press", category: "Wedding Preservation", slug: "pressing-bridal-bouquets" },
-    { title: "Best Flowers for First-Time Pressers (and Which to Avoid)", category: "Beginner Guide", slug: "best-flowers-beginners" },
-    { title: "DIY Pressed Flower Wall Art: A Step-by-Step Guide", category: "DIY Projects", slug: "botanical-wall-art" }
+    {
+      title: "How to Preserve a Wedding Bouquet at Home",
+      category: "Wedding Preservation",
+      slug: "how-to-preserve-wedding-bouquet-at-home",
+    },
+    {
+      title: "Best Flowers for Pressing: Beginner Guide",
+      category: "Beginner Guide",
+      slug: "best-flowers-for-pressing",
+    },
+    {
+      title: "Flower Pressing for Beginners: Simple Step-by-Step Guide",
+      category: "How-To",
+      slug: "flower-pressing-for-beginners",
+    },
   ];
 
   const faqs = [
-    { q: "How long does it take to press flowers?", a: "Most flowers press fully in 2–4 weeks. Flat varieties like pansies and ferns are ready faster; thick or moisture-heavy blooms may take a little longer." },
-    { q: "Which flowers press best?", a: "Flat, single-layer flowers work beautifully — think pansies, daisies, lavender, and ferns. Roses and peonies can be pressed petal-by-petal for stunning results." },
-    { q: "Can I preserve my wedding bouquet with this kit?", a: "Yes. The large press plate is designed for wedding flowers. Press within 24–48 hours of your wedding day for the best colour retention." },
-    { q: "Is it beginner-friendly?", a: "Absolutely. Every kit includes a step-by-step guide covering timing, layering, and finishing — so your first press is a success." }
+    {
+      q: "Can I use this flower press kit for a wedding bouquet?",
+      a: "Yes. Hwabelle can help preserve selected blooms from a wedding bouquet, especially flatter flowers and petals that press well. For best results, start pressing as soon as possible while flowers are still fresh.",
+    },
+    {
+      q: "Is this flower press kit beginner-friendly?",
+      a: "Yes. The kit is designed for beginners, crafters, gardeners, and adults who want a simple way to preserve flowers at home.",
+    },
+    {
+      q: "What flowers are best for pressing?",
+      a: "Flatter blooms, petals, leaves, wildflowers, and thinner garden flowers usually press best. Thick flowers may need to be separated into petals or smaller sections.",
+    },
+    {
+      q: "How long does flower pressing take?",
+      a: "Many flowers take one to three weeks depending on flower thickness, moisture, pressure, and drying conditions.",
+    },
   ];
+
+  const logoUrl = new URL(logoImage, window.location.origin).toString();
+  const socialUrls: string[] = [];
 
   return (
     <Layout>
-      {/* Hero Section - Full Bleed Pressed Flower Background */}
+      <Seo
+        title="Hwabelle Flower Press Kit | Preserve Wedding Bouquets & Meaningful Blooms"
+        description="Preserve wedding bouquets, garden flowers, wildflowers, and sentimental blooms at home with Hwabelle’s beginner-friendly acrylic flower press kit."
+        path="/"
+        image={new URL(heroArrangement, window.location.origin).toString()}
+        keywords={defaultKeywords}
+        schema={[
+          organizationSchema(logoUrl, socialUrls),
+          websiteSchema(),
+          breadcrumbSchema([{ name: "Home", path: "/" }]),
+          faqSchema(
+            faqs.map((faq) => ({
+              question: faq.q,
+              answer: faq.a,
+            })),
+          ),
+        ]}
+      />
+
       <section className="relative min-h-screen w-full overflow-hidden">
-        {/* Full-screen background image that stretches to all edges */}
         <motion.div
-          className="absolute inset-0 w-full h-full"
+          className="absolute inset-0 h-full w-full"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.2, ease: [0.25, 0.1, 0.25, 1] }}
         >
           <img
             src={heroArrangement}
-            alt="Hwabelle - Pressed flower arrangement"
-            className="w-full h-full object-cover object-center"
+            alt="Pressed wedding bouquet petals arranged as a keepsake"
+            className="h-full w-full object-cover object-center"
+            loading="eager"
+            fetchPriority="high"
           />
         </motion.div>
 
-        {/* Gradient fade at top and bottom for smooth transitions */}
         <div className="absolute top-0 left-0 right-0 h-5 bg-gradient-to-b from-background to-transparent pointer-events-none" />
         <div className="absolute bottom-0 left-0 right-0 h-5 bg-gradient-to-t from-background to-transparent pointer-events-none" />
 
-
-        {/* Centered CTA buttons */}
-        <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-32 sm:pb-40 md:pb-48 lg:pb-56 z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-            className="flex flex-col sm:flex-row gap-4 sm:gap-6 px-4"
-          >
-            <Button variant="hero" size="lg" className="text-sm sm:text-base" asChild>
-              <Link to="/product/flower-press-kit">
-                Shop the Kit
-              </Link>
-            </Button>
-            <Button variant="hero-outline" size="lg" className="text-sm sm:text-base" asChild>
-              <Link to="/designer">
-                Try AI Designer
-              </Link>
-            </Button>
-          </motion.div>
+        <div className="absolute inset-0 bg-black/20" />
+        <div className="container relative z-10 flex min-h-screen items-center py-32">
+          <div className="max-w-3xl text-white">
+            <p className="mb-4 text-sm uppercase tracking-[0.24em] text-white/80">
+              Acrylic Flower Press Kit
+            </p>
+            <h1 className="font-serif text-5xl leading-tight md:text-6xl">
+              Preserve Meaningful Flowers Before They Fade
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/90 md:text-xl">
+              A beginner-friendly acrylic flower press kit for wedding bouquets,
+              garden flowers, wildflowers, and sentimental blooms.
+            </p>
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+              <Button variant="hero" size="lg" className="text-sm sm:text-base" asChild>
+                <Link to={PRODUCT_PATH}>Shop the Flower Press Kit</Link>
+              </Button>
+              <Button variant="hero-outline" size="lg" className="text-sm sm:text-base" asChild>
+                <Link to="/designer">Open the Design Assistant</Link>
+              </Button>
+            </div>
+            <ul className="mt-8 grid gap-3 text-sm text-white/85 md:grid-cols-2">
+              <li>Beginner-friendly</li>
+              <li>Great for wedding bouquet keepsakes</li>
+              <li>Designed for adults, crafters, gardeners, and artists</li>
+              <li>Gift-ready botanical preservation kit</li>
+            </ul>
+          </div>
         </div>
       </section>
 
-      {/* Secondary Hero - Flowing Flowers */}
-      <section className="relative py-16 md:py-24 bg-background overflow-hidden">
+      <section className="relative overflow-hidden bg-background py-16 md:py-24">
         <FloralBorder position="all" size="lg" />
         <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
             <ScrollReveal direction="left">
               <motion.img
                 src={heroFlowImage}
-                alt="Pressed flowers flowing arrangement"
-                className="w-full h-auto"
+                alt="Hwabelle acrylic flower press kit with preserved flowers"
+                className="h-auto w-full"
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.6 }}
               />
             </ScrollReveal>
             <ScrollReveal direction="right" delay={0.2}>
               <h2 className="font-serif text-display md:text-display-lg mb-6">
-                Preserve your blooms — from garden cuttings to wedding bouquets.
+                The easiest beautiful flower press kit for preserving flowers at home
               </h2>
               <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                The Hwabelle acrylic flower press kit is designed for beginners and artists alike. Crystal-clear plates let you see exactly how your arrangement is taking shape — so every press turns out beautifully.
+                Hwabelle helps you preserve meaningful flowers with a clear, easy-to-use
+                acrylic press designed for adults and beginners. Use it for bouquet petals,
+                seasonal garden flowers, memorial blooms, wildflowers, and pressed flower art.
               </p>
+              <div className="flex flex-wrap gap-4">
+                <Button variant="hero-outline" asChild>
+                  <Link to="/shop">View the Shop</Link>
+                </Button>
+                <Button variant="hero-outline" asChild>
+                  <Link to="/about">Learn About Hwabelle</Link>
+                </Button>
+              </div>
             </ScrollReveal>
           </div>
         </div>
       </section>
 
-      {/* Product Highlights */}
-      <section className="py-20 md:py-30 bg-background">
+      <section className="bg-background py-20 md:py-30">
         <div className="container">
-          <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
+          <StaggerContainer className="grid grid-cols-1 gap-12 md:grid-cols-3 md:gap-8">
             {productHighlights.map((highlight, index) => (
               <StaggerItem key={index} className="text-center">
-                <div className="w-12 h-12 mx-auto mb-6 flex items-center justify-center">
+                <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center">
                   <highlight.icon size={28} strokeWidth={1.5} className="text-foreground" />
                 </div>
-                <h3 className="font-serif text-xl mb-3">{highlight.title}</h3>
+                <h2 className="font-serif text-xl mb-3">{highlight.title}</h2>
                 <p className="text-muted-foreground leading-relaxed">{highlight.description}</p>
               </StaggerItem>
             ))}
@@ -147,19 +236,17 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Divider */}
       <div className="container">
         <div className="divider" />
       </div>
 
-      {/* How It Works */}
-      <section className="py-20 md:py-30 bg-background">
+      <section className="bg-background py-20 md:py-30">
         <div className="container">
-          <ScrollReveal className="text-center mb-16">
-            <p className="caption mb-4">The Process</p>
-            <h2 className="font-serif text-display mb-4">How it works</h2>
+          <ScrollReveal className="mb-16 text-center">
+            <p className="caption mb-4">How It Works</p>
+            <h2 className="font-serif text-display mb-4">Press flowers in four simple steps</h2>
           </ScrollReveal>
-          <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-6" staggerDelay={0.15}>
+          <StaggerContainer className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-6" staggerDelay={0.15}>
             {steps.map((step, index) => (
               <StaggerItem key={index} className="text-center">
                 <span className="font-serif text-4xl md:text-5xl text-muted-foreground/30 block mb-4">
@@ -173,40 +260,41 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Lifestyle Image Band */}
       <section className="py-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-          <ScrollReveal direction="left" className="aspect-square md:aspect-auto overflow-hidden">
+        <div className="grid grid-cols-1 gap-0 md:grid-cols-2">
+          <ScrollReveal direction="left" className="aspect-square overflow-hidden md:aspect-auto">
             <motion.img
               src={lifestyleImage}
-              alt="Hands pressing flowers"
-              className="w-full h-full object-cover"
+              alt="Beginner flower pressing kit in use with garden flowers"
+              className="h-full w-full object-cover"
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.6 }}
+              loading="lazy"
             />
           </ScrollReveal>
-          <ScrollReveal direction="right" className="aspect-square md:aspect-auto overflow-hidden">
+          <ScrollReveal direction="right" className="aspect-square overflow-hidden md:aspect-auto">
             <motion.img
               src={pressedFlowersImage}
-              alt="Collection of pressed botanical specimens"
-              className="w-full h-full object-cover"
+              alt="Pressed flowers collected for botanical keepsakes"
+              className="h-full w-full object-cover"
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.6 }}
+              loading="lazy"
             />
           </ScrollReveal>
         </div>
       </section>
 
-      {/* AI Designer Assistant - Live */}
-      <section id="ai-designer" className="relative py-20 md:py-30 bg-secondary overflow-hidden">
+      <section id="ai-designer" className="relative overflow-hidden bg-secondary py-20 md:py-30">
         <FlowerBurst originX="left" originY="top" />
         <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
+          <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2 md:gap-20">
             <ScrollReveal direction="left">
-              <p className="caption mb-4">Now Live</p>
-              <h2 className="font-serif text-display mb-6">AI Designer Assistant</h2>
+              <p className="caption mb-4">Planning Support</p>
+              <h2 className="font-serif text-display mb-6">Flower Preservation Design Assistant</h2>
               <p className="text-muted-foreground mb-8 leading-relaxed">
-                An intelligent companion for your botanical journey. Upload a photo of any flower to get identification, pressing guidance, and beautiful design ideas.
+                Get event-aware guidance, flower selection tips, keepsake ideas, and beginner-friendly
+                pressing checklists when you are deciding what to preserve and how to arrange it.
               </p>
               <ul className="space-y-4 mb-8">
                 {aiFeatures.map((feature, index) => (
@@ -226,12 +314,14 @@ const Index = () => {
             </ScrollReveal>
             <ScrollReveal direction="right" delay={0.2}>
               <div className="bg-background p-8 md:p-10">
-                <h3 className="font-serif text-xl mb-2">Try the AI Designer</h3>
-                <p className="text-muted-foreground mb-6">Upload a flower photo and get instant botanical insights and design suggestions.</p>
+                <h3 className="font-serif text-xl mb-2">Plan your keepsake before you press</h3>
+                <p className="text-muted-foreground mb-6">
+                  Use the assistant to decide which blooms to save, what will press best, and how to turn them into a keepsake.
+                </p>
                 <Button variant="hero" size="lg" className="w-full" asChild>
                   <Link to="/designer">
                     <Sparkles size={16} className="mr-2" />
-                    Open AI Designer
+                    Open the Design Assistant
                   </Link>
                 </Button>
               </div>
@@ -240,21 +330,20 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Blog Preview */}
-      <section className="py-20 md:py-30 bg-background">
+      <section className="bg-background py-20 md:py-30">
         <div className="container">
           <ScrollReveal>
-            <div className="flex items-end justify-between mb-12">
+            <div className="mb-12 flex items-end justify-between">
               <div>
-                <p className="caption mb-4">From the Journal</p>
-                <h2 className="font-serif text-display">Stories & Guides</h2>
+                <p className="caption mb-4">Resources</p>
+                <h2 className="font-serif text-display">Guides for bouquet and flower preservation</h2>
               </div>
-              <Link to="/blog" className="hidden md:flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link to="/blog" className="hidden items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground md:flex">
                 View all <ArrowRight size={16} />
               </Link>
             </div>
           </ScrollReveal>
-          <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-8" staggerDelay={0.15}>
+          <StaggerContainer className="grid grid-cols-1 gap-8 md:grid-cols-3" staggerDelay={0.15}>
             {blogPosts.map((post, index) => (
               <StaggerItem key={index}>
                 <Link to={`/blog/${post.slug}`} className="group block">
@@ -262,9 +351,10 @@ const Index = () => {
                     <motion.img
                       src={blogImage}
                       alt={post.title}
-                      className="w-full h-full object-cover"
+                      className="h-full w-full object-cover"
                       whileHover={{ scale: 1.05 }}
                       transition={{ duration: 0.5 }}
+                      loading="lazy"
                     />
                   </div>
                   <p className="caption mb-2">{post.category}</p>
@@ -273,21 +363,20 @@ const Index = () => {
               </StaggerItem>
             ))}
           </StaggerContainer>
-          <Link to="/blog" className="md:hidden flex items-center justify-center gap-2 mt-8 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            View all posts <ArrowRight size={16} />
+          <Link to="/blog" className="mt-8 flex items-center justify-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground md:hidden">
+            View all resources <ArrowRight size={16} />
           </Link>
         </div>
       </section>
 
-      {/* FAQ Preview */}
-      <section className="py-20 md:py-30 bg-secondary">
+      <section className="bg-secondary py-20 md:py-30">
         <div className="container">
-          <div className="max-w-3xl mx-auto">
-            <ScrollReveal className="text-center mb-12">
-              <p className="caption mb-4">Questions</p>
-              <h2 className="font-serif text-display">Frequently Asked</h2>
+          <div className="mx-auto max-w-3xl">
+            <ScrollReveal className="mb-12 text-center">
+              <p className="caption mb-4">FAQ</p>
+              <h2 className="font-serif text-display">Frequently asked questions</h2>
             </ScrollReveal>
-            <div className="space-y-0 divide-y divide-border">
+            <div className="divide-y divide-border space-y-0">
               {faqs.map((faq, index) => (
                 <ScrollReveal key={index} delay={index * 0.1} className="py-6">
                   <h3 className="font-serif text-lg mb-2">{faq.q}</h3>
@@ -295,36 +384,48 @@ const Index = () => {
                 </ScrollReveal>
               ))}
             </div>
-            <ScrollReveal className="text-center mt-8">
-              <Link to="/faq" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                View all questions <ArrowRight size={16} />
+            <ScrollReveal className="mt-8 text-center">
+              <Link to="/faq" className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
+                View the full FAQ <ArrowRight size={16} />
               </Link>
             </ScrollReveal>
           </div>
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="relative py-20 md:py-30 bg-background overflow-hidden">
+      <section className="relative overflow-hidden bg-background py-20 md:py-30">
         <FloralBorder position="all" size="md" />
         <div className="container">
-          <ScrollReveal className="max-w-2xl mx-auto text-center">
+          <ScrollReveal className="mx-auto max-w-2xl text-center">
             <h2 className="font-serif text-display md:text-display-lg mb-6">
-              Preserve your wedding bouquet. Frame a garden memory. Start today.
+              Preserve your bouquet, frame a garden memory, and start at home
             </h2>
             <p className="text-muted-foreground mb-10 text-lg">
-              The complete flower press kit for beginners, crafters, and anyone who wants to hold on to something beautiful.
+              Shop the acrylic flower press kit, explore the design assistant, or read practical guides before you begin.
             </p>
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.2 }}
-            >
+            <div className="flex flex-col justify-center gap-4 sm:flex-row">
               <Button variant="hero" size="xl" asChild>
-                <Link to="/product/flower-press-kit">
-                  Buy Kit
-                </Link>
+                <Link to={PRODUCT_PATH}>Shop the Flower Press Kit</Link>
               </Button>
-            </motion.div>
+              <Button variant="hero-outline" size="xl" asChild>
+                <Link to="/blog">Read Resources</Link>
+              </Button>
+            </div>
+            <p className="mt-6 text-sm text-muted-foreground">
+              Need policies or support first? Visit the{" "}
+              <Link to="/shipping" className="underline underline-offset-2">
+                shipping page
+              </Link>
+              ,{" "}
+              <Link to="/returns" className="underline underline-offset-2">
+                returns page
+              </Link>
+              , or{" "}
+              <Link to="/contact" className="underline underline-offset-2">
+                contact support
+              </Link>
+              .
+            </p>
           </ScrollReveal>
         </div>
       </section>

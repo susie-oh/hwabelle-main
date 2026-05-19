@@ -1,4 +1,6 @@
 import Layout from "@/components/layout/Layout";
+import Seo from "@/components/seo/Seo";
+import { breadcrumbSchema, faqSchema } from "@/lib/schema";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,6 +46,27 @@ const FAQ = () => {
 
   return (
     <Layout>
+      <Seo
+        title="Flower Press Kit FAQ | Hwabelle"
+        description="Find answers about Hwabelle flower press kits, bouquet preservation, beginner flower pressing, and common support questions."
+        path="/faq"
+        schema={[
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "FAQ", path: "/faq" },
+          ]),
+          ...(faqs?.length
+            ? [
+                faqSchema(
+                  faqs.map((faq) => ({
+                    question: faq.question,
+                    answer: faq.answer,
+                  })),
+                ),
+              ]
+            : []),
+        ]}
+      />
       {/* Header */}
       <section className="py-16 md:py-24 bg-secondary">
         <div className="container">
