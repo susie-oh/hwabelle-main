@@ -190,11 +190,11 @@ const routes = [
   },
   {
     path: "/designer",
-    title: "Flower Preservation Design Assistant | Hwabelle",
+    title: "Hwabelle AI Designer | Flower Preservation Guidance",
     description:
-      "Use Hwabelle’s flower preservation design assistant for event-aware guidance, flower selection tips, keepsake ideas, and beginner-friendly pressing checklists.",
+      "Use the Hwabelle AI Designer for flower preservation guidance, wedding bouquet keepsake planning, flower selection tips, and beginner-friendly pressing checklists.",
     image: `${siteUrl}/assets/digital-designer.jpeg`,
-    schema: [breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Flower Preservation Design Assistant", path: "/designer" }])],
+    schema: [breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Hwabelle AI Designer", path: "/designer" }])],
   },
   {
     path: "/about",
@@ -339,3 +339,4 @@ const main = async () => {
 };
 
 await main();
+

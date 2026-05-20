@@ -67,10 +67,26 @@ const Index = () => {
   ];
 
   const aiFeatures = [
-    "Flower selection tips for bouquet and garden blooms",
-    "Event-aware keepsake and arrangement ideas",
-    "Beginner pressing guidance and troubleshooting",
-    "Layout inspiration for framed pressed flower art",
+    {
+      title: "Event-aware guidance",
+      description:
+        "Helps with weddings, memorial flowers, garden blooms, and sentimental arrangements.",
+    },
+    {
+      title: "Flower selection help",
+      description:
+        "Shows which flowers, petals, leaves, and stems are better suited for pressing.",
+    },
+    {
+      title: "Beginner-friendly checklist",
+      description:
+        "Gives simple next steps to prepare flowers before they wilt or lose their shape.",
+    },
+    {
+      title: "Keepsake ideas",
+      description:
+        "Suggests frames, cards, bookmarks, botanical art, and other pressed flower projects.",
+    },
   ];
 
   const blogPosts = [
@@ -152,22 +168,34 @@ const Index = () => {
 
         <div className="absolute top-0 left-0 right-0 h-5 bg-gradient-to-b from-background to-transparent pointer-events-none" />
         <div className="absolute bottom-0 left-0 right-0 h-5 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+      </section>
 
-        <div className="absolute inset-x-0 bottom-0 z-10 flex justify-center pb-20 sm:pb-28 md:pb-40 lg:pb-52">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-            className="flex flex-col sm:flex-row gap-4 sm:gap-6 px-4"
-          >
-            <Button variant="hero" size="lg" className="text-sm sm:text-base" asChild>
-              <Link to={PRODUCT_PATH}>Shop the Flower Press Kit</Link>
-            </Button>
-            <Button variant="hero-outline" size="lg" className="text-sm sm:text-base bg-background/75 backdrop-blur-sm" asChild>
-              <Link to="/designer">Open the Design Assistant</Link>
-            </Button>
-          </motion.div>
-        </div>
+      <section className="relative z-10 -mt-8 bg-transparent px-4 pb-8 sm:-mt-10 md:-mt-14 md:pb-12">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+          className="container"
+        >
+          <div className="mx-auto max-w-4xl rounded-[2rem] border border-border/70 bg-background/95 px-6 py-6 shadow-[0_24px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm md:px-8 md:py-7">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="max-w-xl">
+                <p className="caption mb-2">Begin Here</p>
+                <p className="text-sm leading-relaxed text-muted-foreground md:text-base">
+                  Start with the flower press kit, then use the Hwabelle AI Designer to plan bouquet preservation, flower selection, and keepsake ideas.
+                </p>
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap md:justify-end">
+                <Button variant="hero" size="lg" className="text-sm sm:text-base" asChild>
+                  <Link to={PRODUCT_PATH}>Shop the Flower Press Kit</Link>
+                </Button>
+                <Button variant="hero-outline" size="lg" className="text-sm sm:text-base" asChild>
+                  <Link to="/designer">Explore AI Designer</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </section>
 
       <section className="relative overflow-hidden bg-background py-16 md:py-24">
@@ -285,40 +313,49 @@ const Index = () => {
         <div className="container">
           <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2 md:gap-20">
             <ScrollReveal direction="left">
-              <p className="caption mb-4">Planning Support</p>
-              <h2 className="font-serif text-display mb-6">Flower Preservation Design Assistant</h2>
+              <p className="caption mb-4">Hwabelle AI Designer</p>
+              <h2 className="font-serif text-display mb-6">Plan Your Flower Keepsake Before You Press</h2>
               <p className="text-muted-foreground mb-8 leading-relaxed">
-                Get event-aware guidance, flower selection tips, keepsake ideas, and beginner-friendly
-                pressing checklists when you are deciding what to preserve and how to arrange it.
+                Use the Hwabelle AI Designer to get flower preservation guidance for wedding bouquets,
+                garden flowers, memorial blooms, wildflowers, and meaningful keepsakes. It helps you
+                understand which flowers press best, what to prepare, and how to turn your blooms into a lasting keepsake.
               </p>
-              <ul className="space-y-4 mb-8">
+              <div className="grid gap-4 sm:grid-cols-2">
                 {aiFeatures.map((feature, index) => (
-                  <motion.li
+                  <motion.div
                     key={index}
-                    className="flex items-start gap-3"
+                    className="rounded-2xl border border-border/60 bg-background/80 p-5"
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.1, duration: 0.5 }}
                   >
-                    <Sparkles size={18} className="text-foreground mt-0.5 flex-shrink-0" />
-                    <span className="text-foreground">{feature}</span>
-                  </motion.li>
+                    <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10">
+                      <Sparkles size={18} className="text-foreground" />
+                    </div>
+                    <h3 className="font-serif text-lg mb-2">{feature.title}</h3>
+                    <p className="text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
+                  </motion.div>
                 ))}
-              </ul>
+              </div>
             </ScrollReveal>
             <ScrollReveal direction="right" delay={0.2}>
               <div className="bg-background p-8 md:p-10">
-                <h3 className="font-serif text-xl mb-2">Plan your keepsake before you press</h3>
+                <h3 className="font-serif text-xl mb-2">A clearer next step before flowers fade</h3>
                 <p className="text-muted-foreground mb-6">
-                  Use the assistant to decide which blooms to save, what will press best, and how to turn them into a keepsake.
+                  Visit the AI Designer landing page to see how it works, who it helps, and how to unlock access when you are ready.
                 </p>
-                <Button variant="hero" size="lg" className="w-full" asChild>
-                  <Link to="/designer">
-                    <Sparkles size={16} className="mr-2" />
-                    Open the Design Assistant
-                  </Link>
-                </Button>
+                <div className="flex flex-col gap-3">
+                  <Button variant="hero" size="lg" className="w-full" asChild>
+                    <Link to="/designer">
+                      <Sparkles size={16} className="mr-2" />
+                      Explore AI Designer
+                    </Link>
+                  </Button>
+                  <Button variant="hero-outline" size="lg" className="w-full" asChild>
+                    <Link to={PRODUCT_PATH}>Shop the Flower Press Kit</Link>
+                  </Button>
+                </div>
               </div>
             </ScrollReveal>
           </div>
@@ -396,7 +433,7 @@ const Index = () => {
               Preserve your bouquet, frame a garden memory, and start at home
             </h2>
             <p className="text-muted-foreground mb-10 text-lg">
-              Shop the acrylic flower press kit, explore the design assistant, or read practical guides before you begin.
+              Shop the acrylic flower press kit, explore AI Designer, or read practical guides before you begin.
             </p>
             <div className="flex flex-col justify-center gap-4 sm:flex-row">
               <Button variant="hero" size="xl" asChild>

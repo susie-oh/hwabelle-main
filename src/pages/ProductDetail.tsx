@@ -35,7 +35,7 @@ const ProductDetail = () => {
     },
     {
       src: img4,
-      alt: "Flower preservation design assistant for keepsake planning",
+      alt: "Hwabelle AI Designer for keepsake planning",
     },
     {
       src: img5,
@@ -357,7 +357,7 @@ const ProductDetail = () => {
             </div>
             <div className="mt-8 flex flex-wrap gap-4 text-sm">
               <Link to="/designer" className="underline underline-offset-2">
-                Visit the flower preservation design assistant
+                Visit the Hwabelle AI Designer
               </Link>
               <Link to="/blog/how-to-preserve-wedding-bouquet-at-home" className="underline underline-offset-2">
                 Read wedding bouquet preservation tips

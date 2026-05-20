@@ -20,7 +20,7 @@ Use cases:
 - Home: https://hwabelle.shop/
 - Shop: https://hwabelle.shop/shop
 - Product: https://hwabelle.shop/product/flower-press-kit
-- Designer: https://hwabelle.shop/designer
+- AI Designer: https://hwabelle.shop/designer
 - About: https://hwabelle.shop/about
 - Resources: https://hwabelle.shop/blog
 - Contact: https://hwabelle.shop/contact

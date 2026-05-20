@@ -54,7 +54,7 @@ Many bouquet flowers need one to three weeks, depending on thickness and moistur
 
 ## Turn pressed flowers into a keepsake
 
-Pressed bouquet flowers can become a frame, anniversary gift, scrapbook page, or small botanical art piece. If you want help choosing layouts or which flowers to save first, the [flower preservation design assistant](${designerLink}) can help you plan the keepsake before you start.
+Pressed bouquet flowers can become a frame, anniversary gift, scrapbook page, or small botanical art piece. If you want help choosing layouts or which flowers to save first, the [Hwabelle AI Designer](${designerLink}) can help you plan the keepsake before you start.
 
 ## FAQ
 
@@ -110,7 +110,7 @@ Press flowers while they are fresh, keep moisture under control, and avoid overc
 
 ## Build a keepsake plan
 
-Once you know which flowers will press well, use the [flower preservation design assistant](${designerLink}) to map out a frame, card, bookmark, or sentimental bouquet keepsake.
+Once you know which flowers will press well, use the [Hwabelle AI Designer](${designerLink}) to map out a frame, card, bookmark, or sentimental bouquet keepsake.
 
 ## FAQ
 
@@ -154,7 +154,7 @@ For many first-time pressers, acrylic has an advantage because visibility reduce
 
 ## When design help matters
 
-If you are deciding how to turn pressed flowers into a frame or bouquet keepsake, the [flower preservation design assistant](${designerLink}) can help you plan the next step after pressing.
+If you are deciding how to turn pressed flowers into a frame or bouquet keepsake, the [Hwabelle AI Designer](${designerLink}) can help you plan the next step after pressing.
 `,
   },
   {
@@ -192,7 +192,7 @@ Apply even pressure and store the press in a dry area. Many flowers are ready wi
 
 ## Step 5: Create something meaningful
 
-Once your flowers are dry, use the [flower preservation design assistant](${designerLink}) if you want help turning them into art, gifts, or wedding keepsakes.
+Once your flowers are dry, use the [Hwabelle AI Designer](${designerLink}) if you want help turning them into art, gifts, or wedding keepsakes.
 `,
   },
   {
@@ -231,7 +231,7 @@ If you are still building your process, the [acrylic flower press kit](${product
 
 ## Need layout help?
 
-The [flower preservation design assistant](${designerLink}) is useful when you want ideas for arranging blooms by color, sentiment, or occasion.
+The [Hwabelle AI Designer](${designerLink}) is useful when you want ideas for arranging blooms by color, sentiment, or occasion.
 `,
   },
 ];

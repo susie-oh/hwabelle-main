@@ -57,7 +57,7 @@ const features = [
     icon: MessageCircle,
     title: "Design-focused questions",
     description:
-      "Use it as a planning assistant for layout ideas, flower pairings, and display concepts.",
+      "Use AI Designer to explore layout ideas, flower pairings, and display concepts.",
   },
 ];
 
@@ -103,7 +103,7 @@ const Designer = () => {
     addItem({ id: "ai-designer-access", name: "AI Designer Access", price: 19.99 });
     toast({
       title: "Added to cart",
-      description: "Kit + design assistant access added to your cart.",
+      description: "Kit + AI Designer access added to your cart.",
     });
     openCart();
   };
@@ -112,7 +112,7 @@ const Designer = () => {
     addItem({ id: "ai-designer-access", name: "AI Designer Access", price: 19.99 });
     toast({
       title: "Added to cart",
-      description: "Design assistant access added to your cart.",
+      description: "AI Designer access added to your cart.",
     });
     openCart();
   };
@@ -120,15 +120,15 @@ const Designer = () => {
   return (
     <Layout>
       <Seo
-        title="Flower Preservation Design Assistant | Hwabelle"
-        description="Use Hwabelle’s flower preservation design assistant for event-aware guidance, flower selection tips, keepsake ideas, and beginner-friendly pressing checklists."
+        title="Hwabelle AI Designer | Flower Preservation Guidance"
+        description="Use the Hwabelle AI Designer for flower preservation guidance, wedding bouquet keepsake planning, flower selection tips, and beginner-friendly pressing checklists."
         path="/designer"
         image={new URL(designerImage, window.location.origin).toString()}
         keywords={[...defaultKeywords, "flower preservation for beginners", "pressed flower frame"]}
         schema={[
           breadcrumbSchema([
             { name: "Home", path: "/" },
-            { name: "Flower Preservation Design Assistant", path: "/designer" },
+            { name: "Hwabelle AI Designer", path: "/designer" },
           ]),
         ]}
       />
@@ -151,14 +151,14 @@ const Designer = () => {
               >
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-sm text-emerald-700 dark:text-emerald-400 mb-8">
                   <Sparkles size={14} />
-                  <span>Planning support for flower keepsakes</span>
+                  <span>Flower preservation guidance for keepsakes</span>
                 </div>
 
                 <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl mb-6 leading-tight">
                   Flower Preservation
                   <br />
                   <span className="bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent">
-                    Design Assistant
+                    AI Designer
                   </span>
                 </h1>
                 <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-10 max-w-2xl mx-auto">
@@ -168,7 +168,7 @@ const Designer = () => {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button variant="hero" size="lg" className="gap-2 text-base px-8" onClick={handleAddAIOnly}>
                     <Sparkles size={16} />
-                    Add Assistant Access
+                    Start with AI Designer
                   </Button>
                   <Button
                     variant="outline"
@@ -177,7 +177,7 @@ const Designer = () => {
                     onClick={handleAddKitAndAI}
                   >
                     <ArrowRight size={16} />
-                    Add Kit + Assistant
+                    Add Kit + AI Designer
                   </Button>
                 </div>
                 <p className="text-sm text-muted-foreground mt-5">
@@ -209,8 +209,8 @@ const Designer = () => {
                 Plan your flower keepsake before you press
               </h2>
               <p className="text-muted-foreground max-w-lg mx-auto">
-                Use the assistant to decide which blooms are best to save, how to prepare them,
-                and what kind of keepsake you want to create.
+                Use AI Designer to decide which blooms are best to save, how to prepare them,
+                and what kind of keepsake you want to create before you begin pressing.
               </p>
             </div>
 
@@ -223,7 +223,7 @@ const Designer = () => {
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm font-medium leading-tight">Flower Preservation Assistant</p>
+                    <p className="text-sm font-medium leading-tight">Hwabelle AI Designer</p>
                     <p className="text-[11px] text-muted-foreground">Planning preview</p>
                   </div>
                 </div>
@@ -271,7 +271,7 @@ const Designer = () => {
           <div className="container py-20 md:py-28">
             <div className="text-center mb-16">
               <h2 className="font-serif text-3xl md:text-4xl mb-4">
-                What the assistant is useful for
+                What AI Designer helps with
               </h2>
               <p className="text-muted-foreground max-w-xl mx-auto">
                 Focused support for flower selection, pressing decisions, and display planning.
@@ -352,7 +352,7 @@ const Designer = () => {
                     Guided flower preservation topics
                   </h2>
                   <p className="text-primary-foreground/70 leading-relaxed mb-6">
-                    The assistant is set up to help you think through preparation, pressing, and
+                    AI Designer is set up to help you think through preparation, pressing, and
                     display decisions without overcomplicating the process.
                   </p>
                 </div>
@@ -378,6 +378,52 @@ const Designer = () => {
           </div>
         </section>
 
+        <section className="bg-secondary/20 border-y border-border">
+          <div className="container py-20 md:py-24">
+            <div className="mx-auto max-w-5xl">
+              <div className="grid gap-10 md:grid-cols-[1.1fr_0.9fr] md:items-start">
+                <div>
+                  <p className="caption mb-4">Unlock Access</p>
+                  <h2 className="font-serif text-3xl md:text-4xl mb-4">
+                    Use this page to choose your next step
+                  </h2>
+                  <p className="text-muted-foreground leading-relaxed mb-6">
+                    If you already purchased access, unlock AI Designer with your order details. If you are ready to buy,
+                    add access on its own or pair it with the acrylic flower press kit. After access is active, the private chat opens on its own page.
+                  </p>
+                  <ul className="space-y-3 text-sm text-muted-foreground">
+                    <li>Best for wedding bouquets, memorial flowers, garden blooms, wildflowers, and keepsake projects</li>
+                    <li>Useful before flowers wilt, while you are deciding what to press first</li>
+                    <li>Pairs naturally with the product page and flower pressing resources</li>
+                  </ul>
+                </div>
+                <div className="rounded-3xl border border-border bg-background p-8 shadow-sm">
+                  <h3 className="font-serif text-2xl mb-3">Open or unlock AI Designer</h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground mb-6">
+                    Already purchased access? Use the unlock flow. Already active? Open the private AI Designer chat.
+                  </p>
+                  <div className="flex flex-col gap-3">
+                    <Button variant="hero" size="lg" asChild>
+                      <Link to="/unlock">Unlock AI Designer</Link>
+                    </Button>
+                    <Button variant="hero-outline" size="lg" asChild>
+                      <Link to="/designer-chat">Open AI Designer</Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="border-foreground/20 hover:bg-foreground hover:text-background"
+                      onClick={handleAddKitAndAI}
+                    >
+                      Add Kit + AI Designer
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="py-20 md:py-28">
           <div className="container">
             <div className="max-w-2xl mx-auto text-center">
@@ -391,21 +437,23 @@ const Designer = () => {
                   Ready to preserve flowers with more clarity?
                 </h2>
                 <p className="text-muted-foreground leading-relaxed mb-8">
-                  Add assistant access on its own, or pair it with the acrylic flower press kit.
+                  Add AI Designer access on its own, pair it with the acrylic flower press kit, or unlock access from an existing order.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button variant="hero" size="lg" className="gap-2 text-base px-8" onClick={handleAddKitAndAI}>
-                    Add Kit + Assistant
+                    Add Kit + AI Designer
                     <ArrowRight size={16} />
                   </Button>
                   <Button
                     variant="outline"
                     size="lg"
                     className="gap-2 text-base px-8 border-foreground/20 hover:bg-foreground hover:text-background"
-                    onClick={handleAddAIOnly}
+                    asChild
                   >
-                    Add Assistant Only
-                    <Sparkles size={16} />
+                    <Link to="/unlock">
+                      Unlock AI Designer
+                      <Sparkles size={16} />
+                    </Link>
                   </Button>
                 </div>
               </motion.div>
@@ -418,3 +466,4 @@ const Designer = () => {
 };
 
 export default Designer;
+

@@ -231,14 +231,14 @@ const BlogPost = () => {
             <div className="mt-16 p-8 bg-secondary text-center">
               <h2 className="font-serif text-xl mb-3">Ready to preserve your flowers at home?</h2>
               <p className="text-muted-foreground mb-6">
-                Explore the acrylic flower press kit or use the flower preservation design assistant for next-step guidance.
+                Explore the acrylic flower press kit or use the Hwabelle AI Designer for next-step guidance.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button variant="hero" asChild>
                   <Link to="/product/flower-press-kit">Shop the acrylic flower press kit</Link>
                 </Button>
                 <Button variant="hero-outline" asChild>
-                  <Link to="/designer">Open the flower preservation design assistant</Link>
+                  <Link to="/designer">Explore AI Designer</Link>
                 </Button>
               </div>
             </div>

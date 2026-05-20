@@ -25,7 +25,7 @@ const products = [
   },
   {
     id: "ai-designer-access",
-    name: "Flower Preservation Design Assistant",
+    name: "Hwabelle AI Designer",
     variant: "Digital guidance for planning keepsakes",
     price: 19.99,
     description:
@@ -33,7 +33,7 @@ const products = [
     image: designerImage,
     detailUrl: "/designer",
     type: "digital" as const,
-    alt: "Flower preservation design assistant preview for bouquet keepsakes",
+    alt: "Hwabelle AI Designer preview for bouquet keepsakes",
   },
 ];
 
@@ -92,7 +92,7 @@ const Shop = () => {
             <p>Ideal for bouquet and garden keepsakes</p>
             <p>Clear what’s included before checkout</p>
             <p>
-              Need planning help? <Link to="/designer" className="underline underline-offset-2">Try the design assistant</Link>
+              Need planning help? <Link to="/designer" className="underline underline-offset-2">Explore AI Designer</Link>
             </p>
           </div>
         </div>
