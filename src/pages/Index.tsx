@@ -1,6 +1,5 @@
 import Layout from "@/components/layout/Layout";
-import Seo, {
-} from "@/components/seo/Seo";
+import Seo from "@/components/seo/Seo";
 import { breadcrumbSchema, faqSchema, organizationSchema, websiteSchema } from "@/lib/schema";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/animations/ScrollReveal";
@@ -10,13 +9,13 @@ import FloralBorder from "@/components/decorations/FloralBorder";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Leaf, Gift, BookOpen, Sparkles } from "lucide-react";
-import heroArrangement from "@/assets/hero-pressed-arrangement.png";
-import heroFlowImage from "@/assets/hero-pressed-flow.png";
-import lifestyleImage from "@/assets/lifestyle-pressing-cropped.png";
-import pressedFlowersImage from "@/assets/pressed-flowers-collection.png";
+import heroArrangement from "@/assets/hero-pressed-arrangement.webp";
+import heroFlowImage from "@/assets/hero-pressed-flow.webp";
+import lifestyleImage from "@/assets/lifestyle-pressing-cropped.webp";
+import pressedFlowersImage from "@/assets/pressed-flowers-collection.webp";
 import blogImage from "@/assets/blog-botanical-art.jpg";
 import logoImage from "@/assets/hwabelle-logo.png";
-import { PRODUCT_PATH, buildCanonicalUrl, defaultKeywords } from "@/lib/site";
+import { PRODUCT_PATH, defaultKeywords } from "@/lib/site";
 
 const Index = () => {
   const productHighlights = [
@@ -135,9 +134,9 @@ const Index = () => {
         ]}
       />
 
-      <section className="relative min-h-screen w-full overflow-hidden">
+      <section className="relative min-h-[88vh] md:min-h-screen w-full overflow-hidden">
         <motion.div
-          className="absolute inset-0 h-full w-full"
+          className="absolute inset-0 w-full h-full"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.2, ease: [0.25, 0.1, 0.25, 1] }}
@@ -145,7 +144,7 @@ const Index = () => {
           <img
             src={heroArrangement}
             alt="Pressed wedding bouquet petals arranged as a keepsake"
-            className="h-full w-full object-cover object-center"
+            className="w-full h-full object-cover object-center md:object-[center_35%]"
             loading="eager"
             fetchPriority="high"
           />
@@ -154,34 +153,20 @@ const Index = () => {
         <div className="absolute top-0 left-0 right-0 h-5 bg-gradient-to-b from-background to-transparent pointer-events-none" />
         <div className="absolute bottom-0 left-0 right-0 h-5 bg-gradient-to-t from-background to-transparent pointer-events-none" />
 
-        <div className="absolute inset-0 bg-black/20" />
-        <div className="container relative z-10 flex min-h-screen items-center py-32">
-          <div className="max-w-3xl text-white">
-            <p className="mb-4 text-sm uppercase tracking-[0.24em] text-white/80">
-              Acrylic Flower Press Kit
-            </p>
-            <h1 className="font-serif text-5xl leading-tight md:text-6xl">
-              Preserve Meaningful Flowers Before They Fade
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/90 md:text-xl">
-              A beginner-friendly acrylic flower press kit for wedding bouquets,
-              garden flowers, wildflowers, and sentimental blooms.
-            </p>
-            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-              <Button variant="hero" size="lg" className="text-sm sm:text-base" asChild>
-                <Link to={PRODUCT_PATH}>Shop the Flower Press Kit</Link>
-              </Button>
-              <Button variant="hero-outline" size="lg" className="text-sm sm:text-base" asChild>
-                <Link to="/designer">Open the Design Assistant</Link>
-              </Button>
-            </div>
-            <ul className="mt-8 grid gap-3 text-sm text-white/85 md:grid-cols-2">
-              <li>Beginner-friendly</li>
-              <li>Great for wedding bouquet keepsakes</li>
-              <li>Designed for adults, crafters, gardeners, and artists</li>
-              <li>Gift-ready botanical preservation kit</li>
-            </ul>
-          </div>
+        <div className="absolute inset-x-0 bottom-0 z-10 flex justify-center pb-20 sm:pb-28 md:pb-40 lg:pb-52">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+            className="flex flex-col sm:flex-row gap-4 sm:gap-6 px-4"
+          >
+            <Button variant="hero" size="lg" className="text-sm sm:text-base" asChild>
+              <Link to={PRODUCT_PATH}>Shop the Flower Press Kit</Link>
+            </Button>
+            <Button variant="hero-outline" size="lg" className="text-sm sm:text-base bg-background/75 backdrop-blur-sm" asChild>
+              <Link to="/designer">Open the Design Assistant</Link>
+            </Button>
+          </motion.div>
         </div>
       </section>
 
@@ -199,20 +184,30 @@ const Index = () => {
               />
             </ScrollReveal>
             <ScrollReveal direction="right" delay={0.2}>
-              <h2 className="font-serif text-display md:text-display-lg mb-6">
-                The easiest beautiful flower press kit for preserving flowers at home
-              </h2>
+              <p className="caption mb-4">Preserve Meaningful Flowers</p>
+              <h1 className="font-serif text-display md:text-display-lg mb-6">
+                Preserve Meaningful Flowers Before They Fade
+              </h1>
               <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                Hwabelle helps you preserve meaningful flowers with a clear, easy-to-use
-                acrylic press designed for adults and beginners. Use it for bouquet petals,
-                seasonal garden flowers, memorial blooms, wildflowers, and pressed flower art.
+                A beginner-friendly acrylic flower press kit for wedding bouquets, garden flowers,
+                wildflowers, and sentimental blooms. Hwabelle helps adults, crafters, gardeners,
+                and artists create pressed flower keepsakes at home.
               </p>
+              <ul className="mb-8 grid gap-3 text-sm text-muted-foreground sm:grid-cols-2">
+                <li>Beginner-friendly</li>
+                <li>Great for wedding bouquet keepsakes</li>
+                <li>Designed for adults, crafters, gardeners, and artists</li>
+                <li>Gift-ready botanical preservation kit</li>
+              </ul>
               <div className="flex flex-wrap gap-4">
-                <Button variant="hero-outline" asChild>
+                <Button variant="hero" asChild>
                   <Link to="/shop">View the Shop</Link>
                 </Button>
                 <Button variant="hero-outline" asChild>
                   <Link to="/about">Learn About Hwabelle</Link>
+                </Button>
+                <Button variant="hero-outline" asChild>
+                  <Link to="/blog">Read Resources</Link>
                 </Button>
               </div>
             </ScrollReveal>

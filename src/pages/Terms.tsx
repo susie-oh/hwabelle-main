@@ -33,8 +33,7 @@ const Terms = () => {
                 <p>HWABELLE ("we," "us," or "our") operates this Site and offers various products and services for purchase.</p>
                 <div className="mt-3">
                   <p>Business name: HWABELLE</p>
-                  <p>Email: [INSERT SUPPORT EMAIL]</p>
-                  <p>Address: [INSERT BUSINESS ADDRESS]</p>
+                  <p>Email: support@hwabelle.shop</p>
                 </div>
               </section>
 
@@ -75,7 +74,7 @@ const Terms = () => {
               <section>
                 <h2 className="font-serif text-xl text-foreground mb-3">5. Pricing and Payments</h2>
                 <p>
-                  All prices are listed in [INSERT CURRENCY] unless otherwise specified and are subject to change without notice. Payments are processed via third-party providers; by completing a purchase, you agree to their respective terms. We do not store full payment card details on our servers.
+                  All prices are shown in the currency displayed on the product page or at checkout and are subject to change without notice. Payments are processed via third-party providers; by completing a purchase, you agree to their respective terms. We do not store full payment card details on our servers.
                 </p>
                 <p className="mt-3">
                   You remain responsible for any applicable taxes, duties, or fees associated with your order.
@@ -193,7 +192,7 @@ const Terms = () => {
               <section>
                 <h2 className="font-serif text-xl text-foreground mb-3">18. Governing Law</h2>
                 <p>
-                  These Terms are governed by the laws of [INSERT STATE/PROVINCE/COUNTRY]. Any disputes shall be handled exclusively in the courts of [INSERT JURISDICTION].
+                  These Terms are governed by the applicable laws that control the transaction and consumer relationship. Jurisdiction-specific language should be reviewed and finalized before publication if more specific legal terms are required.
                 </p>
               </section>
 

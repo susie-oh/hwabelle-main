@@ -8,7 +8,9 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
+    "postbuild": "node scripts/generate-static-seo-fallbacks.mjs",
     "preview": "vite preview",
+    "validate:seo": "node scripts/validate-seo.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "start": "node server.js"

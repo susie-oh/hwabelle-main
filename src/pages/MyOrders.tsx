@@ -1,4 +1,5 @@
 import Layout from "@/components/layout/Layout";
+import Seo from "@/components/seo/Seo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect, useCallback } from "react";
@@ -203,6 +204,7 @@ const MyOrders = () => {
     // ── Render ─────────────────────────────────────────────────────────────────
     return (
         <Layout>
+            <Seo title="My Orders | Hwabelle" path="/my-orders" robots="noindex,nofollow" />
             <div className="container py-16 md:py-24 max-w-3xl">
                 <div className="mb-10">
                     <h1 className="font-serif text-3xl md:text-4xl mb-2">My Orders</h1>

@@ -19,6 +19,7 @@ import {
     Lock,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import Seo from "@/components/seo/Seo";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type OrderSource = "website" | "amazon";
@@ -231,6 +232,7 @@ const UnlockPage = () => {
 
     return (
         <Layout>
+            <Seo title="Unlock Access | Hwabelle" path="/unlock" robots="noindex,nofollow" />
             <section className="py-16 md:py-24 bg-secondary/40 border-b border-border">
                 <div className="container max-w-2xl text-center">
                     <motion.div

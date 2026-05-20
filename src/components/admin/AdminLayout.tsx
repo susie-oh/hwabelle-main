@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, LayoutDashboard, FileText, HelpCircle, LogOut, Home, Mail, Menu, X, Package } from "lucide-react";
 import logoImage from "@/assets/hwabelle-full-logo.jpg";
 import { cn } from "@/lib/utils";
+import Seo from "@/components/seo/Seo";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -102,6 +103,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   return (
     <div className="min-h-screen bg-secondary">
+      <Seo title="Hwabelle Admin" path={location.pathname} robots="noindex,nofollow" />
       {/* Mobile header */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-background border-b border-divider h-14 flex items-center px-4 gap-3">
         <button onClick={() => setSidebarOpen(true)} aria-label="Open menu">

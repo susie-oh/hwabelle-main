@@ -25,11 +25,11 @@ const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-divider">
       <div className="container flex items-center justify-between h-16 md:h-20">
         {/* Logo */}
-        <Link to="/" className="flex items-center">
+        <Link to="/" className="flex items-center shrink-0">
           <img
             src={logo}
             alt="Hwabelle"
-            className="h-14 md:h-16 lg:h-18 w-auto object-contain py-1"
+            className="h-9 md:h-11 lg:h-12 w-auto max-w-[170px] md:max-w-[210px] object-contain"
           />
         </Link>
 

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { supabase } from "@/integrations/supabase/client";
+import Seo from "@/components/seo/Seo";
 
 const DESIGNER_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-designer`;
 
@@ -339,6 +340,7 @@ const DesignerChat = () => {
     // ─── Render ────────────────────────────────────────────────────────────────
     return (
         <div className="h-screen flex flex-col overflow-hidden bg-background">
+            <Seo title="Designer Chat | Hwabelle" path="/designer-chat" robots="noindex,nofollow" />
             <Header />
 
             <div className="flex-1 flex flex-col overflow-hidden relative" style={{ background: "linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%)" }}>

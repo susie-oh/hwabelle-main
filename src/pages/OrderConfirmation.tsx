@@ -4,6 +4,7 @@ import { CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import { useCart } from "@/hooks/useCart";
+import Seo from "@/components/seo/Seo";
 
 const OrderConfirmation = () => {
     const { clearCart } = useCart();
@@ -14,6 +15,7 @@ const OrderConfirmation = () => {
 
     return (
         <Layout>
+            <Seo title="Order Confirmation | Hwabelle" path="/order-confirmation" robots="noindex,nofollow" />
             <section className="py-24 md:py-32 bg-background">
                 <div className="container">
                     <div className="max-w-lg mx-auto text-center">

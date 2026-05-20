@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import logoImage from "@/assets/hwabelle-logo.png";
+import Seo from "@/components/seo/Seo";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -71,6 +72,7 @@ const AdminLogin = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary p-4">
+      <Seo title="Admin Login | Hwabelle" path="/admin/login" robots="noindex,nofollow" />
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
@@ -88,7 +90,7 @@ const AdminLogin = () => {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@hwabelle.com"
+                placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Sparkles, Loader2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import Seo from "@/components/seo/Seo";
 
 /**
  * /claim-success
@@ -88,6 +89,7 @@ const ClaimSuccess = () => {
 
     return (
         <Layout>
+            <Seo title="Claim Success | Hwabelle" path="/claim-success" robots="noindex,nofollow" />
             <section className="py-20 md:py-32 bg-background min-h-[60vh] flex items-center">
                 <div className="container max-w-lg">
                     <motion.div
