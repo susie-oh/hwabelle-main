@@ -202,7 +202,23 @@ Deno.serve(async (req) => {
         }));
 
         if (event.type === "checkout.session.completed") {
-            const session = event.data.object as any;
+            let session = event.data.object as any;
+
+            // Robust fallback: if shipping_details is missing from the webhook event object,
+            // retrieve the full session from Stripe to ensure we get all details.
+            if (!session.shipping_details && session.id) {
+                try {
+                    session = await stripe.checkout.sessions.retrieve(session.id);
+                } catch (retrieveErr) {
+                    console.error(JSON.stringify({
+                        function: "stripe-webhook",
+                        event: "stripe_retrieve_error",
+                        error: String(retrieveErr),
+                        session_id: session.id,
+                        ts: new Date().toISOString(),
+                    }));
+                }
+            }
 
             const supabase = createClient(
                 Deno.env.get("SUPABASE_URL")!,

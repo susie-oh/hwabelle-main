@@ -98,7 +98,7 @@ async function createFulfillmentOrder(
             addressLine1: req.address.addressLine1,
             ...(req.address.addressLine2 ? { addressLine2: req.address.addressLine2 } : {}),
             city: req.address.city,
-            stateOrProvinceCode: req.address.stateOrRegion,
+            stateOrRegion: req.address.stateOrRegion,
             postalCode: req.address.postalCode,
             countryCode: req.address.countryCode,
         },
@@ -125,7 +125,7 @@ async function createFulfillmentOrder(
     if (!res.ok) {
         const errText = await res.text();
         console.error("MCF createFulfillmentOrder failed:", res.status, errText);
-        return { success: false, error: `${res.status}: ${errText}` };
+        return { success: false, error: `${res.status}: ${errText} — Submitted: ${JSON.stringify(body)}` };
     }
 
     console.log("MCF fulfillment order created successfully for:", req.orderId);
@@ -254,12 +254,15 @@ Deno.serve(async (req) => {
                 );
             }
 
+            // Truncate the Stripe session ID to a max-length Amazon accepts (40 chars)
+            const mcfOrderId = `HWB-${orderId.slice(-32)}`;
+
             // Filter to only physical items that have SKU mappings
             const physicalItems: McfItem[] = items
                 .filter((item: any) => isPhysicalProduct(item.productId))
                 .map((item: any) => ({
                     sellerSku: PRODUCT_SKU_MAP[item.productId],
-                    sellerFulfillmentOrderItemId: `${orderId}-${item.productId}`,
+                    sellerFulfillmentOrderItemId: `${mcfOrderId.slice(-20)}-${item.productId.slice(0, 20)}`,
                     quantity: item.quantity || 1,
                 }));
 
@@ -280,9 +283,6 @@ Deno.serve(async (req) => {
                 postalCode: shippingAddress.postal_code,
                 countryCode: shippingAddress.country,
             };
-
-            // Truncate the Stripe session ID to a max-length Amazon accepts (40 chars)
-            const mcfOrderId = `HWB-${orderId.slice(-32)}`;
 
             const result = await createFulfillmentOrder(accessToken, {
                 orderId: mcfOrderId,
