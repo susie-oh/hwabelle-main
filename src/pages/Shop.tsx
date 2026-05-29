@@ -15,7 +15,7 @@ const products = [
     id: "flower-press-kit",
     name: "Acrylic Flower Press Kit",
     variant: "For adults, beginners, and keepsake makers",
-    price: 0.50,
+    price: 34.99,
     description:
       "A complete acrylic flower pressing kit for preserving wedding bouquets, garden flowers, wildflowers, and meaningful blooms at home.",
     image: productImage,
@@ -27,7 +27,7 @@ const products = [
     id: "ai-designer-access",
     name: "Hwabelle AI Designer",
     variant: "Digital guidance for planning keepsakes",
-    price: 0.50,
+    price: 19.99,
     description:
       "Get flower selection help, keepsake ideas, and beginner-friendly pressing guidance for bouquets, garden blooms, and botanical crafts.",
     image: designerImage,

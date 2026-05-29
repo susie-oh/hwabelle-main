@@ -9,7 +9,7 @@ export const PRODUCT = {
   id: "flower-press-kit",
   name: "Hwabelle Acrylic Flower Press Kit",
   shortName: "Acrylic Flower Press Kit",
-  price: 0.50,
+  price: 34.99,
   currency: "USD",
   slug: "flower-press-kit",
   category: "Flower Press Kit / Botanical Craft Kit",
