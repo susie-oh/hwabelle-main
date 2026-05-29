@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import {
   Package, DollarSign, Sparkles, FileText, Edit, HelpCircle, Mail,
-  Key, ShoppingCart, ChevronRight, Eye,
+  Key, ShoppingCart, ChevronRight, Eye, MessageCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -80,6 +80,77 @@ const Dashboard = () => {
         .select("*", { count: "exact", head: true });
       if (error) throw error;
       return count || 0;
+    },
+  });
+
+  // ── AI Designer usage analytics ───────────────────────────────────────────────
+  const { data: aiUsage } = useQuery({
+    queryKey: ["admin-dashboard-ai-usage"],
+    queryFn: async () => {
+      // 1. Fetch total counts
+      const { count: sessionCount, error: sessionErr } = await supabase
+        .from("ai_chat_sessions")
+        .select("*", { count: "exact", head: true });
+      if (sessionErr) throw sessionErr;
+
+      const { count: messageCount, error: msgErr } = await supabase
+        .from("ai_chat_messages")
+        .select("*", { count: "exact", head: true });
+      if (msgErr) throw msgErr;
+
+      // 2. Fetch recent chat sessions
+      const { data: recentSessions, error: recentErr } = await supabase
+        .from("ai_chat_sessions")
+        .select("id, title, created_at, user_id")
+        .order("created_at", { ascending: false })
+        .limit(5);
+      if (recentErr) throw recentErr;
+
+      // 3. Fetch message counts and user emails to match user_id
+      const { data: allMessages, error: allMsgsErr } = await supabase
+        .from("ai_chat_messages")
+        .select("session_id");
+      if (allMsgsErr) throw allMsgsErr;
+
+      const { data: orders, error: ordersErr } = await supabase
+        .from("orders")
+        .select("user_id, customer_email")
+        .not("user_id", "is", null);
+      if (ordersErr) throw ordersErr;
+
+      // Create maps
+      const msgCountMap = new Map<string, number>();
+      allMessages?.forEach((m) => {
+        msgCountMap.set(m.session_id, (msgCountMap.get(m.session_id) || 0) + 1);
+      });
+
+      const userEmailMap = new Map<string, string>();
+      orders?.forEach((o) => {
+        if (o.user_id && o.customer_email) {
+          userEmailMap.set(o.user_id, o.customer_email);
+        }
+      });
+
+      const formattedSessions = recentSessions?.map((s) => ({
+        id: s.id,
+        title: s.title,
+        created_at: s.created_at,
+        email: userEmailMap.get(s.user_id) || "Unlinked User",
+        messageCount: msgCountMap.get(s.id) || 0,
+      })) || [];
+
+      // Calculate unique users count
+      const { data: uniqueUsersData } = await supabase
+        .from("ai_chat_sessions")
+        .select("user_id");
+      const uniqueUsersCount = new Set(uniqueUsersData?.map(s => s.user_id)).size;
+
+      return {
+        totalSessions: sessionCount || 0,
+        totalMessages: messageCount || 0,
+        uniqueUsers: uniqueUsersCount || 0,
+        recentSessions: formattedSessions,
+      };
     },
   });
 
@@ -270,6 +341,79 @@ const Dashboard = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* ── AI Designer Usage Analytics ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* AI Designer Stats Card */}
+          <Card className="lg:col-span-1">
+            <CardHeader>
+              <CardTitle className="font-serif flex items-center gap-2">
+                <Sparkles size={18} className="text-purple-600" />
+                AI Designer Analytics
+              </CardTitle>
+              <CardDescription>Overview of client AI activity</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-xl">
+                <span className="text-sm text-muted-foreground">Conversations</span>
+                <span className="text-lg font-bold">{aiUsage?.totalSessions || 0}</span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-xl">
+                <span className="text-sm text-muted-foreground">Total Messages</span>
+                <span className="text-lg font-bold">{aiUsage?.totalMessages || 0}</span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-xl">
+                <span className="text-sm text-muted-foreground">Active Users</span>
+                <span className="text-lg font-bold">{aiUsage?.uniqueUsers || 0}</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recent AI Conversations List */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="font-serif flex items-center gap-2">
+                <MessageCircle size={18} className="text-purple-600" />
+                Recent Conversations
+              </CardTitle>
+              <CardDescription>Latest client planning sessions using the AI Floral Designer</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!aiUsage?.recentSessions?.length ? (
+                <p className="text-sm text-muted-foreground text-center py-6">No Designer activity recorded yet</p>
+              ) : (
+                <div className="space-y-3">
+                  {aiUsage.recentSessions.map((session) => (
+                    <div
+                      key={session.id}
+                      className="flex items-center justify-between p-3 rounded-xl border border-divider bg-background/50 hover:bg-secondary/50 transition-colors"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+                          <MessageCircle size={14} className="text-purple-600" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            {session.title || "New Conversation"}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">{session.email}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <Badge variant="outline" className="text-[10px] border-purple-200 text-purple-700 bg-purple-50/30">
+                          {session.messageCount} messages
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(session.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         {/* ── Amazon Orders ── */}
         <AmazonOrdersCard />

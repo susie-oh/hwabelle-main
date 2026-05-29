@@ -21,6 +21,9 @@ interface Order {
     status: string;
     shipping_address: Record<string, string> | null;
     created_at: string;
+    mcf_order_id?: string | null;
+    mcf_status?: string | null;
+    mcf_submitted_at?: string | null;
     order_items?: { id: string; product_name: string; quantity: number; product_type: string }[];
 }
 
@@ -438,6 +441,67 @@ const MyOrders = () => {
                                                 Shipping to {order.shipping_address.city}, {order.shipping_address.state}
                                             </div>
                                         )}
+
+                                        {/* Detailed Shipping Info for Kits */}
+                                        {(() => {
+                                            const hasPhysicalKit = order.order_items?.some(item => item.product_type === 'physical') || !!order.shipping_address;
+                                            if (!hasPhysicalKit) return null;
+
+                                            let shippingStatusLabel = "Processing";
+                                            let shippingDescription = "We are preparing your Acrylic Flower Press Kit for shipment via Amazon MCF.";
+
+                                            if (order.status === 'processing') {
+                                                shippingStatusLabel = "Packaging";
+                                                shippingDescription = "Your order is being processed and packaged at the fulfillment center.";
+                                            } else if (order.status === 'shipped') {
+                                                shippingStatusLabel = "Shipped";
+                                                shippingDescription = "Your Acrylic Flower Press Kit has shipped! You will receive tracking details via email.";
+                                            } else if (order.status === 'delivered') {
+                                                shippingStatusLabel = "Delivered";
+                                                shippingDescription = "Delivered! Your kit has arrived. Enjoy preserving your beautiful flowers!";
+                                            } else if (order.status === 'cancelled') {
+                                                shippingStatusLabel = "Cancelled";
+                                                shippingDescription = "This shipment has been cancelled.";
+                                            }
+
+                                            if (order.mcf_status) {
+                                                const ms = order.mcf_status.toUpperCase();
+                                                if (ms === 'SHIPPED') {
+                                                    shippingStatusLabel = "Shipped";
+                                                    shippingDescription = "Your Acrylic Flower Press Kit has shipped! You will receive tracking details via email.";
+                                                } else if (ms === 'DELIVERED') {
+                                                    shippingStatusLabel = "Delivered";
+                                                    shippingDescription = "Delivered! Your kit has arrived. Enjoy preserving your beautiful flowers!";
+                                                } else if (ms === 'RECEIVED' || ms === 'PLANNING' || ms === 'PROCESSING') {
+                                                    shippingStatusLabel = "Packaging";
+                                                    shippingDescription = "Your order is being processed and packaged at the fulfillment center.";
+                                                }
+                                            }
+
+                                            return (
+                                                <div className="mt-4 p-3.5 bg-secondary/40 rounded-lg border border-border/40 space-y-2">
+                                                    <div className="flex items-center justify-between text-xs">
+                                                        <span className="text-muted-foreground font-medium">Shipping Status</span>
+                                                        <span className={`font-semibold capitalize px-2 py-0.5 rounded text-[11px] ${
+                                                            shippingStatusLabel === 'Delivered' ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20' :
+                                                            shippingStatusLabel === 'Shipped' ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/20' :
+                                                            'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20'
+                                                        }`}>
+                                                            {shippingStatusLabel}
+                                                       </span>
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground leading-relaxed">
+                                                        {shippingDescription}
+                                                    </p>
+                                                    {order.mcf_order_id && (
+                                                        <div className="text-[10px] text-muted-foreground flex justify-between pt-2 border-t border-border/20">
+                                                            <span>Fulfillment ID</span>
+                                                            <span className="font-mono">{order.mcf_order_id}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })()}
                                     </motion.div>
                                 ))}
                             </div>
