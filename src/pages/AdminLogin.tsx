@@ -78,7 +78,7 @@ const AdminLogin = () => {
           <div className="flex justify-center mb-4">
             <img src={logoImage} alt="Hwabelle" className="h-12" />
           </div>
-          <CardTitle className="font-serif text-2xl">Admin Login</CardTitle>
+          <h1 className="font-serif text-2xl font-semibold text-card-foreground">Admin Login</h1>
           <CardDescription>
             Sign in to access the admin dashboard
           </CardDescription>

@@ -97,10 +97,10 @@ const Designer = () => {
     addItem({
       id: "flower-press-kit",
       name: "Acrylic Flower Press Kit",
-      price: 34.99,
+      price: 0.50,
       image: productImage,
     });
-    addItem({ id: "ai-designer-access", name: "AI Designer Access", price: 19.99 });
+    addItem({ id: "ai-designer-access", name: "AI Designer Access", price: 0.50 });
     toast({
       title: "Added to cart",
       description: "Kit + AI Designer access added to your cart.",
@@ -109,7 +109,7 @@ const Designer = () => {
   };
 
   const handleAddAIOnly = () => {
-    addItem({ id: "ai-designer-access", name: "AI Designer Access", price: 19.99 });
+    addItem({ id: "ai-designer-access", name: "AI Designer Access", price: 0.50 });
     toast({
       title: "Added to cart",
       description: "AI Designer access added to your cart.",

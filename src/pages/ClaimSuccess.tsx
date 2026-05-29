@@ -119,7 +119,7 @@ const ClaimSuccess = () => {
                                     className="flex flex-col items-center text-center"
                                 >
                                     <Loader2 className="w-10 h-10 text-emerald-600 animate-spin mb-4" />
-                                    <h3 className="font-serif text-xl mb-2">Activating your access…</h3>
+                                    <h1 className="font-serif text-xl mb-2 text-foreground">Activating your access…</h1>
                                     <p className="text-muted-foreground text-sm">
                                         Please wait while we link your order to your account.
                                     </p>
@@ -137,7 +137,7 @@ const ClaimSuccess = () => {
                                     <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-500/20 rounded-full flex items-center justify-center mb-6 border-4 border-white dark:border-background shadow-sm">
                                         <Sparkles className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
                                     </div>
-                                    <h3 className="font-serif text-2xl mb-2 text-foreground">Access Activated!</h3>
+                                    <h1 className="font-serif text-2xl mb-2 text-foreground">Access Activated!</h1>
                                     <p className="text-muted-foreground text-sm mb-8 max-w-sm">
                                         Your order has been successfully linked to your account. You now have full access to the AI Botanical Designer.
                                     </p>
@@ -159,7 +159,7 @@ const ClaimSuccess = () => {
                                     <div className="w-16 h-16 bg-red-100 dark:bg-red-500/20 rounded-full flex items-center justify-center mb-6">
                                         <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
                                     </div>
-                                    <h3 className="font-serif text-xl mb-2">Something went wrong</h3>
+                                    <h1 className="font-serif text-xl mb-2 text-foreground">Something went wrong</h1>
                                     <p className="text-muted-foreground text-sm mb-6 max-w-sm">
                                         {errorMsg}
                                     </p>

@@ -262,6 +262,27 @@ const routes = [
       "Read Hwabelle returns information, Amazon return steps, refund timing guidance, and how to handle damaged orders.",
     schema: [breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Returns", path: "/returns" }])],
   },
+  {
+    path: "/privacy",
+    title: "Privacy Policy | Hwabelle",
+    description:
+      "Read the Hwabelle privacy policy for information about data collection, order processing, shipping data, security, and customer privacy.",
+    schema: [breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Privacy Policy", path: "/privacy" }])],
+  },
+  {
+    path: "/terms",
+    title: "Terms of Service | Hwabelle",
+    description:
+      "Review the Hwabelle terms of service for site usage, product information, ordering, fulfillment, returns, and legal terms.",
+    schema: [breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Terms of Service", path: "/terms" }])],
+  },
+  {
+    path: "/data-protection",
+    title: "Data Protection Policy | Hwabelle",
+    description:
+      "Review Hwabelle’s data protection policy covering access controls, encryption, retention, incident response, and partner data handling.",
+    schema: [breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Data Protection Policy", path: "/data-protection" }])],
+  },
 ];
 
 const routeHtml = (template, route) => {
