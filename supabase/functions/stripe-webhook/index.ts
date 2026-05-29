@@ -124,7 +124,7 @@ async function sendConfirmationEmail(customerEmail: string, session: any) {
 }
 
 // ─── Admin Notification Email ──────────────────────────────────────────────────
-async function sendAdminOrderNotification(session: any, customerEmail: string, orderId: string, mcfStatus: string) {
+async function sendAdminOrderNotification(session: any, customerEmail: string, orderId: string, mcfStatus: string, items: any[], hasAiDesigner: boolean) {
     const resendKey = Deno.env.get("RESEND_API_KEY");
     if (!resendKey) return;
 
@@ -137,6 +137,10 @@ async function sendAdminOrderNotification(session: any, customerEmail: string, o
         ? `$${(session.amount_total / 100).toFixed(2)}`
         : "N/A";
     const customerName = session.customer_details?.name || "Customer";
+
+    const itemsListHtml = items.map(item => 
+        `<li style="margin-bottom:4px;">${item.description || "Item"} (Qty: ${item.quantity || 1})</li>`
+    ).join("");
 
     const htmlBody = `<!DOCTYPE html>
 <html lang="en">
@@ -156,6 +160,22 @@ async function sendAdminOrderNotification(session: any, customerEmail: string, o
       <tr>
         <td style="padding:6px 0;font-weight:bold;">Customer:</td>
         <td style="padding:6px 0;color:#6b6b6b;">${customerName} (${customerEmail})</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 0;font-weight:bold;">Items Ordered:</td>
+        <td style="padding:6px 0;color:#6b6b6b;">
+          <ul style="margin:0;padding-left:16px;">
+            ${itemsListHtml}
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:6px 0;font-weight:bold;">AI Designer Included:</td>
+        <td style="padding:6px 0;color:#6b6b6b;">
+          <span style="display:inline-block;padding:2px 8px;font-size:11px;font-weight:bold;text-transform:uppercase;background-color:${hasAiDesigner ? "#e8f0fe" : "#f1f3f4"};color:${hasAiDesigner ? "#1a73e8" : "#5f6368"};">
+            ${hasAiDesigner ? "Yes" : "No"}
+          </span>
+        </td>
       </tr>
       <tr>
         <td style="padding:6px 0;font-weight:bold;">Total Amount:</td>
@@ -537,7 +557,7 @@ Deno.serve(async (req) => {
             }
 
             // Send admin email notification
-            await sendAdminOrderNotification(session, customerEmail || "unknown@example.com", orderId, mcfStatus);
+            await sendAdminOrderNotification(session, customerEmail || "unknown@example.com", orderId, mcfStatus, lineItems.data, hasAiDesigner);
         }
 
         console.log(JSON.stringify({
