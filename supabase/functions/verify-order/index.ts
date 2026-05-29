@@ -119,6 +119,79 @@ async function verifyAmazonOrder(orderId: string): Promise<{ status: "valid" | "
     }
 }
 
+// ─── Admin Notification Email ──────────────────────────────────────────────────
+async function sendAdminRedeemNotification(orderNumber: string, customerEmail: string, authUserEmail: string, orderId: string) {
+    const resendKey = Deno.env.get("RESEND_API_KEY");
+    if (!resendKey) return;
+
+    const adminEmailsStr = Deno.env.get("ADMIN_NOTIFICATION_EMAILS");
+    const adminEmails = adminEmailsStr
+        ? adminEmailsStr.split(",").map(e => e.trim())
+        : ["teamsienvi@gmail.com", "sienviclientsusieoh@gmail.com", "susieoh820@gmail.com"];
+
+    const htmlBody = `<!DOCTYPE html>
+<html lang="en">
+<body style="margin:0;padding:0;background-color:#faf8f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#2c2c2c;">
+  <div style="max-width:600px;margin:20px auto;background-color:#ffffff;padding:40px;border:1px solid #f0ece8;">
+    <h2 style="font-family:Georgia,serif;font-size:20px;color:#3f1e3c;border-bottom:1px solid #f0ece8;padding-bottom:12px;margin-top:0;">🎟️ AI Designer Redeemed</h2>
+    
+    <table style="width:100%;margin-top:20px;border-collapse:collapse;font-size:14px;line-height:1.6;">
+      <tr>
+        <td style="padding:6px 0;font-weight:bold;width:140px;">Order Number:</td>
+        <td style="padding:6px 0;color:#6b6b6b;">${orderNumber}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 0;font-weight:bold;">Order DB ID:</td>
+        <td style="padding:6px 0;color:#6b6b6b;">${orderId}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 0;font-weight:bold;">Original Email:</td>
+        <td style="padding:6px 0;color:#6b6b6b;">${customerEmail}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 0;font-weight:bold;">Claimed By Account:</td>
+        <td style="padding:6px 0;color:#3f1e3c;font-weight:bold;">${authUserEmail}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 0;font-weight:bold;">Action:</td>
+        <td style="padding:6px 0;color:#137333;font-weight:bold;">AI Designer Entitlement Activated</td>
+      </tr>
+    </table>
+
+    <div style="margin-top:30px;padding-top:20px;border-top:1px solid #f0ece8;font-size:11px;color:#9b9b9b;">
+      <p style="margin:0;">Hwabelle Admin Notifications — Configure via remote environment variables.</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "Hwabelle <orders@hwabelle.shop>";
+    try {
+        const res = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${resendKey}`,
+            },
+            body: JSON.stringify({
+                from: fromEmail,
+                to: adminEmails,
+                subject: `🎟️ Admin Alert: AI Designer Redeemed for Order ${orderNumber}`,
+                html: htmlBody,
+            }),
+        });
+        if (!res.ok) {
+            const errText = await res.text();
+            console.error(JSON.stringify({ function: "verify-order", event: "admin_notification_error", status: res.status, detail: errText, ts: new Date().toISOString() }));
+        } else {
+            console.log(JSON.stringify({ function: "verify-order", event: "admin_notification_sent", to: adminEmails, ts: new Date().toISOString() }));
+        }
+    } catch (e) {
+        console.error(JSON.stringify({ function: "verify-order", event: "admin_notification_exception", error: String(e), ts: new Date().toISOString() }));
+    }
+}
+
+
 Deno.serve(async (req) => {
     if (req.method === "OPTIONS") {
         return new Response(null, { headers: corsHeaders });
@@ -339,6 +412,9 @@ Deno.serve(async (req) => {
             redeemed_by_user_id: authUser.id,
             updated_at: new Date().toISOString()
         }, { onConflict: "order_id" });
+
+        // Send admin notification
+        await sendAdminRedeemNotification(order_number, order.customer_email || email, authUser.email || "unknown", order.id);
 
         console.log(JSON.stringify({ function: "verify-order", event: "redemption_success", order_id: order.id, user_id: authUser.id, ts: new Date().toISOString(), latency_ms: Date.now() - t0 }));
 

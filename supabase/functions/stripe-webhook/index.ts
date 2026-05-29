@@ -123,6 +123,87 @@ async function sendConfirmationEmail(customerEmail: string, session: any) {
     }
 }
 
+// ─── Admin Notification Email ──────────────────────────────────────────────────
+async function sendAdminOrderNotification(session: any, customerEmail: string, orderId: string, mcfStatus: string) {
+    const resendKey = Deno.env.get("RESEND_API_KEY");
+    if (!resendKey) return;
+
+    const adminEmailsStr = Deno.env.get("ADMIN_NOTIFICATION_EMAILS");
+    const adminEmails = adminEmailsStr
+        ? adminEmailsStr.split(",").map(e => e.trim())
+        : ["teamsienvi@gmail.com", "sienviclientsusieoh@gmail.com", "susieoh820@gmail.com"];
+
+    const totalFormatted = session.amount_total
+        ? `$${(session.amount_total / 100).toFixed(2)}`
+        : "N/A";
+    const customerName = session.customer_details?.name || "Customer";
+
+    const htmlBody = `<!DOCTYPE html>
+<html lang="en">
+<body style="margin:0;padding:0;background-color:#faf8f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#2c2c2c;">
+  <div style="max-width:600px;margin:20px auto;background-color:#ffffff;padding:40px;border:1px solid #f0ece8;">
+    <h2 style="font-family:Georgia,serif;font-size:20px;color:#1e3f20;border-bottom:1px solid #f0ece8;padding-bottom:12px;margin-top:0;">🔔 New Store Order Received</h2>
+    
+    <table style="width:100%;margin-top:20px;border-collapse:collapse;font-size:14px;line-height:1.6;">
+      <tr>
+        <td style="padding:6px 0;font-weight:bold;width:140px;">Order ID:</td>
+        <td style="padding:6px 0;color:#6b6b6b;">${orderId}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 0;font-weight:bold;">Stripe Session:</td>
+        <td style="padding:6px 0;color:#6b6b6b;font-family:monospace;font-size:12px;">${session.id}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 0;font-weight:bold;">Customer:</td>
+        <td style="padding:6px 0;color:#6b6b6b;">${customerName} (${customerEmail})</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 0;font-weight:bold;">Total Amount:</td>
+        <td style="padding:6px 0;color:#1e3f20;font-weight:bold;">${totalFormatted} ${session.currency?.toUpperCase() || "USD"}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 0;font-weight:bold;">MCF Submission:</td>
+        <td style="padding:6px 0;color:#6b6b6b;">
+          <span style="display:inline-block;padding:2px 8px;font-size:11px;font-weight:bold;text-transform:uppercase;background-color:${mcfStatus === "submitted" ? "#e6f4ea" : mcfStatus === "skipped" ? "#f1f3f4" : "#fce8e6"};color:${mcfStatus === "submitted" ? "#137333" : mcfStatus === "skipped" ? "#5f6368" : "#c5221f"};">
+            ${mcfStatus}
+          </span>
+        </td>
+      </tr>
+    </table>
+
+    <div style="margin-top:30px;padding-top:20px;border-top:1px solid #f0ece8;font-size:11px;color:#9b9b9b;">
+      <p style="margin:0;">Hwabelle Admin Notifications — Configure via remote environment variables.</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "Hwabelle <orders@hwabelle.shop>";
+    try {
+        const res = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${resendKey}`,
+            },
+            body: JSON.stringify({
+                from: fromEmail,
+                to: adminEmails,
+                subject: `🔔 Admin Alert: New Order ${orderId} — ${totalFormatted}`,
+                html: htmlBody,
+            }),
+        });
+        if (!res.ok) {
+            const errText = await res.text();
+            console.error(JSON.stringify({ function: "stripe-webhook", event: "admin_notification_error", status: res.status, detail: errText, ts: new Date().toISOString() }));
+        } else {
+            console.log(JSON.stringify({ function: "stripe-webhook", event: "admin_notification_sent", to: adminEmails, ts: new Date().toISOString() }));
+        }
+    } catch (e) {
+        console.error(JSON.stringify({ function: "stripe-webhook", event: "admin_notification_exception", error: String(e), ts: new Date().toISOString() }));
+    }
+}
+
 // ─── Product type resolution (stable, metadata-driven) ───────────────────────
 // Reads from session.metadata.line_item_types (set by create-checkout).
 // Falls back to Stripe description heuristic ONLY for items not in the map,
@@ -411,6 +492,7 @@ Deno.serve(async (req) => {
             }
 
             // ── Amazon MCF auto-fulfillment for physical items ──
+            let mcfStatus = "skipped";
             if (session.shipping_details?.address) {
                 try {
                     const mcfItems: { productId: string; quantity: number }[] = [];
@@ -439,17 +521,23 @@ Deno.serve(async (req) => {
                             });
 
                             if (mcfRes.error) {
+                                mcfStatus = "failed";
                                 console.error(JSON.stringify({ function: "stripe-webhook", event: "mcf_error", error: mcfRes.error, ts: new Date().toISOString() }));
                             } else {
+                                mcfStatus = "submitted";
                                 console.log(JSON.stringify({ function: "stripe-webhook", event: "mcf_submitted", order_id: orderId, ts: new Date().toISOString() }));
                             }
                         }
                     }
                 } catch (mcfErr) {
+                    mcfStatus = "failed";
                     // MCF failure must not fail the webhook — order is already saved.
                     console.error(JSON.stringify({ function: "stripe-webhook", event: "mcf_exception", error: String(mcfErr), ts: new Date().toISOString() }));
                 }
             }
+
+            // Send admin email notification
+            await sendAdminOrderNotification(session, customerEmail || "unknown@example.com", orderId, mcfStatus);
         }
 
         console.log(JSON.stringify({
