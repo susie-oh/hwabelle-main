@@ -2,7 +2,7 @@ import Layout from "@/components/layout/Layout";
 import Seo from "@/components/seo/Seo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/hooks/useCart";
@@ -119,11 +119,38 @@ const MyOrders = () => {
     // Post-checkout activation — was the purchase confirmed?
     const [purchaseConfirmed, setPurchaseConfirmed] = useState(false);
     const [purchaseHasAi, setPurchaseHasAi] = useState(false);
-    const [verifyRetries, setVerifyRetries] = useState(0);
+    const verifyRetriesRef = useRef(0);
 
     // ── Bootstrap ─────────────────────────────────────────────────────────────
     useEffect(() => {
         let cancelled = false;
+
+        const checkAuth = async () => {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (cancelled) return;
+
+                if (sessionId) {
+                    clearCart();
+                    if (session) {
+                        await verifySession(sessionId);
+                        if (!cancelled) await loadOrders(session.access_token);
+                    } else {
+                        setPageState("post-checkout");
+                        verifySession(sessionId);
+                    }
+                } else if (session) {
+                    await loadOrders(session.access_token);
+                } else {
+                    setPageState("unauthenticated");
+                }
+            } catch (err) {
+                console.error("Auth session bootstrap error:", err);
+                if (!cancelled) setPageState("unauthenticated");
+            }
+        };
+
+        checkAuth();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (cancelled) return;
@@ -132,17 +159,13 @@ const MyOrders = () => {
             if (event === "TOKEN_REFRESHED") return;
 
             if (sessionId) {
-                // Always clear cart on post-checkout landing
                 clearCart();
-
                 if (session) {
-                    // Authenticated — verify session then load their orders
                     await verifySession(sessionId);
                     if (!cancelled) await loadOrders(session.access_token);
                 } else if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
-                    // Not authenticated — show activation UX
                     setPageState("post-checkout");
-                    verifySession(sessionId); // run in background to confirm purchase
+                    verifySession(sessionId);
                 }
             } else if (session) {
                 await loadOrders(session.access_token);
@@ -155,7 +178,7 @@ const MyOrders = () => {
             cancelled = true;
             subscription.unsubscribe();
         };
-    }, [sessionId]);
+    }, [sessionId, clearCart, verifySession, loadOrders]);
 
     // ── Verify Stripe session (post-checkout confirmation) ────────────────────
     const verifySession = useCallback(async (sid: string) => {
@@ -165,9 +188,9 @@ const MyOrders = () => {
             });
             if (fnErr) throw fnErr;
 
-            if (data?.pending && verifyRetries < 6) {
+            if (data?.pending && verifyRetriesRef.current < 6) {
                 setTimeout(() => {
-                    setVerifyRetries((r) => r + 1);
+                    verifyRetriesRef.current += 1;
                     verifySession(sid);
                 }, 2500);
                 return;
@@ -178,7 +201,7 @@ const MyOrders = () => {
         } catch (err) {
             console.error("Session verify error:", err);
         }
-    }, [verifyRetries]);
+    }, []);
 
     // ── Load authenticated user's orders ──────────────────────────────────────
     const loadOrders = useCallback(async (jwt: string) => {

@@ -145,12 +145,14 @@ const UnlockPage = () => {
     };
 
     useEffect(() => {
-        // Init session via onAuthStateChange
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        let cancelled = false;
+
+        const handleAuthSession = async (session: any, event?: string) => {
+            if (cancelled) return;
             setSession(session);
             // Auto-claim when user arrives from email confirmation link OR signs in
             // INITIAL_SESSION fires on email link redirects, SIGNED_IN fires on password login
-            if ((event === "INITIAL_SESSION" || event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session) {
+            if ((!event || event === "INITIAL_SESSION" || event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session) {
                 const pendingClaimStr = localStorage.getItem("pending_designer_claim");
                 if (pendingClaimStr) {
                     try {
@@ -166,8 +168,25 @@ const UnlockPage = () => {
                     }
                 }
             }
+        };
+
+        // 1. Initial check on mount
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (!cancelled) {
+                handleAuthSession(session);
+            }
         });
-        return () => subscription.unsubscribe();
+
+        // 2. Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (cancelled) return;
+            handleAuthSession(session, event);
+        });
+
+        return () => {
+            cancelled = true;
+            subscription.unsubscribe();
+        };
     }, []);
 
     // Auto-claim fallback: handles case where sign-in happened in same tab without page reload
@@ -206,12 +225,18 @@ const UnlockPage = () => {
                 });
                 if (error) throw error;
             } else {
-                const { error } = await supabase.auth.signUp({
+                const { data, error } = await supabase.auth.signUp({
                     email: authEmail,
                     password: authPassword,
                     options: { emailRedirectTo: `${window.location.origin}/claim-success` },
                 });
                 if (error) throw error;
+
+                if (data?.session) {
+                    setAuthLoading(false);
+                    return;
+                }
+
                 setAuthError("Check your email for a confirmation link to activate your account.");
                 setAuthLoading(false);
                 return;

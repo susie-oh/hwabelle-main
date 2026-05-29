@@ -18,6 +18,19 @@ import { Separator } from "@/components/ui/separator";
 const isAmazonOrder = (order: any) =>
   order?.stripe_session_id?.startsWith("amz_") || false;
 
+const isTestOrder = (order: any) => {
+  const testEmails = ["ivllnv.000@gmail.com", "chrbxdev@gmail.com"];
+  const orderNum = order?.order_number || "";
+  const email = order?.customer_email || "";
+  return (
+    testEmails.some(te => email.toLowerCase().includes(te)) ||
+    orderNum.startsWith("E2E-TEST-") ||
+    orderNum.startsWith("TEST-") ||
+    order?.stripe_session_id?.startsWith("test_") ||
+    (order?.items && typeof order.items === 'object' && (order.items.verify_method === "sp-api" || order.items.note === "e2e test"))
+  );
+};
+
 const OrderDetail = () => {
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
@@ -146,6 +159,11 @@ const OrderDetail = () => {
               ) : (
                 <Badge variant="outline" className="gap-1 border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-400">
                   <ShoppingCart size={10} /> Website
+                </Badge>
+              )}
+              {isTestOrder(order) && (
+                <Badge variant="secondary" className="gap-1 bg-purple-500/10 text-purple-600 border-purple-200/50 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800/40">
+                  Test Order
                 </Badge>
               )}
               <Badge variant="outline" className="uppercase text-xs">{order.status}</Badge>

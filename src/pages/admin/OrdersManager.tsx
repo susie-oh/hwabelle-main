@@ -40,6 +40,19 @@ interface EntitlementRow {
 const isAmazonOrder = (order: OrderRow) =>
   order.stripe_session_id?.startsWith("amz_") || false;
 
+const isTestOrder = (order: OrderRow) => {
+  const testEmails = ["ivllnv.000@gmail.com", "chrbxdev@gmail.com"];
+  const orderNum = order.order_number || "";
+  const email = order.customer_email || "";
+  return (
+    testEmails.some(te => email.toLowerCase().includes(te)) ||
+    orderNum.startsWith("E2E-TEST-") ||
+    orderNum.startsWith("TEST-") ||
+    order.stripe_session_id?.startsWith("test_") ||
+    (order.items && typeof order.items === 'object' && (order.items.verify_method === "sp-api" || order.items.note === "e2e test"))
+  );
+};
+
 const statusBadge = (status: string) => {
   const map: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; className?: string }> = {
     pending:    { variant: "secondary" },
@@ -298,8 +311,15 @@ const OrdersManager = () => {
                           </TableCell>
                           {/* Order number */}
                           <TableCell className="font-medium font-mono text-xs">
-                            {order.order_number || `HW-${order.id.substring(0, 8).toUpperCase()}`}
-                          </TableCell>
+                             <div className="flex flex-col gap-1">
+                               <span>{order.order_number || `HW-${order.id.substring(0, 8).toUpperCase()}`}</span>
+                               {isTestOrder(order) && (
+                                 <Badge variant="secondary" className="w-fit text-[9px] font-sans h-4 px-1.5 py-0 bg-purple-500/10 text-purple-600 border-purple-200/50 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800/40">
+                                   Test Order
+                                 </Badge>
+                               )}
+                             </div>
+                           </TableCell>
                           {/* Date */}
                           <TableCell className="text-muted-foreground text-sm">
                             {new Date(order.created_at).toLocaleDateString()}

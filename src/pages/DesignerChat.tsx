@@ -73,8 +73,7 @@ const DesignerChat = () => {
     useEffect(() => {
         let cancelled = false;
 
-        // Listen for auth state changes (fires INITIAL_SESSION immediately)
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        const handleAuthSession = async (session: any, event?: string) => {
             if (cancelled) return;
 
             // Store JWT for use in sendMessage without re-calling getSession
@@ -90,8 +89,8 @@ const DesignerChat = () => {
             if (sessionIdFromUrl) {
                 if (session) {
                     // Already authenticated — skip activation, go straight to entitlement check
-                    checkEntitlement(session.access_token, session.user?.id);
-                } else if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
+                    await checkEntitlement(session.access_token, session.user?.id);
+                } else if (!event || event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
                     // Show activation step (post-checkout sign-in/up prompt)
                     setAccessState("activation");
                 }
@@ -100,17 +99,30 @@ const DesignerChat = () => {
 
             // Normal navigation
             if (session) {
-                checkEntitlement(session.access_token, session.user?.id);
-            } else if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
+                await checkEntitlement(session.access_token, session.user?.id);
+            } else if (!event || event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
                 setAccessState("unauthenticated");
             }
+        };
+
+        // 1. Initial check on mount
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (!cancelled) {
+                handleAuthSession(session);
+            }
+        });
+
+        // 2. Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (cancelled) return;
+            await handleAuthSession(session, event);
         });
 
         return () => {
             cancelled = true;
             subscription.unsubscribe();
         };
-    }, [sessionIdFromUrl]);
+    }, [sessionIdFromUrl, checkEntitlement]);
 
     // ─── Server-side entitlement check (with session cache) ───────────────────
     const checkEntitlement = useCallback(async (jwt: string, userId?: string) => {
@@ -211,12 +223,18 @@ const DesignerChat = () => {
                 });
                 if (error) throw error;
             } else {
-                const { error } = await supabase.auth.signUp({
+                const { data, error } = await supabase.auth.signUp({
                     email: authEmail,
                     password: authPassword,
                     options: { emailRedirectTo: `${window.location.origin}/designer-chat` },
                 });
                 if (error) throw error;
+
+                if (data?.session) {
+                    setAuthLoading(false);
+                    return;
+                }
+
                 // After sign-up, Supabase may require email confirmation
                 // onAuthStateChange will fire and trigger checkEntitlement when confirmed
                 setAuthError("Check your email for a confirmation link to activate your account.");

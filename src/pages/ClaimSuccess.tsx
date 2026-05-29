@@ -26,7 +26,10 @@ const ClaimSuccess = () => {
     const claimStarted = useRef(false);
 
     useEffect(() => {
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+        let cancelled = false;
+
+        const handleAuthSession = async (session: any) => {
+            if (cancelled) return;
             // Only proceed when we have a real authenticated session
             if (!session || claimStarted.current) return;
 
@@ -71,17 +74,32 @@ const ClaimSuccess = () => {
                 setErrorMsg(err.message || "Something went wrong. Please try again.");
                 setState("error");
             }
+        };
+
+        // 1. Initial check on mount
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (!cancelled) {
+                handleAuthSession(session);
+            }
+        });
+
+        // 2. Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (cancelled) return;
+            if (event === "TOKEN_REFRESHED") return;
+            await handleAuthSession(session);
         });
 
         // Fallback timeout — if no auth event fires within 10 seconds, show error
         const timeout = setTimeout(() => {
-            if (state === "loading") {
+            if (!cancelled && state === "loading") {
                 setErrorMsg("Session could not be established. Please try signing in manually.");
                 setState("error");
             }
         }, 10000);
 
         return () => {
+            cancelled = true;
             subscription.unsubscribe();
             clearTimeout(timeout);
         };

@@ -41,35 +41,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    // Listen for auth changes (fires INITIAL_SESSION immediately)
+    let cancelled = false;
+
+    const resolveAuth = async (currentSession: Session | null, event?: string) => {
+      if (cancelled) return;
+      
+      // If the token is just refreshing, we don't want to show a loading screen 
+      // because that unmounts the dashboard and causes severe UI lag.
+      if (event === "TOKEN_REFRESHED") {
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+        return;
+      }
+
+      try {
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+        
+        if (currentSession?.user) {
+          const adminStatus = await checkAdminRole(currentSession.user.id);
+          if (!cancelled) setIsAdmin(adminStatus);
+        } else {
+          if (!cancelled) setIsAdmin(false);
+        }
+      } catch (err) {
+        console.error("Error resolving auth session:", err);
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+
+    // 1. Initial check on mount
+    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
+      if (!cancelled) {
+        resolveAuth(initialSession);
+      }
+    });
+
+    // 2. Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        // If the token is just refreshing, we don't want to show a loading screen 
-        // because that unmounts the dashboard and causes severe UI lag.
-        if (event === "TOKEN_REFRESHED") {
-          setSession(session);
-          setUser(session?.user ?? null);
-          return;
-        }
-
-        // For INITIAL_SESSION, SIGNED_IN, SIGNED_OUT, etc.
-        setIsLoading(true);
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          const adminStatus = await checkAdminRole(session.user.id);
-          setIsAdmin(adminStatus);
-        } else {
-          setIsAdmin(false);
-        }
-        
-        // Only set isLoading false AFTER all state is resolved
-        setIsLoading(false);
+        if (cancelled) return;
+        await resolveAuth(session, event);
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
