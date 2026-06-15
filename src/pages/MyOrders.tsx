@@ -124,6 +124,50 @@ const MyOrders = () => {
     const [purchaseHasAi, setPurchaseHasAi] = useState(false);
     const verifyRetriesRef = useRef(0);
 
+    // ── Verify Stripe session (post-checkout confirmation) ────────────────────
+    const verifySession = useCallback(async (sid: string) => {
+        try {
+            const { data, error: fnErr } = await supabase.functions.invoke("lookup-orders", {
+                body: { action: "verify-session", session_id: sid },
+            });
+            if (fnErr) throw fnErr;
+
+            if (data?.pending && verifyRetriesRef.current < 6) {
+                setTimeout(() => {
+                    verifyRetriesRef.current += 1;
+                    verifySession(sid);
+                }, 2500);
+                return;
+            }
+
+            setPurchaseConfirmed(!data?.pending);
+            setPurchaseHasAi(data?.has_ai_access || false);
+        } catch (err) {
+            console.error("Session verify error:", err);
+        }
+    }, []);
+
+    // ── Load authenticated user's orders ──────────────────────────────────────
+    const loadOrders = useCallback(async (jwt: string) => {
+        setPageState("loading");
+        setError(null);
+        try {
+            const { data, error: fnErr } = await supabase.functions.invoke("lookup-orders", {
+                body: { action: "my-orders" },
+                headers: { Authorization: `Bearer ${jwt}` },
+            });
+            if (fnErr) throw fnErr;
+
+            setOrders(data?.orders || []);
+            setHasAiAccess(data?.has_ai_access || false);
+            setPageState("orders");
+        } catch (err: any) {
+            console.error("Order load error:", err);
+            setError(err.message || "Failed to load orders");
+            setPageState("error");
+        }
+    }, []);
+
     // ── Bootstrap ─────────────────────────────────────────────────────────────
     useEffect(() => {
         let cancelled = false;
@@ -182,50 +226,6 @@ const MyOrders = () => {
             subscription.unsubscribe();
         };
     }, [sessionId, clearCart, verifySession, loadOrders]);
-
-    // ── Verify Stripe session (post-checkout confirmation) ────────────────────
-    const verifySession = useCallback(async (sid: string) => {
-        try {
-            const { data, error: fnErr } = await supabase.functions.invoke("lookup-orders", {
-                body: { action: "verify-session", session_id: sid },
-            });
-            if (fnErr) throw fnErr;
-
-            if (data?.pending && verifyRetriesRef.current < 6) {
-                setTimeout(() => {
-                    verifyRetriesRef.current += 1;
-                    verifySession(sid);
-                }, 2500);
-                return;
-            }
-
-            setPurchaseConfirmed(!data?.pending);
-            setPurchaseHasAi(data?.has_ai_access || false);
-        } catch (err) {
-            console.error("Session verify error:", err);
-        }
-    }, []);
-
-    // ── Load authenticated user's orders ──────────────────────────────────────
-    const loadOrders = useCallback(async (jwt: string) => {
-        setPageState("loading");
-        setError(null);
-        try {
-            const { data, error: fnErr } = await supabase.functions.invoke("lookup-orders", {
-                body: { action: "my-orders" },
-                headers: { Authorization: `Bearer ${jwt}` },
-            });
-            if (fnErr) throw fnErr;
-
-            setOrders(data?.orders || []);
-            setHasAiAccess(data?.has_ai_access || false);
-            setPageState("orders");
-        } catch (err: any) {
-            console.error("Order load error:", err);
-            setError(err.message || "Failed to load orders");
-            setPageState("error");
-        }
-    }, []);
 
     // ── Render ─────────────────────────────────────────────────────────────────
     return (
