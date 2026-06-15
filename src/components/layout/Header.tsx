@@ -29,7 +29,7 @@ const Header = () => {
           <img
             src={logo}
             alt="Hwabelle"
-            className="h-10 md:h-12 lg:h-14 w-auto max-w-[190px] md:max-w-[230px] object-contain"
+            className="h-16 md:h-20 lg:h-22 w-auto max-w-[240px] md:max-w-[280px] object-contain"
           />
         </Link>
 
