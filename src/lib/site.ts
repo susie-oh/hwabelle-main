@@ -1,9 +1,9 @@
 export const SITE_URL = "https://hwabelle.shop";
 export const BRAND_NAME = "Hwabelle";
 export const DEFAULT_TITLE =
-  "Hwabelle Flower Press Kit | Preserve Meaningful Flowers at Home";
+  "DIY Wedding Bouquet Preservation Kit & Flower Press | Hwabelle";
 export const DEFAULT_DESCRIPTION =
-  "Preserve wedding bouquets, garden flowers, wildflowers, and meaningful blooms with Hwabelle’s beginner-friendly acrylic flower press kit.";
+  "Preserve wedding bouquets, garden flowers, and meaningful blooms at home with Hwabelle’s DIY wedding bouquet preservation kit and acrylic flower press.";
 
 export const PRODUCT = {
   id: "flower-press-kit",

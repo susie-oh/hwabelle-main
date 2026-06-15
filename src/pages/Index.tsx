@@ -16,26 +16,28 @@ import pressedFlowersImage from "@/assets/pressed-flowers-collection.webp";
 import blogImage from "@/assets/blog-botanical-art.jpg";
 import logoImage from "@/assets/hwabelle-logo.png";
 import { PRODUCT_PATH, defaultKeywords } from "@/lib/site";
+import BeforeAfterSlider from "@/components/BeforeAfterSlider";
+import CustomerStories from "@/components/CustomerStories";
 
 const Index = () => {
   const productHighlights = [
     {
       icon: Leaf,
-      title: "Beginner-friendly flower preservation",
+      title: "DIY Wedding Bouquet Preservation",
       description:
-        "A clear acrylic flower press kit that helps you preserve wedding bouquets, garden flowers, and meaningful blooms at home.",
+        "A clear acrylic flower press kit designed to help you preserve bridal bouquets, garden flowers, and meaningful blooms at home.",
     },
     {
       icon: Gift,
-      title: "Beautiful for keepsakes and gifting",
+      title: "Beautiful for Keepsakes & Gifting",
       description:
-        "Designed for adults, crafters, gardeners, artists, and anyone creating a pressed flower keepsake or botanical gift.",
+        "Designed for adults, crafters, brides, and artists creating a pressed flower wedding keepsake or sentimental botanical gift.",
     },
     {
       icon: BookOpen,
-      title: "Simple process, meaningful results",
+      title: "Simple Process, Lasting Results",
       description:
-        "Use the included layers and hardware to press flatter flowers, petals, and foliage into frame-ready botanical art.",
+        "Use the included layers and hardware to press flatter flowers, leaves, and bridal petals into gorgeous, frame-ready botanical art.",
     },
   ];
 
@@ -212,20 +214,18 @@ const Index = () => {
               />
             </ScrollReveal>
             <ScrollReveal direction="right" delay={0.2}>
-              <p className="caption mb-4">Preserve Meaningful Flowers</p>
+              <p className="caption mb-4">DIY Wedding Bouquet Preservation Kit</p>
               <h1 className="font-serif text-display md:text-display-lg mb-6">
-                Preserve Meaningful Flowers Before They Fade
+                DIY Wedding Bouquet Preservation Kit & Flower Press
               </h1>
               <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                A beginner-friendly acrylic flower press kit for wedding bouquets, garden flowers,
-                wildflowers, and sentimental blooms. Hwabelle helps adults, crafters, gardeners,
-                and artists create pressed flower keepsakes at home.
+                Preserve your most precious wedding day memories, garden blooms, and wildflowers. Hwabelle's beginner-friendly acrylic flower press kit lets you create beautiful DIY wedding bouquet keepsakes, framed arrangements, and botanical art at home.
               </p>
               <ul className="mb-8 grid gap-3 text-sm text-muted-foreground sm:grid-cols-2">
-                <li>Beginner-friendly</li>
-                <li>Great for wedding bouquet keepsakes</li>
-                <li>Designed for adults, crafters, gardeners, and artists</li>
-                <li>Gift-ready botanical preservation kit</li>
+                <li>Beginner-friendly & easy to use</li>
+                <li>Great for bridal bouquet keepsakes</li>
+                <li>Designed for adults, crafters, and brides</li>
+                <li>Complete DIY flower preservation kit</li>
               </ul>
               <div className="flex flex-wrap gap-4">
                 <Button variant="hero" asChild>
@@ -281,6 +281,10 @@ const Index = () => {
             ))}
           </StaggerContainer>
         </div>
+      </section>
+
+      <section className="bg-secondary/30 py-12 border-t border-b border-border/50">
+        <BeforeAfterSlider />
       </section>
 
       <section className="py-0">
@@ -401,6 +405,10 @@ const Index = () => {
         </div>
       </section>
 
+      <section className="bg-background border-t border-b border-border/40 py-8">
+        <CustomerStories />
+      </section>
+
       <section className="bg-secondary py-20 md:py-30">
         <div className="container">
           <div className="mx-auto max-w-3xl">
@@ -430,7 +438,7 @@ const Index = () => {
         <div className="container">
           <ScrollReveal className="mx-auto max-w-2xl text-center">
             <h2 className="font-serif text-display md:text-display-lg mb-6">
-              Preserve your bouquet, frame a garden memory, and start at home
+              Start Your DIY Wedding Bouquet Preservation Project Today
             </h2>
             <p className="text-muted-foreground mb-10 text-lg">
               Shop the acrylic flower press kit, explore AI Designer, or read practical guides before you begin.

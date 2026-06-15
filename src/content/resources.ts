@@ -234,6 +234,69 @@ If you are still building your process, the [acrylic flower press kit](${product
 The [Hwabelle AI Designer](${designerLink}) is useful when you want ideas for arranging blooms by color, sentiment, or occasion.
 `,
   },
+  {
+    slug: "diy-wedding-bouquet-preservation-kit-guide",
+    title: "DIY Wedding Bouquet Preservation Kit: The Complete Guide",
+    excerpt:
+      "Everything you need to know about preserving your wedding bouquet using a DIY press kit, including flower care, layout designs, and step-by-step pressing.",
+    metaDescription:
+      "Your ultimate guide to using a DIY wedding bouquet preservation kit. Learn which bridal flowers press best, how to setup your press, and layout tips.",
+    publishedAt: "2026-06-15T09:00:00.000Z",
+    authorName: "Hwabelle",
+    category: "Wedding Preservation",
+    seoKeywords: [
+      "diy wedding bouquet preservation kit",
+      "wedding bouquet preservation",
+      "how to press wedding flowers",
+    ],
+    content: `A wedding bouquet is one of the most sentimentally significant floral arrangements you will ever hold. Preserving it allows you to keep those memories alive. With a DIY wedding bouquet preservation kit, you can capture the beauty of your bridal flowers right at home.
+
+This complete guide walks you through the steps to successfully press, dry, and arrange your wedding flowers into a lasting botanical keepsake.
+
+## Why Choose a DIY Wedding Bouquet Preservation Kit?
+
+Rather than sending your bouquet to a commercial preservation service—which can cost hundreds of dollars and take months—a DIY kit gives you full creative control. You can press the flowers yourself, check on their progress, and design your own framed keepsake.
+
+An [acrylic flower press kit](${productLink}) is particularly useful because the transparent plates let you see exactly how the petals and leaves are lying before you apply pressure.
+
+## The Preservation Timeline: Step-by-Step
+
+### 1. Pre-Wedding Preparation
+Before your wedding day, make sure your DIY preservation kit is assembled and ready. Store it in a dry place. Assign a trusted friend or bridesmaid to take care of the bouquet at the end of the reception so it doesn't get damaged or left without water.
+
+### 2. Post-Wedding Selection (1-2 Days After)
+Start as soon as possible. Choose the freshest flowers from the bouquet.
+- **Best Candidates:** Flat flowers (like anemones, cosmos, and daisies), single petals from thick flowers (like roses and peonies), and delicate filler greenery (like eucalyptus, ferns, and baby's breath).
+- **What to Avoid:** Wilted, bruised, or brown petals. Flowers that have been out of water for too long.
+
+### 3. Setting Up the Press
+Layer your selected blooms carefully between the absorbent sheets included in the press.
+- Trim stems to your desired length or remove them completely to press only the flower head.
+- For thick blooms like roses, gently pull off individual petals and press them separately, or cut the flower in half vertically if you want a flat profile.
+- Do not let flowers overlap, as they may stick together or dry unevenly.
+
+### 4. Tightening and Storing
+Place the top plate on and tighten the hardware evenly. Store the press in a warm, dry room with good air circulation.
+
+### 5. Drying Period (2-3 Weeks)
+Leave the flowers in the press for at least two to three weeks. You can check their progress after the first week and replace the blotting papers if they feel noticeably damp.
+
+## Arranging Your Pressed Bouquet Art
+
+Once fully dried, your flowers will be thin, delicate, and paper-like. Now you can design your keepsake!
+- **Floating Frames:** Arrange the pressed flowers between two sheets of glass in a wooden frame for a modern look.
+- **Keepsake Layouts:** Arrange the flowers to recreate the shape of your original bouquet, or scatter them in a minimalist botanical grid.
+- Use the [Hwabelle AI Designer](${designerLink}) for custom arrangement guidance and checklist reminders tailored to your specific bouquet flowers.
+
+## FAQ
+
+### Can thick flowers like roses be pressed?
+Yes, but they should not be pressed whole. Separate them into individual petals or slice them in half vertically to reduce moisture and allow them to dry without molding.
+
+### How do I prevent pressed flowers from browning?
+Keep the press in a dry, dark place while drying, and ensure the blotting papers are clean and dry. Exposure to moisture and direct sunlight during drying are the main causes of browning.
+`,
+  },
 ];
 
 export const resourcePostBySlug = Object.fromEntries(

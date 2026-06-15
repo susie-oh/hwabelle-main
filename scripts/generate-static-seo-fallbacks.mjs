@@ -116,14 +116,21 @@ const resourcePosts = [
       "Find ideas for what to do with pressed flowers, from frames and bookmarks to wedding keepsakes, cards, and botanical art.",
     category: "Craft Ideas",
   },
+  {
+    slug: "diy-wedding-bouquet-preservation-kit-guide",
+    title: "DIY Wedding Bouquet Preservation Kit: The Complete Guide | Hwabelle",
+    description:
+      "Your ultimate guide to using a DIY wedding bouquet preservation kit. Learn which bridal flowers press best, how to setup your press, and layout tips.",
+    category: "Wedding Preservation",
+  },
 ];
 
 const routes = [
   {
     path: "/",
-    title: "Hwabelle Flower Press Kit | Preserve Wedding Bouquets & Meaningful Blooms",
+    title: "DIY Wedding Bouquet Preservation Kit & Flower Press | Hwabelle",
     description:
-      "Preserve wedding bouquets, garden flowers, wildflowers, and sentimental blooms at home with Hwabelle’s beginner-friendly acrylic flower press kit.",
+      "Preserve wedding bouquets, garden flowers, and meaningful blooms at home with Hwabelle’s DIY wedding bouquet preservation kit and acrylic flower press.",
     image: `${siteUrl}/assets/hero-pressed-arrangement.webp`,
     schema: [
       {

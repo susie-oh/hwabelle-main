@@ -14,6 +14,8 @@ import NewsletterForm from "@/components/sections/NewsletterForm";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import { PRODUCT, PRODUCT_PATH, buildCanonicalUrl, defaultKeywords } from "@/lib/site";
+import BeforeAfterSlider from "@/components/BeforeAfterSlider";
+import CustomerStories from "@/components/CustomerStories";
 
 const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -62,12 +64,12 @@ const ProductDetail = () => {
   ];
 
   const useCases = [
-    "Wedding bouquet preservation at home",
+    "DIY wedding bouquet preservation at home",
     "Pressed memorial flower keepsakes",
     "Garden flower pressing and seasonal blooms",
     "Wildflower pressing for frames, cards, and bookmarks",
     "DIY botanical art and pressed flower crafts",
-    "Thoughtful gifting for crafters and flower lovers",
+    "Thoughtful gifting for brides and flower lovers",
   ];
 
   const beginnerTips = [
@@ -193,19 +195,17 @@ const ProductDetail = () => {
 
             <div className="lg:py-4">
               <p className="caption mb-3">Hwabelle</p>
-              <h1 className="font-serif text-display mb-2">Hwabelle Acrylic Flower Press Kit</h1>
+              <h1 className="font-serif text-display mb-2">Hwabelle Acrylic Flower Press Kit — DIY Wedding Bouquet Preservation Kit</h1>
               <p className="text-2xl font-serif mb-6">${PRODUCT.price.toFixed(2)}</p>
 
               <p className="text-muted-foreground leading-relaxed mb-8">
-                A beginner-friendly acrylic flower press kit for adults, crafters, gardeners,
-                and anyone preserving meaningful flowers at home. Use it to press wedding bouquet
-                petals, garden flowers, wildflowers, memorial blooms, and sentimental keepsakes.
+                A beginner-friendly acrylic flower press designed as the ultimate DIY wedding bouquet preservation kit. Use it to press wedding bouquet petals, garden flowers, wildflowers, memorial blooms, and sentimental keepsakes at home.
               </p>
 
               <div className="grid gap-3 mb-8 text-sm text-muted-foreground sm:grid-cols-2">
-                <p>Beginner-friendly flower pressing kit</p>
-                <p>Great for wedding bouquet keepsakes</p>
-                <p>Designed for adults, crafters, gardeners, and artists</p>
+                <p>DIY wedding bouquet preservation kit</p>
+                <p>Beginner-friendly flower pressing</p>
+                <p>Designed for adults, crafters, and brides</p>
                 <p>Clear acrylic plates for easier arrangement</p>
               </div>
 
@@ -254,6 +254,10 @@ const ProductDetail = () => {
                   <ExternalLink size={16} />
                   View on Amazon
                 </a>
+                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground bg-secondary/50 rounded-lg p-3">
+                  <Check size={14} className="text-emerald-600 flex-shrink-0" />
+                  <span>Secure checkout: fulfilled by Amazon with fast 2–5 business day delivery.</span>
+                </div>
                 <p className="text-center text-sm text-muted-foreground">
                   Need details first? Review <Link to="/shipping" className="underline underline-offset-2">shipping</Link>,{" "}
                   <Link to="/returns" className="underline underline-offset-2">returns</Link>, or{" "}
@@ -341,6 +345,14 @@ const ProductDetail = () => {
             </div>
           </div>
         </div>
+      </section>
+
+      <section className="py-12 bg-secondary/35 border-t border-b border-border/50">
+        <BeforeAfterSlider />
+      </section>
+
+      <section className="py-12 bg-background border-b border-border/40">
+        <CustomerStories />
       </section>
 
       <section className="py-16 md:py-24 bg-background">

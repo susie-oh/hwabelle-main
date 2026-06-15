@@ -3,6 +3,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import FallingPetals from "@/components/animations/FallingPetals";
 import ScrollFlowerBurst from "@/components/animations/ScrollFlowerBurst";
+import CookieConsent from "../CookieConsent";
 
 interface LayoutProps {
   children: ReactNode;
@@ -19,6 +20,7 @@ const Layout = ({ children, showPetals = true }: LayoutProps) => {
         {children}
       </main>
       <Footer />
+      <CookieConsent />
     </div>
   );
 };

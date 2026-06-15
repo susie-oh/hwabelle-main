@@ -79,8 +79,11 @@ const Footer = () => {
                 className="h-16 w-auto mb-6"
               />
             </Link>
-            <p className="text-sm text-primary-foreground/60 leading-relaxed">
+            <p className="text-sm text-primary-foreground/60 leading-relaxed mb-4">
               Thoughtfully crafted tools for preserving nature's fleeting beauty.
+            </p>
+            <p className="text-xs text-primary-foreground/45 leading-relaxed">
+              Fast & secure delivery: all orders are stored and fulfilled via Amazon Multi-Channel Fulfillment.
             </p>
           </div>
 
