@@ -27,7 +27,7 @@ import Designer from "./pages/Designer";
 import DesignerChat from "./pages/DesignerChat";
 // DesignerTestFlow archived — route removed for production security
 import OrderConfirmation from "./pages/OrderConfirmation";
-import MyOrders from "./pages/MyOrders";
+import Account from "./pages/Account";
 import UnlockPage from "./pages/Unlock";
 import ClaimSuccess from "./pages/ClaimSuccess";
 import AdminLogin from "./pages/AdminLogin";
@@ -85,7 +85,9 @@ const App = () => (
               <Route path="/data-protection" element={<DataProtection />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/order-confirmation" element={<OrderConfirmation />} />
-              <Route path="/my-orders" element={<MyOrders />} />
+              <Route path="/account" element={<Account />} />
+              <Route path="/login" element={<Account />} />
+              <Route path="/my-orders" element={<Navigate to="/account" replace />} />
               <Route path="/unlock" element={<UnlockPage />} />
               <Route path="/claim-success" element={<ClaimSuccess />} />
               {/* Admin Routes */}

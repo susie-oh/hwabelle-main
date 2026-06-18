@@ -50,7 +50,7 @@ const Header = () => {
         {/* Actions */}
         <div className="flex items-center gap-1 md:gap-2">
           <Link
-            to="/my-orders"
+            to="/account"
             className="relative p-2 text-muted-foreground hover:text-foreground transition-colors hidden md:block"
             aria-label="My Account"
           >
@@ -99,9 +99,9 @@ const Header = () => {
             ))}
             <div className="h-px bg-border my-2" />
             <Link
-              to="/my-orders"
+              to="/account"
               onClick={() => setIsMenuOpen(false)}
-              className={`text-lg tracking-wide transition-colors flex items-center gap-3 hover:text-foreground ${isActive('/my-orders') ? "text-foreground" : "text-muted-foreground"}`}
+              className={`text-lg tracking-wide transition-colors flex items-center gap-3 hover:text-foreground ${isActive('/account') ? "text-foreground" : "text-muted-foreground"}`}
             >
               <User size={20} />
               My Orders & Access

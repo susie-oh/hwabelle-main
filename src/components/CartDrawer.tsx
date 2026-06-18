@@ -17,7 +17,7 @@ const CartDrawer = () => {
         setIsLoading(true);
         try {
             const hasAiDesigner = items.some((item) => item.id === "ai-designer-access");
-            const successPath = hasAiDesigner ? "/designer-chat" : "/my-orders";
+            const successPath = hasAiDesigner ? "/designer-chat" : "/account";
             const { data, error } = await supabase.functions.invoke("create-checkout", {
                 body: {
                     items: items.map((item) => ({

@@ -195,6 +195,43 @@ Deno.serve(async (req) => {
         try {
             const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
+            // ── Auto-link unclaimed orders by verified email ──────────────────
+            // If the user's verified email matches orders that have no user_id,
+            // claim them now. This handles guest-checkout and Amazon purchases.
+            if (user.email) {
+                const { data: unclaimedOrders } = await adminClient
+                    .from("orders")
+                    .select("id")
+                    .eq("customer_email", user.email.toLowerCase())
+                    .is("user_id", null);
+
+                if (unclaimedOrders && unclaimedOrders.length > 0) {
+                    const unclaimedIds = unclaimedOrders.map((o: any) => o.id);
+
+                    // Link orders to user
+                    await adminClient
+                        .from("orders")
+                        .update({ user_id: user.id })
+                        .in("id", unclaimedIds);
+
+                    // Link orphaned entitlements for those orders
+                    await adminClient
+                        .from("entitlements")
+                        .update({ user_id: user.id })
+                        .in("order_id", unclaimedIds)
+                        .is("user_id", null);
+
+                    console.log(JSON.stringify({
+                        function: "lookup-orders",
+                        event: "auto_linked_orders",
+                        user_id: user.id,
+                        email: user.email,
+                        linked_count: unclaimedIds.length,
+                        ts: new Date().toISOString(),
+                    }));
+                }
+            }
+
             const { data: orders, error: orderErr } = await adminClient
                 .from("orders")
                 .select("id, order_number, status, total_amount, currency, created_at, customer_email, shipping_address, mcf_order_id, mcf_status, mcf_submitted_at, order_items(id, product_name, quantity, product_type)")

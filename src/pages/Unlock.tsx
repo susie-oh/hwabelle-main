@@ -147,9 +147,38 @@ const UnlockPage = () => {
     useEffect(() => {
         let cancelled = false;
 
+        const checkAccessAndRedirect = async (userId: string) => {
+            try {
+                const { data } = await supabase
+                    .from("entitlements")
+                    .select("id")
+                    .eq("user_id", userId)
+                    .eq("product_type", "ai-designer")
+                    .eq("status", "active")
+                    .maybeSingle();
+                
+                if (data && !cancelled) {
+                    navigate("/designer-chat", { replace: true });
+                    return true;
+                }
+            } catch (err) {
+                console.error("Error checking active entitlement:", err);
+            }
+            return false;
+        };
+
         const handleAuthSession = async (session: any, event?: string) => {
             if (cancelled) return;
             setSession(session);
+
+            if (session) {
+                const pendingClaimStr = localStorage.getItem("pending_designer_claim");
+                if (!pendingClaimStr) {
+                    const redirected = await checkAccessAndRedirect(session.user.id);
+                    if (redirected) return;
+                }
+            }
+
             // Auto-claim when user arrives from email confirmation link OR signs in
             // INITIAL_SESSION fires on email link redirects, SIGNED_IN fires on password login
             if ((!event || event === "INITIAL_SESSION" || event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session) {
