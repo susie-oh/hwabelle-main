@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 
 export interface CartItem {
     id: string;
@@ -46,7 +46,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         saveCart(items);
     }, [items]);
 
-    const addItem = (newItem: Omit<CartItem, "quantity">) => {
+    const addItem = useCallback((newItem: Omit<CartItem, "quantity">) => {
         setItems((prev) => {
             const existing = prev.find((item) => item.id === newItem.id);
             if (existing) {
@@ -59,13 +59,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
             return [...prev, { ...newItem, quantity: 1 }];
         });
         setIsCartOpen(true);
-    };
+    }, []);
 
-    const removeItem = (id: string) => {
+    const removeItem = useCallback((id: string) => {
         setItems((prev) => prev.filter((item) => item.id !== id));
-    };
+    }, []);
 
-    const updateQuantity = (id: string, quantity: number) => {
+    const updateQuantity = useCallback((id: string, quantity: number) => {
         if (quantity <= 0) {
             removeItem(id);
             return;
@@ -73,11 +73,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setItems((prev) =>
             prev.map((item) => (item.id === id ? { ...item, quantity } : item))
         );
-    };
+    }, [removeItem]);
 
-    const clearCart = () => {
+    const clearCart = useCallback(() => {
         setItems([]);
-    };
+    }, []);
 
     const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = items.reduce(

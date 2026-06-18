@@ -136,16 +136,20 @@ const Account = () => {
         }
     }, [session]);
 
-    // Bootstrap data fetching and Stripe session verification
+    // ── Load orders when session changes ──────────────────────────────────────
     useEffect(() => {
         if (session) {
             loadOrders();
-            if (sessionId) {
-                clearCart();
-                verifySession(sessionId);
-            }
         }
-    }, [session, sessionId, clearCart, verifySession, loadOrders]);
+    }, [session, loadOrders]);
+
+    // ── Handle post-checkout Stripe session verification & Cart clearing ──────
+    useEffect(() => {
+        if (session && sessionId) {
+            clearCart();
+            verifySession(sessionId);
+        }
+    }, [session, sessionId, clearCart, verifySession]);
 
     // Redirect logged-in users away from /login route to /account
     useEffect(() => {
