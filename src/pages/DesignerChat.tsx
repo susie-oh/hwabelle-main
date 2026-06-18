@@ -69,6 +69,40 @@ const DesignerChat = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const messagesContainerRef = useRef<HTMLDivElement>(null);
 
+    // ─── Server-side entitlement check (with session cache) ───────────────────
+    const checkEntitlement = useCallback(async (jwt: string, userId?: string) => {
+        // Fast path: if we already verified this user in this browser session, skip the network call
+        const cacheKey = userId ? `hwb_ent_${userId}` : null;
+        if (cacheKey) {
+            const cached = sessionStorage.getItem(cacheKey);
+            if (cached === "entitled") {
+                setAccessState("entitled");
+                return;
+            }
+        }
+
+        setAccessState("checking");
+        try {
+            const res = await supabase.functions.invoke("get-entitlement", {
+                headers: { Authorization: `Bearer ${jwt}` },
+            });
+
+            if (res.error) throw new Error(res.error.message);
+
+            const data = res.data as { has_access: boolean };
+            const result = data.has_access ? "entitled" : "no-access";
+            setAccessState(result);
+
+            // Cache the result so navigating away and back is instant
+            if (cacheKey && result === "entitled") {
+                sessionStorage.setItem(cacheKey, result);
+            }
+        } catch (err) {
+            console.error("Entitlement check failed:", err);
+            setAccessState("error");
+        }
+    }, []);
+
     // ─── Bootstrap: resolve session on mount ──────────────────────────────────
     useEffect(() => {
         let cancelled = false;
@@ -123,40 +157,6 @@ const DesignerChat = () => {
             subscription.unsubscribe();
         };
     }, [sessionIdFromUrl, checkEntitlement]);
-
-    // ─── Server-side entitlement check (with session cache) ───────────────────
-    const checkEntitlement = useCallback(async (jwt: string, userId?: string) => {
-        // Fast path: if we already verified this user in this browser session, skip the network call
-        const cacheKey = userId ? `hwb_ent_${userId}` : null;
-        if (cacheKey) {
-            const cached = sessionStorage.getItem(cacheKey);
-            if (cached === "entitled") {
-                setAccessState("entitled");
-                return;
-            }
-        }
-
-        setAccessState("checking");
-        try {
-            const res = await supabase.functions.invoke("get-entitlement", {
-                headers: { Authorization: `Bearer ${jwt}` },
-            });
-
-            if (res.error) throw new Error(res.error.message);
-
-            const data = res.data as { has_access: boolean };
-            const result = data.has_access ? "entitled" : "no-access";
-            setAccessState(result);
-
-            // Cache the result so navigating away and back is instant
-            if (cacheKey && result === "entitled") {
-                sessionStorage.setItem(cacheKey, result);
-            }
-        } catch (err) {
-            console.error("Entitlement check failed:", err);
-            setAccessState("error");
-        }
-    }, []);
 
     const loadSessions = useCallback(async () => {
         if (!sessionJwt) return;
