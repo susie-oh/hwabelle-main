@@ -46,9 +46,13 @@ const Blog = () => {
     publishedAt: post.publishedAt,
   }));
 
-  const mergedPosts = [...staticPosts, ...supabasePosts].filter(
-    (post, index, array) => array.findIndex((item) => item.slug === post.slug) === index,
-  );
+  const mergedPosts = [...staticPosts, ...supabasePosts]
+    .filter((post, index, array) => array.findIndex((item) => item.slug === post.slug) === index)
+    .sort((a, b) => {
+      const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+      const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+      return dateB - dateA;
+    });
 
   return (
     <Layout>
