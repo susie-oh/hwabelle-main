@@ -59,7 +59,7 @@ const BlogPost = () => {
       })
       .filter(Boolean) as Array<{ question: string; answer: string }> | undefined;
 
-  if (isLoading) {
+  if (isLoading && !staticPost) {
     return (
       <Layout>
         <div className="flex justify-center items-center min-h-[50vh]">
