@@ -197,7 +197,7 @@ const CustomerStories = () => {
             <ExternalLink size={12} />
           </a>
           <a
-            href="https://instagram.com"
+            href="https://www.instagram.com/hwabelle/?hl=en"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs font-semibold px-4 py-2 bg-background border border-border hover:bg-secondary rounded-full transition-colors whitespace-nowrap"
