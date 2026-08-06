@@ -21,6 +21,25 @@ interface FAQ {
   sort_order: number;
 }
 
+// Core product FAQs – always present for AEO / JSON-LD even before Supabase loads
+const coreFaqs: Array<{ question: string; answer: string }> = [
+  {
+    question: "Can I use the Hwabelle flower press kit to press my bridal bouquet?",
+    answer:
+      "Yes! The Hwabelle flower press kit is designed specifically for preserving wedding and bridal bouquets. Its large clear acrylic plates accommodate full-size blooms like roses, peonies, and hydrangeas, letting you turn your special-day flowers into lasting keepsakes.",
+  },
+  {
+    question: "What are the advantages of a clear acrylic flower press over a wooden one?",
+    answer:
+      "Clear acrylic lets you monitor drying progress without opening the press, which reduces the risk of disturbing delicate petals. It is also moisture-resistant, easier to clean, and provides even pressure distribution for consistently flat, vibrant results.",
+  },
+  {
+    question: "How long does it take to dry flowers in a Hwabelle press?",
+    answer:
+      "Most flowers dry within 2–4 weeks depending on petal thickness and moisture content. Thinner blooms like pansies and violets can be ready in as little as 10 days, while thicker flowers such as roses may take the full 4 weeks for best results.",
+  },
+];
+
 const FAQ = () => {
   const { data: faqs, isLoading } = useQuery({
     queryKey: ["public-faqs"],
@@ -44,6 +63,12 @@ const FAQ = () => {
     return acc;
   }, {} as Record<string, FAQ[]>);
 
+  // Merge core FAQs with dynamic Supabase FAQs for schema
+  const schemaFaqItems = [
+    ...coreFaqs,
+    ...(faqs?.map((faq) => ({ question: faq.question, answer: faq.answer })) ?? []),
+  ];
+
   return (
     <Layout>
       <Seo
@@ -55,16 +80,7 @@ const FAQ = () => {
             { name: "Home", path: "/" },
             { name: "FAQ", path: "/faq" },
           ]),
-          ...(faqs?.length
-            ? [
-                faqSchema(
-                  faqs.map((faq) => ({
-                    question: faq.question,
-                    answer: faq.answer,
-                  })),
-                ),
-              ]
-            : []),
+          faqSchema(schemaFaqItems),
         ]}
       />
       {/* Header */}
