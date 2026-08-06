@@ -51,7 +51,7 @@ const ProductDetail = () => {
     "Sponge paper layers that help manage moisture while pressing",
     "Durable brass hardware that tightens securely and evenly",
     "Large and small press sizes for wedding bouquet blooms, wildflowers, and smaller petals",
-    "Felt storage bags to keep the kit tidy between projects",
+    "Canvas storage bag to keep the kit tidy between projects",
   ];
 
   const whatsIncluded = [
@@ -60,7 +60,7 @@ const ProductDetail = () => {
     "Sponge paper layers for moisture management",
     "Cardstock dry boards for stable layering",
     "Brass bolts and hardware",
-    "Two felt storage bags",
+    "Canvas storage bag",
   ];
 
   const useCases = [

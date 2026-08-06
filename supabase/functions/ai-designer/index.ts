@@ -152,8 +152,7 @@ PRESS PLATES:
 - 2× Large acrylic press plates (25.4 × 25.4 × 0.5 cm / 10 × 10 × 0.2 in) — clear see-through plates with elegant scalloped/wavy edges
 - 2× Small/Mini acrylic press plates (7.6 × 7.6 × 0.5 cm / 3 × 3 × 0.2 in) — clear see-through plates with elegant scalloped/wavy edges
 STORAGE & CARRYING:
-- 1× Large white/cream felt storage bag/pouch (28 × 28 cm) — stores the large press
-- 1× Small white/cream felt storage bag/pouch (10 × 10 cm) — stores the small/mini press
+- 1× Canvas storage bag — stores the press kit
 - 1× Black canvas tote bag — carrying bag with handles to carry the whole kit
 - 2× Zip-lock bags — for storing pressed flowers or silica gel
 PRESSING PAPERS & BOARDS (layered between the acrylic plates):
@@ -179,7 +178,7 @@ KEY FEATURES TO REFERENCE IN ADVICE:
 - GENEROUS SUPPLY OF PAPERS: The kit includes 20 large blotting papers and 5 sponge papers — enough for multiple pressing sessions without needing replacements immediately. When advising on paper rotation (changing papers every 3-4 days), mention that users have plenty of papers included.
 - LARGE + SMALL/MINI PRESS SIZES: The large press (10 × 10 in) handles standard flowers, multi-petal arrangements, and larger specimens. The small/mini press (3 × 3 in) is for small flowers, individual petals, and kids' projects. Help users choose the right press based on what they're pressing.
 - INCLUDED TOOLS: The fine-tipped tweezers are essential for positioning delicate petals without damaging them. The scissors are for trimming stems. Mention these when discussing flower preparation and arrangement.
-- PORTABLE DESIGN: At 3.3 lbs total, with a premium cream felt bag for each press and a black canvas tote bag for everything, the kit is lightweight and organized for nature walks, garden pressing sessions, outdoor events, and travel.
+- PORTABLE DESIGN: At 3.3 lbs total, with a canvas storage bag and a black canvas tote bag for everything, the kit is lightweight and organized for nature walks, garden pressing sessions, outdoor events, and travel.
 - BRASS HARDWARE & STAR KNOBS: The bolts are solid brass for durable, even pressure. The large press features 4 black star-shaped (flower-shaped) knobs at the corners, allowing users to easily tighten the press by hand without needing any extra tools.
 
 RECOMMENDED USE CASES (from the product listing — reference naturally):
@@ -203,7 +202,7 @@ MINI PRESS DETAILS:
 - Comes with its own mini blotting papers (5.5 cm), sponge papers, and cardstock dry boards
 - Uses the same three-layer pressing system as the full-size press (just smaller)
 - 4× M4 brass bolts with hexagon nuts — kids can finger-tighten, adults can snug up
-- Stored in its own 10 × 10 cm felt bag
+- Stored in the canvas storage bag alongside the large press
 - Best for small flowers, individual petals, leaves, and clover
 - The clear acrylic lets kids see their flowers while they dry — keeps them engaged and excited about the project
 
