@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { sendSesEmail } from "../_shared/ses.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -34,49 +35,55 @@ serve(async (req) => {
 
     if (dbError) {
       console.error("Error saving subscriber to DB:", dbError);
-      // We don't throw here so we can still try to send the email if DB insertion fails (e.g. if the table is different)
     }
 
-    // 2. Send welcome email using Resend
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    if (!resendApiKey) {
-      console.warn("RESEND_API_KEY is not set. Skipping welcome email.");
-      return new Response(
-        JSON.stringify({ message: "Subscribed successfully (email skipped - missing config)" }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
-      );
-    }
+    // 2. Send welcome email using Amazon SES (with fallback to Resend)
+    const welcomeHtml = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #2c2c2c; padding: 20px;">
+        <h2 style="font-family: Georgia, serif; color: #2c2c2c;">Welcome to the Hwabelle community!</h2>
+        <p style="font-size: 15px; line-height: 1.6; color: #555;">Thank you for subscribing. You'll be the first to receive our pressing tips, seasonal botanical inspiration, and early access to new products.</p>
+        <div style="background-color: #faf8f5; border-left: 4px solid #3f1e3c; padding: 16px; margin: 20px 0; border-radius: 4px;">
+          <p style="margin: 0; font-size: 14px; color: #444;"><strong>Botanical Tip:</strong> When pressing thicker flowers like roses or peonies, gently slice them in half down the middle to help them press flat and dry evenly!</p>
+        </div>
+        <p style="font-size: 14px; color: #777;">Warmly,<br/><strong>The Hwabelle Team</strong></p>
+        <p style="font-size: 12px; color: #999; margin-top: 30px;"><a href="https://hwabelle.shop" style="color: #999;">hwabelle.shop</a></p>
+      </div>
+    `;
 
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${resendApiKey}`,
-      },
-      body: JSON.stringify({
-        from: "Hwabelle <hello@hwabelle.com>",
-        to: [email],
-        subject: "Welcome to Hwabelle!",
-        html: `
-          <div style="font-family: sans-serif; max-w-xl; margin: 0 auto;">
-            <h2>Welcome to the Hwabelle community!</h2>
-            <p>Thank you for subscribing. You'll be the first to receive our pressing tips, seasonal botanical inspiration, and early access to new products.</p>
-            <p>As a welcome gift, here is a quick tip: When pressing thicker flowers like roses, gently slice them in half down the middle to help them press flat and dry properly!</p>
-            <br/>
-            <p>Warmly,</p>
-            <p>The Hwabelle Team</p>
-          </div>
-        `,
-      }),
+    const fromEmail = Deno.env.get("AWS_SES_FROM_EMAIL") || Deno.env.get("RESEND_FROM_EMAIL") || "Hwabelle <hello@hwabelle.shop>";
+
+    const sesRes = await sendSesEmail({
+      from: fromEmail,
+      to: email,
+      subject: "Welcome to Hwabelle!",
+      html: welcomeHtml,
     });
 
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error("Resend API error:", errorText);
-      throw new Error("Failed to send welcome email");
+    if (sesRes.success) {
+      console.log("Welcome email sent via SES:", sesRes.messageId);
+    } else {
+      console.warn("SES send failed, attempting Resend fallback:", sesRes.error);
+      const resendApiKey = Deno.env.get("RESEND_API_KEY");
+      if (resendApiKey) {
+        const res = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${resendApiKey}`,
+          },
+          body: JSON.stringify({
+            from: fromEmail,
+            to: [email],
+            subject: "Welcome to Hwabelle!",
+            html: welcomeHtml,
+          }),
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error("Resend API error:", errorText);
+        }
+      }
     }
 
     return new Response(

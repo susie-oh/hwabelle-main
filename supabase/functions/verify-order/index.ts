@@ -1,5 +1,6 @@
 import "https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { sendSesEmail } from "../_shared/ses.ts";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -121,9 +122,6 @@ async function verifyAmazonOrder(orderId: string): Promise<{ status: "valid" | "
 
 // ─── Admin Notification Email ──────────────────────────────────────────────────
 async function sendAdminRedeemNotification(orderNumber: string, customerEmail: string, authUserEmail: string, orderId: string) {
-    const resendKey = Deno.env.get("RESEND_API_KEY");
-    if (!resendKey) return;
-
     const adminEmailsStr = Deno.env.get("ADMIN_NOTIFICATION_EMAILS");
     const adminEmails = adminEmailsStr
         ? adminEmailsStr.split(",").map(e => e.trim())
@@ -165,26 +163,43 @@ async function sendAdminRedeemNotification(orderNumber: string, customerEmail: s
 </body>
 </html>`;
 
-    const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "Hwabelle <orders@hwabelle.shop>";
+    const fromEmail = Deno.env.get("AWS_SES_FROM_EMAIL") || Deno.env.get("RESEND_FROM_EMAIL") || "Hwabelle <orders@hwabelle.shop>";
     try {
-        const res = await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${resendKey}`,
-            },
-            body: JSON.stringify({
-                from: fromEmail,
-                to: adminEmails,
-                subject: `🎟️ Admin Alert: AI Designer Redeemed for Order ${orderNumber}`,
-                html: htmlBody,
-            }),
+        const sesRes = await sendSesEmail({
+            from: fromEmail,
+            to: adminEmails,
+            subject: `🎟️ Admin Alert: AI Designer Redeemed for Order ${orderNumber}`,
+            html: htmlBody,
         });
-        if (!res.ok) {
-            const errText = await res.text();
-            console.error(JSON.stringify({ function: "verify-order", event: "admin_notification_error", status: res.status, detail: errText, ts: new Date().toISOString() }));
-        } else {
-            console.log(JSON.stringify({ function: "verify-order", event: "admin_notification_sent", to: adminEmails, ts: new Date().toISOString() }));
+
+        if (sesRes.success) {
+            console.log(JSON.stringify({ function: "verify-order", event: "admin_notification_sent_ses", to: adminEmails, messageId: sesRes.messageId, ts: new Date().toISOString() }));
+            return;
+        }
+
+        console.warn(JSON.stringify({ function: "verify-order", event: "admin_ses_fallback_to_resend", error: sesRes.error, ts: new Date().toISOString() }));
+
+        const resendKey = Deno.env.get("RESEND_API_KEY");
+        if (resendKey) {
+            const res = await fetch("https://api.resend.com/emails", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${resendKey}`,
+                },
+                body: JSON.stringify({
+                    from: fromEmail,
+                    to: adminEmails,
+                    subject: `🎟️ Admin Alert: AI Designer Redeemed for Order ${orderNumber}`,
+                    html: htmlBody,
+                }),
+            });
+            if (!res.ok) {
+                const errText = await res.text();
+                console.error(JSON.stringify({ function: "verify-order", event: "admin_notification_error", status: res.status, detail: errText, ts: new Date().toISOString() }));
+            } else {
+                console.log(JSON.stringify({ function: "verify-order", event: "admin_notification_sent_resend", to: adminEmails, ts: new Date().toISOString() }));
+            }
         }
     } catch (e) {
         console.error(JSON.stringify({ function: "verify-order", event: "admin_notification_exception", error: String(e), ts: new Date().toISOString() }));

@@ -1,6 +1,7 @@
 import "https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts";
 import Stripe from "https://esm.sh/stripe@14.14.0?target=deno&no-check";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { sendSesEmail } from "../_shared/ses.ts";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -10,12 +11,6 @@ const corsHeaders = {
 
 // ─── Confirmation email ───────────────────────────────────────────────────────
 async function sendConfirmationEmail(customerEmail: string, session: any) {
-    const resendKey = Deno.env.get("RESEND_API_KEY");
-    if (!resendKey) {
-        console.warn(JSON.stringify({ function: "stripe-webhook", event: "resend_key_missing", ts: new Date().toISOString() }));
-        return;
-    }
-
     const totalFormatted = session.amount_total
         ? `$${(session.amount_total / 100).toFixed(2)}`
         : "N/A";
@@ -97,37 +92,51 @@ async function sendConfirmationEmail(customerEmail: string, session: any) {
 </body>
 </html>`;
 
-    const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "Hwabelle <orders@hwabelle.shop>";
+    const fromEmail = Deno.env.get("AWS_SES_FROM_EMAIL") || Deno.env.get("RESEND_FROM_EMAIL") || "Hwabelle <orders@hwabelle.shop>";
     try {
-        const res = await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${resendKey}`,
-            },
-            body: JSON.stringify({
-                from: fromEmail,
-                to: [customerEmail],
-                subject: `Order Confirmed — Thank you, ${customerName}!`,
-                html: htmlBody,
-            }),
+        const sesRes = await sendSesEmail({
+            from: fromEmail,
+            to: customerEmail,
+            subject: `Order Confirmed — Thank you, ${customerName}!`,
+            html: htmlBody,
         });
-        if (!res.ok) {
-            const errText = await res.text();
-            console.error(JSON.stringify({ function: "stripe-webhook", event: "resend_error", status: res.status, detail: errText, ts: new Date().toISOString() }));
-        } else {
-            console.log(JSON.stringify({ function: "stripe-webhook", event: "confirmation_email_sent", to: customerEmail, ts: new Date().toISOString() }));
+
+        if (sesRes.success) {
+            console.log(JSON.stringify({ function: "stripe-webhook", event: "confirmation_email_sent_ses", to: customerEmail, messageId: sesRes.messageId, ts: new Date().toISOString() }));
+            return;
+        }
+
+        console.warn(JSON.stringify({ function: "stripe-webhook", event: "ses_fallback_to_resend", error: sesRes.error, ts: new Date().toISOString() }));
+
+        const resendKey = Deno.env.get("RESEND_API_KEY");
+        if (resendKey) {
+            const res = await fetch("https://api.resend.com/emails", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${resendKey}`,
+                },
+                body: JSON.stringify({
+                    from: fromEmail,
+                    to: [customerEmail],
+                    subject: `Order Confirmed — Thank you, ${customerName}!`,
+                    html: htmlBody,
+                }),
+            });
+            if (!res.ok) {
+                const errText = await res.text();
+                console.error(JSON.stringify({ function: "stripe-webhook", event: "resend_error", status: res.status, detail: errText, ts: new Date().toISOString() }));
+            } else {
+                console.log(JSON.stringify({ function: "stripe-webhook", event: "confirmation_email_sent_resend", to: customerEmail, ts: new Date().toISOString() }));
+            }
         }
     } catch (e) {
-        console.error(JSON.stringify({ function: "stripe-webhook", event: "resend_exception", error: String(e), ts: new Date().toISOString() }));
+        console.error(JSON.stringify({ function: "stripe-webhook", event: "email_exception", error: String(e), ts: new Date().toISOString() }));
     }
 }
 
 // ─── Admin Notification Email ──────────────────────────────────────────────────
 async function sendAdminOrderNotification(session: any, customerEmail: string, orderId: string, mcfStatus: string, items: any[], hasAiDesigner: boolean) {
-    const resendKey = Deno.env.get("RESEND_API_KEY");
-    if (!resendKey) return;
-
     const adminEmailsStr = Deno.env.get("ADMIN_NOTIFICATION_EMAILS");
     const adminEmails = adminEmailsStr
         ? adminEmailsStr.split(",").map(e => e.trim())
@@ -198,26 +207,43 @@ async function sendAdminOrderNotification(session: any, customerEmail: string, o
 </body>
 </html>`;
 
-    const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "Hwabelle <orders@hwabelle.shop>";
+    const fromEmail = Deno.env.get("AWS_SES_FROM_EMAIL") || Deno.env.get("RESEND_FROM_EMAIL") || "Hwabelle <orders@hwabelle.shop>";
     try {
-        const res = await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${resendKey}`,
-            },
-            body: JSON.stringify({
-                from: fromEmail,
-                to: adminEmails,
-                subject: `🔔 Admin Alert: New Order ${orderId} — ${totalFormatted}`,
-                html: htmlBody,
-            }),
+        const sesRes = await sendSesEmail({
+            from: fromEmail,
+            to: adminEmails,
+            subject: `🔔 Admin Alert: New Order ${orderId} — ${totalFormatted}`,
+            html: htmlBody,
         });
-        if (!res.ok) {
-            const errText = await res.text();
-            console.error(JSON.stringify({ function: "stripe-webhook", event: "admin_notification_error", status: res.status, detail: errText, ts: new Date().toISOString() }));
-        } else {
-            console.log(JSON.stringify({ function: "stripe-webhook", event: "admin_notification_sent", to: adminEmails, ts: new Date().toISOString() }));
+
+        if (sesRes.success) {
+            console.log(JSON.stringify({ function: "stripe-webhook", event: "admin_notification_sent_ses", to: adminEmails, messageId: sesRes.messageId, ts: new Date().toISOString() }));
+            return;
+        }
+
+        console.warn(JSON.stringify({ function: "stripe-webhook", event: "admin_ses_fallback_to_resend", error: sesRes.error, ts: new Date().toISOString() }));
+
+        const resendKey = Deno.env.get("RESEND_API_KEY");
+        if (resendKey) {
+            const res = await fetch("https://api.resend.com/emails", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${resendKey}`,
+                },
+                body: JSON.stringify({
+                    from: fromEmail,
+                    to: adminEmails,
+                    subject: `🔔 Admin Alert: New Order ${orderId} — ${totalFormatted}`,
+                    html: htmlBody,
+                }),
+            });
+            if (!res.ok) {
+                const errText = await res.text();
+                console.error(JSON.stringify({ function: "stripe-webhook", event: "admin_notification_error", status: res.status, detail: errText, ts: new Date().toISOString() }));
+            } else {
+                console.log(JSON.stringify({ function: "stripe-webhook", event: "admin_notification_sent_resend", to: adminEmails, ts: new Date().toISOString() }));
+            }
         }
     } catch (e) {
         console.error(JSON.stringify({ function: "stripe-webhook", event: "admin_notification_exception", error: String(e), ts: new Date().toISOString() }));
