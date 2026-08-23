@@ -145,11 +145,11 @@ const Contact = () => {
                 <div>
                   <h3 className="text-sm tracking-widest uppercase mb-3 text-muted-foreground">Email</h3>
                   <a 
-                    href="mailto:support@hwabelle.shop" 
+                    href="mailto:info@hwabelle.shop" 
                     className="flex items-center gap-3 text-foreground hover:underline underline-offset-4"
                   >
                     <Mail size={18} />
-                    support@hwabelle.shop
+                    info@hwabelle.shop
                   </a>
                 </div>
 

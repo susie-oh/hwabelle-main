@@ -33,7 +33,7 @@ const Terms = () => {
                 <p>HWABELLE ("we," "us," or "our") operates this Site and offers various products and services for purchase.</p>
                 <div className="mt-3">
                   <p>Business name: HWABELLE</p>
-                  <p>Email: support@hwabelle.shop</p>
+                  <p>Email: info@hwabelle.shop</p>
                 </div>
               </section>
 

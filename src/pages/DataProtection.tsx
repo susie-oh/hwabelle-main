@@ -259,7 +259,7 @@ const DataProtection = () => {
                 <p>For questions about our data protection practices or to report a security concern, contact:</p>
                 <div className="mt-3">
                   <p>HWABELLE</p>
-                  <p>Email: support@hwabelle.shop</p>
+                  <p>Email: info@hwabelle.shop</p>
                   <p>Security incidents: security@hwabelle.shop</p>
                 </div>
               </section>

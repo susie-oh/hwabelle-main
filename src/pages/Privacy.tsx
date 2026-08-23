@@ -197,7 +197,7 @@ const Privacy = () => {
                 <p>If you have questions about this Privacy Policy or our data practices, contact us at:</p>
                 <div className="mt-3">
                   <p>HWABELLE</p>
-                  <p>Email: support@hwabelle.shop</p>
+                  <p>Email: info@hwabelle.shop</p>
                 </div>
               </section>
             </div>
