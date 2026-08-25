@@ -15,12 +15,13 @@ import {
   MessageCircle,
   Check,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import productImage from "@/assets/product-flower-press.jpg";
 import designerImage from "@/assets/digital-designer.jpeg";
 import { defaultKeywords } from "@/lib/site";
+import { getFlowerProfile } from "@/data/flowerQuizProfiles";
 
 const features = [
   {
@@ -92,6 +93,11 @@ const chatPreview = [
 const Designer = () => {
   const { addItem, openCart } = useCart();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const quizFlower = searchParams.get("flower");
+  const quizSource = searchParams.get("source");
+  const flowerProfile = quizFlower ? getFlowerProfile(quizFlower) : null;
+  const isFromQuiz = quizSource === "flower-quiz" && flowerProfile;
 
   const handleAddKitAndAI = () => {
     addItem({
@@ -134,6 +140,25 @@ const Designer = () => {
       />
 
       <div className="min-h-screen">
+        {/* Flower Quiz Context Banner */}
+        {isFromQuiz && flowerProfile && (
+          <div className="bg-petal-lavender/20 border-b border-border">
+            <div className="container py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <p className="text-sm text-center sm:text-left">
+                <span className="font-medium">You matched with {flowerProfile.name}!</span>{" "}
+                <span className="text-muted-foreground">
+                  Explore pressing ideas for your flower.
+                </span>
+              </p>
+              <Link
+                to={`/flower-quiz/result/${flowerProfile.slug}`}
+                className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground shrink-0"
+              >
+                View your result
+              </Link>
+            </div>
+          </div>
+        )}
         <section className="relative overflow-hidden">
           <div
             className="absolute inset-0 pointer-events-none"

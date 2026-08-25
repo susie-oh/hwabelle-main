@@ -103,6 +103,11 @@ const Footer = () => {
                   Flower Press Kit
                 </Link>
               </li>
+              <li>
+                <Link to="/flower-quiz" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                  Find Your Flower
+                </Link>
+              </li>
             </ul>
           </div>
 

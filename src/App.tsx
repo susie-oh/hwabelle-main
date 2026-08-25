@@ -24,6 +24,8 @@ import Terms from "./pages/Terms";
 import DataProtection from "./pages/DataProtection";
 import NotFound from "./pages/NotFound";
 import Designer from "./pages/Designer";
+import FlowerQuizPage from "./pages/FlowerQuiz";
+import FlowerQuizResult from "./pages/FlowerQuizResult";
 import DesignerChat from "./pages/DesignerChat";
 // DesignerTestFlow archived — route removed for production security
 import OrderConfirmation from "./pages/OrderConfirmation";
@@ -75,6 +77,8 @@ const App = () => (
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/faq" element={<FAQ />} />
+              <Route path="/flower-quiz" element={<FlowerQuizPage />} />
+              <Route path="/flower-quiz/result/:slug" element={<FlowerQuizResult />} />
               <Route path="/designer" element={<Designer />} />
               {/* /designer-test route removed — see src/pages/_archive/DesignerTestFlow.tsx */}
               <Route path="/designer-chat" element={<DesignerChat />} />

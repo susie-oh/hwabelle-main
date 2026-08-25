@@ -219,6 +219,14 @@ const routes = [
     image: `${siteUrl}/assets/blog-botanical-art.jpg`,
     schema: [breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Resources", path: "/blog" }])],
   },
+  {
+    path: "/flower-quiz",
+    title: "Flower Personality Quiz: What's Your Flower? | Hwabelle",
+    description:
+      "Take a quick personality quiz to discover your signature flower, what it represents, pressing tips, and a personalized pressed-flower project idea.",
+    image: `${siteUrl}/assets/hero-pressed-arrangement.webp`,
+    schema: [breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Find Your Flower", path: "/flower-quiz" }])],
+  },
   ...resourcePosts.map((post) => ({
     path: `/blog/${post.slug}`,
     title: post.title,

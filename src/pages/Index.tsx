@@ -259,6 +259,45 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Flower Quiz Discovery Section */}
+      <section className="relative overflow-hidden bg-secondary/30 py-16 md:py-24 border-y border-border/40">
+        <div className="container">
+          <ScrollReveal className="mx-auto max-w-2xl text-center">
+            <p className="caption mb-4">Personality Quiz</p>
+            <h2 className="font-serif text-display md:text-display-lg mb-4">
+              What's Your Flower?
+            </h2>
+            <p className="text-muted-foreground leading-relaxed mb-8 text-lg">
+              Discover the flower that matches your personality and what you can create with it.
+            </p>
+            <ul className="text-sm text-muted-foreground space-y-2.5 mb-10 max-w-md mx-auto text-left">
+              <li className="flex items-start gap-2.5">
+                <span className="text-foreground mt-0.5 shrink-0">·</span>
+                <span>Your signature flower and what it represents</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span className="text-foreground mt-0.5 shrink-0">·</span>
+                <span>Its strongest personality traits</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span className="text-foreground mt-0.5 shrink-0">·</span>
+                <span>How suitable it is for flower pressing</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span className="text-foreground mt-0.5 shrink-0">·</span>
+                <span>A personalized pressed-flower project idea</span>
+              </li>
+            </ul>
+            <Button variant="hero" size="xl" asChild>
+              <Link to="/flower-quiz?source=homepage">Discover My Flower</Link>
+            </Button>
+            <p className="mt-4 text-sm text-muted-foreground">
+              7 quick questions · Takes about 2 minutes
+            </p>
+          </ScrollReveal>
+        </div>
+      </section>
+
       <div className="container">
         <div className="divider" />
       </div>

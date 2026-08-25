@@ -36,6 +36,9 @@ verify_jwt = false
 [functions.get-entitlement]
 verify_jwt = false
 
+[functions.flower-quiz-submit]
+verify_jwt = false
+
 [auth]
 site_url = "https://hwabelle.shop"
 additional_redirect_urls = ["https://hwabelle.com/*", "https://www.hwabelle.com/*", "https://hwabelle.shop/*", "https://www.hwabelle.shop/*", "http://localhost:3000/*"]

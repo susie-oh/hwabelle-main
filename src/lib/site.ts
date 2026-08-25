@@ -35,6 +35,7 @@ export const corePaths = {
   home: "/",
   shop: "/shop",
   product: PRODUCT_PATH,
+  flowerQuiz: "/flower-quiz",
   designer: "/designer",
   about: "/about",
   blog: "/blog",
