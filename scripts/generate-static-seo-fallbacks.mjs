@@ -82,32 +82,53 @@ const breadcrumbSchema = (items) => ({
 
 const resourcePosts = [
   {
+    slug: "how-to-press-flowers-for-beginners",
+    title: "How to Press Flowers for Beginners: The Complete Step-by-Step Guide | Hwabelle",
+    description:
+      "A straightforward, beginner-friendly guide to harvesting flowers, assembling the 5-layer press, avoiding browning, and testing for complete dryness.",
+    category: "Beginner Guide",
+  },
+  {
+    slug: "best-flowers-for-pressing",
+    title: "Best Flowers for Pressing: The Ultimate Botanical Selection Guide | Hwabelle",
+    description:
+      "Discover which flowers press into paper-thin botanical masterpieces with ease, and how to classify flowers by difficulty tiers from beginner to advanced.",
+    category: "Flower Selection",
+  },
+  {
+    slug: "how-to-press-roses",
+    title: "How to Press Roses: The 2 Professional Dissection Methods | Hwabelle",
+    description:
+      "Learn how to preserve thick garden roses and wedding bouquet blooms without browning or mold using petal deconstruction and calyx halving techniques.",
+    category: "Flower Selection",
+  },
+  {
+    slug: "why-do-pressed-flowers-turn-brown",
+    title: "Why Do Pressed Flowers Turn Brown? (And How to Prevent It) | Hwabelle",
+    description:
+      "Understand the botanical science behind enzymatic oxidation and learn the 5 proven techniques to keep your pressed flowers bright and vivid.",
+    category: "Flower Pressing Basics",
+  },
+  {
+    slug: "how-long-does-it-take-to-press-flowers",
+    title: "How Long Does It Take to Press Flowers? Complete Species Drying Matrix | Hwabelle",
+    description:
+      "From delicate 3-day baby's breath to 3-week dissected peonies, learn exact drying timelines, blotter swap schedules, and how to test for 100% dryness.",
+    category: "Flower Pressing Basics",
+  },
+  {
+    slug: "acrylic-vs-wooden-flower-press",
+    title: "Acrylic vs Wooden Flower Press: Which Is Better for Beginners? | Hwabelle",
+    description:
+      "A detailed comparison of visibility, pressure distribution, durability, and moisture resistance between modern acrylic and traditional wooden flower presses.",
+    category: "Product Education",
+  },
+  {
     slug: "how-to-preserve-wedding-bouquet-at-home",
     title: "How to Preserve a Wedding Bouquet at Home | Hwabelle",
     description:
       "Learn how to preserve a wedding bouquet at home with pressing tips, timing advice, and keepsake ideas for sentimental blooms.",
     category: "Wedding Preservation",
-  },
-  {
-    slug: "best-flowers-for-pressing",
-    title: "Best Flowers for Pressing: Beginner Guide | Hwabelle",
-    description:
-      "Discover the best flowers for pressing, including beginner-friendly blooms, petals, leaves, and bouquet flowers that flatten beautifully.",
-    category: "Beginner Guide",
-  },
-  {
-    slug: "acrylic-vs-wooden-flower-press",
-    title: "Acrylic vs Wooden Flower Press: Which Is Better? | Hwabelle",
-    description:
-      "Compare acrylic and wooden flower presses to see which option is better for visibility, beginner use, and preserving meaningful flowers.",
-    category: "Buying Guide",
-  },
-  {
-    slug: "flower-pressing-for-beginners",
-    title: "Flower Pressing for Beginners: Simple Step-by-Step Guide | Hwabelle",
-    description:
-      "Learn flower pressing for beginners with simple step-by-step instructions, practical tips, and easy ways to preserve flowers at home.",
-    category: "Beginner Guide",
   },
   {
     slug: "what-to-do-with-pressed-flowers",
@@ -218,6 +239,96 @@ const routes = [
       "Explore flower pressing guides from Hwabelle, including bouquet preservation, beginner tutorials, flower selection tips, and pressed flower craft ideas.",
     image: `${siteUrl}/assets/blog-botanical-art.jpg`,
     schema: [breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Resources", path: "/blog" }])],
+  },
+  {
+    path: "/resources",
+    title: "Flower Pressing Guides & Botanical Resources Library | Hwabelle",
+    description:
+      "Explore free authoritative flower pressing masterclasses, botanical harvesting field guides, drying schedules, and 4-step quick-start tutorials from Hwabelle.",
+    image: `${siteUrl}/assets/blog-botanical-art.jpg`,
+    schema: [breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Resources", path: "/resources" }])],
+  },
+  {
+    path: "/resources/flower-pressing-guide",
+    title: "The Beginner's Master Guide to Flower Pressing | Hwabelle Botanical Masterclass",
+    description:
+      "Learn how to press flowers at home with Hwabelle's complete master guide. Master drying timelines, avoid browning, assemble the 5-layer press, and create lasting keepsakes.",
+    image: `${siteUrl}/assets/blog-botanical-art.jpg`,
+    schema: [
+      breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Resources", path: "/resources" },
+        { name: "Beginner's Master Guide to Flower Pressing", path: "/resources/flower-pressing-guide" },
+      ]),
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: "The Beginner's Master Guide to Flower Pressing",
+        description: "The complete science of moisture extraction, pressure distribution, drying timeline matrices, and archival framing.",
+        author: { "@type": "Organization", name: "Hwabelle" },
+        datePublished: "2026-08-25T00:00:00.000Z",
+        image: `${siteUrl}/assets/blog-botanical-art.jpg`,
+      },
+    ],
+  },
+  {
+    path: "/resources/flower-selection-guide",
+    title: "The Botanical Selection & Harvesting Field Guide | Hwabelle",
+    description:
+      "The authoritative guide to selecting and preparing flowers for pressing. Discover flower tiers, 3D rose dissection methods, harvesting rules, and color retention tips.",
+    image: `${siteUrl}/assets/blog-botanical-art.jpg`,
+    schema: [
+      breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Resources", path: "/resources" },
+        { name: "Botanical Selection & Harvesting Field Guide", path: "/resources/flower-selection-guide" },
+      ]),
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: "The Botanical Selection & Harvesting Field Guide",
+        description: "How to forage, pick, and prepare blooms for flawless pressed flower art.",
+        author: { "@type": "Organization", name: "Hwabelle" },
+        datePublished: "2026-08-25T00:00:00.000Z",
+        image: `${siteUrl}/assets/blog-botanical-art.jpg`,
+      },
+    ],
+  },
+  {
+    path: "/resources/quick-start-guide",
+    title: "Press Flowers in 4 Simple Steps: Quick-Start Guide | Hwabelle",
+    description:
+      "The official Hwabelle quick-start guide to flower pressing in 4 simple steps: Choose, Arrange, Press, and Create. Visual layout instructions and kit anatomy.",
+    image: `${siteUrl}/assets/blog-botanical-art.jpg`,
+    schema: [
+      breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Resources", path: "/resources" },
+        { name: "Press Flowers in 4 Simple Steps", path: "/resources/quick-start-guide" },
+      ]),
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: "Press Flowers in 4 Simple Steps",
+        description: "The official Hwabelle quick-start visual operating guide: CHOOSE -> ARRANGE -> PRESS -> CREATE.",
+        author: { "@type": "Organization", name: "Hwabelle" },
+        datePublished: "2026-08-25T00:00:00.000Z",
+        image: `${siteUrl}/assets/blog-botanical-art.jpg`,
+      },
+    ],
+  },
+  {
+    path: "/free-flower-pressing-guide",
+    title: "Free Beginner's Guide to Flower Pressing (Instant PDF Download) | Hwabelle",
+    description:
+      "Download Hwabelle's free beginner's guide to flower pressing. Learn which flowers press best, drying schedules, avoiding browning, and keepsake ideas.",
+    image: `${siteUrl}/assets/blog-botanical-art.jpg`,
+    schema: [
+      breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Free Flower Pressing Guide", path: "/free-flower-pressing-guide" },
+      ]),
+    ],
   },
   {
     path: "/flower-quiz",

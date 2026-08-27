@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import ReactMarkdown from "react-markdown";
 import blogImage from "@/assets/blog-botanical-art.jpg";
 import { resourcePostBySlug } from "@/content/resources";
+import ResourceCTA from "@/components/resources/ResourceCTA";
 
 const BlogPost = () => {
   const { slug } = useParams();
@@ -216,8 +217,13 @@ const BlogPost = () => {
               <ReactMarkdown>{resolvedPost.content || ""}</ReactMarkdown>
             </div>
 
+            {/* Lead Magnet CTA for Guide Acquisition */}
+            <div className="mt-10">
+              <ResourceCTA type="footer" articleSlug={slug || ""} />
+            </div>
+
             {resolvedPost.seo_keywords && resolvedPost.seo_keywords.length > 0 && (
-              <div className="mt-12 pt-8 border-t border-divider">
+              <div className="mt-8 pt-6 border-t border-divider">
                 <div className="flex flex-wrap gap-2">
                   {resolvedPost.seo_keywords.map((keyword: string, index: number) => (
                     <span key={index} className="px-3 py-1 text-xs bg-secondary text-muted-foreground rounded-full">
@@ -228,9 +234,9 @@ const BlogPost = () => {
               </div>
             )}
 
-            <div className="mt-16 p-8 bg-secondary text-center">
+            <div className="mt-12 p-8 bg-secondary/60 rounded-2xl border border-border text-center">
               <h2 className="font-serif text-xl mb-3">Ready to preserve your flowers at home?</h2>
-              <p className="text-muted-foreground mb-6">
+              <p className="text-muted-foreground text-sm mb-6">
                 Explore the acrylic flower press kit or use the Hwabelle AI Designer for next-step guidance.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">

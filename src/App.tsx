@@ -15,6 +15,10 @@ import ProductDetail from "./pages/ProductDetail";
 import About from "./pages/About";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import ResourcesHub from "./pages/ResourcesHub";
+import ResourceDetailPage from "./pages/ResourceDetailPage";
+import FreeGuideLandingPage from "./pages/FreeGuideLandingPage";
+import { FreeResourceOffer } from "./components/resources/FreeResourceOffer";
 import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import Shipping from "./pages/Shipping";
@@ -69,11 +73,15 @@ const App = () => (
           <BrowserRouter>
             <ScrollToTop />
             <AnalyticsTracker />
+            <FreeResourceOffer />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/shop" element={<Shop />} />
               <Route path="/product/:id" element={<ProductDetail />} />
               <Route path="/about" element={<About />} />
+              <Route path="/resources" element={<ResourcesHub />} />
+              <Route path="/resources/:slug" element={<ResourceDetailPage />} />
+              <Route path="/free-flower-pressing-guide" element={<FreeGuideLandingPage />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/faq" element={<FAQ />} />

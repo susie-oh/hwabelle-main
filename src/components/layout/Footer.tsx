@@ -111,20 +111,30 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Company */}
+          {/* Learn & Resources */}
           <div>
             <h4 className="text-xs tracking-widest uppercase mb-4 text-primary-foreground/50">
-              Company
+              Learn & Resources
             </h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link to="/about" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-                  About Us
+                <Link to="/resources" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                  Resource Library
+                </Link>
+              </li>
+              <li>
+                <Link to="/free-flower-pressing-guide" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                  Free Beginner&apos;s Guide
                 </Link>
               </li>
               <li>
                 <Link to="/blog" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-                  Resources
+                  Flower Pressing Blog
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                  About Us
                 </Link>
               </li>
               <li>

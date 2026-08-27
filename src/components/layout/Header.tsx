@@ -12,10 +12,11 @@ const Header = () => {
 
   const navLinks = [
     { href: "/shop", label: "Shop" },
+    { href: "/resources", label: "Resources" },
+    { href: "/blog", label: "Blog" },
     { href: "/flower-quiz", label: "Find Your Flower" },
     { href: "/designer", label: "AI Designer" },
     { href: "/about", label: "About" },
-    { href: "/blog", label: "Resources" },
     { href: "/faq", label: "FAQ" },
     { href: "/contact", label: "Contact" },
   ];

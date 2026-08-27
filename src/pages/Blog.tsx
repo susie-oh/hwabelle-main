@@ -70,14 +70,34 @@ const Blog = () => {
         ]}
       />
 
-      <section className="py-16 md:py-24 bg-secondary">
+      <section className="py-16 md:py-20 bg-secondary/70 border-b border-border/50">
         <div className="container">
-          <div className="max-w-3xl">
-            <p className="caption mb-4">Resources</p>
-            <h1 className="font-serif text-display-lg mb-4">Flower preservation guides and ideas</h1>
-            <p className="text-muted-foreground text-lg">
-              Practical help for preserving wedding bouquets, pressing flowers at home, and creating meaningful keepsakes.
-            </p>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div className="max-w-2xl">
+              <p className="caption mb-3">Hwabelle Botanical Library</p>
+              <h1 className="font-serif text-display-lg mb-3">Flower Preservation Guides & Insights</h1>
+              <p className="text-muted-foreground text-base sm:text-lg">
+                Practical botanical science for preserving wedding bouquets, avoiding browning, and pressing flowers at home.
+              </p>
+            </div>
+
+            <div className="shrink-0 p-6 rounded-2xl bg-card border border-primary/20 shadow-sm max-w-sm">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-primary">
+                Free Masterclasses
+              </span>
+              <h3 className="font-serif text-lg font-semibold text-foreground mt-1 mb-2">
+                Download Free Botanical Field Guides
+              </h3>
+              <p className="text-xs text-muted-foreground mb-4">
+                Access our complete species drying schedule matrix, 4-step quick start, and flower suitability tiers.
+              </p>
+              <Link
+                to="/resources"
+                className="inline-flex items-center justify-center w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors shadow-sm"
+              >
+                <span>Visit the Resource Hub →</span>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
