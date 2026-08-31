@@ -11,7 +11,9 @@ const tempHtmlDir = path.resolve("dist/temp_pdf_html");
 await fs.mkdir(outputDir, { recursive: true });
 await fs.mkdir(tempHtmlDir, { recursive: true });
 
-const edgePath = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
+const edgePath = process.platform === "win32" 
+  ? "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe" 
+  : "google-chrome";
 
 const baseCss = `
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
@@ -813,15 +815,23 @@ const pdf1 = path.join(outputDir, "hwabelle-flower-pressing-master-guide.pdf");
 const pdf2 = path.join(outputDir, "hwabelle-flower-selection-and-prep-guide.pdf");
 const pdf3 = path.join(outputDir, "hwabelle-official-quick-start-guide.pdf");
 
-console.log("Generating clean PDFs with headless Edge...");
+console.log("Generating clean PDFs with headless browser...");
 
-const cmd1 = `powershell -Command "Start-Process '${edgePath}' -ArgumentList '--headless', '--disable-gpu', '--no-pdf-header-footer', '--print-to-pdf=${pdf1}', 'file:///${file1.replace(/\\\\/g, "/")}' -Wait"`;
-const cmd2 = `powershell -Command "Start-Process '${edgePath}' -ArgumentList '--headless', '--disable-gpu', '--no-pdf-header-footer', '--print-to-pdf=${pdf2}', 'file:///${file2.replace(/\\\\/g, "/")}' -Wait"`;
-const cmd3 = `powershell -Command "Start-Process '${edgePath}' -ArgumentList '--headless', '--disable-gpu', '--no-pdf-header-footer', '--print-to-pdf=${pdf3}', 'file:///${file3.replace(/\\\\/g, "/")}' -Wait"`;
+try {
+  if (process.platform === "win32") {
+    const cmd1 = `powershell -Command "Start-Process '${edgePath}' -ArgumentList '--headless', '--disable-gpu', '--no-pdf-header-footer', '--print-to-pdf=${pdf1}', 'file:///${file1.replace(/\\\\/g, "/")}' -Wait"`;
+    const cmd2 = `powershell -Command "Start-Process '${edgePath}' -ArgumentList '--headless', '--disable-gpu', '--no-pdf-header-footer', '--print-to-pdf=${pdf2}', 'file:///${file2.replace(/\\\\/g, "/")}' -Wait"`;
+    const cmd3 = `powershell -Command "Start-Process '${edgePath}' -ArgumentList '--headless', '--disable-gpu', '--no-pdf-header-footer', '--print-to-pdf=${pdf3}', 'file:///${file3.replace(/\\\\/g, "/")}' -Wait"`;
 
-await execAsync(cmd1);
-await execAsync(cmd2);
-await execAsync(cmd3);
+    await execAsync(cmd1);
+    await execAsync(cmd2);
+    await execAsync(cmd3);
+  } else {
+    console.log("Non-Windows environment detected. Skipping headless print to PDF.");
+  }
+} catch (err) {
+  console.warn("Headless PDF generation skipped or failed:", err.message);
+}
 
 const distOutputDir = path.resolve("dist/guides");
 try {
@@ -833,4 +843,4 @@ try {
   // dist may not exist during standalone run, ignore
 }
 
-console.log("PDF generation complete! Clean files saved to public/guides/ and dist/guides/");
+console.log("PDF processing complete! Files available in public/guides/ and dist/guides/");
