@@ -50,6 +50,11 @@ import EmailCampaignSetup from "./pages/admin/EmailCampaignSetup";
 import EmailCompose from "./pages/admin/EmailCompose";
 import EmailCustomers from "./pages/admin/EmailCustomers";
 import EmailSettings from "./pages/admin/EmailSettings";
+import CommunityHub from "./pages/CommunityHub";
+import CommunityCreation from "./pages/CommunityCreation";
+import CommunitySubmit from "./pages/CommunitySubmit";
+import CommunityQueue from "./pages/admin/CommunityQueue";
+import CommunityDetail from "./pages/admin/CommunityDetail";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -82,6 +87,9 @@ const App = () => (
               <Route path="/resources" element={<ResourcesHub />} />
               <Route path="/resources/:slug" element={<ResourceDetailPage />} />
               <Route path="/free-flower-pressing-guide" element={<FreeGuideLandingPage />} />
+              <Route path="/community" element={<CommunityHub />} />
+              <Route path="/community/submit" element={<CommunitySubmit />} />
+              <Route path="/community/:slug" element={<CommunityCreation />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/faq" element={<FAQ />} />
@@ -106,6 +114,8 @@ const App = () => (
               <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/dashboard" element={<Dashboard />} />
+              <Route path="/admin/community" element={<CommunityQueue />} />
+              <Route path="/admin/community/:submissionId" element={<CommunityDetail />} />
               <Route path="/admin/orders" element={<OrdersManager />} />
               <Route path="/admin/orders/:id" element={<OrderDetail />} />
               <Route path="/admin/blog" element={<BlogManager />} />

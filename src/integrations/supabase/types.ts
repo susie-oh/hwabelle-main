@@ -604,6 +604,354 @@ export type Database = {
           },
         ]
       }
+      community_moderation_events: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          id: string
+          new_status: string | null
+          notes: string | null
+          previous_status: string | null
+          publication_id: string | null
+          submission_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          new_status?: string | null
+          notes?: string | null
+          previous_status?: string | null
+          publication_id?: string | null
+          submission_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          new_status?: string | null
+          notes?: string | null
+          previous_status?: string | null
+          publication_id?: string | null
+          submission_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_moderation_events_publication_id_fkey"
+            columns: ["publication_id"]
+            isOneToOne: false
+            referencedRelation: "community_publications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_moderation_events_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "community_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_publication_media: {
+        Row: {
+          alt_text: string
+          caption: string | null
+          created_at: string
+          height: number | null
+          id: string
+          is_primary: boolean
+          media_type: Database["public"]["Enums"]["community_media_type"]
+          poster_path: string | null
+          publication_id: string
+          public_storage_path: string
+          sort_order: number
+          transcript: string | null
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string
+          caption?: string | null
+          created_at?: string
+          height?: number | null
+          id?: string
+          is_primary?: boolean
+          media_type: Database["public"]["Enums"]["community_media_type"]
+          poster_path?: string | null
+          publication_id: string
+          public_storage_path: string
+          sort_order?: number
+          transcript?: string | null
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string
+          caption?: string | null
+          created_at?: string
+          height?: number | null
+          id?: string
+          is_primary?: boolean
+          media_type?: Database["public"]["Enums"]["community_media_type"]
+          poster_path?: string | null
+          publication_id?: string
+          public_storage_path?: string
+          sort_order?: number
+          transcript?: string | null
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_publication_media_publication_id_fkey"
+            columns: ["publication_id"]
+            isOneToOne: false
+            referencedRelation: "community_publications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_publications: {
+        Row: {
+          approved_social_handle: string | null
+          archived_at: string | null
+          category: Database["public"]["Enums"]["community_category"]
+          created_at: string
+          edited_story: string
+          featured: boolean
+          flowers_used: string | null
+          has_video: boolean
+          id: string
+          og_image_path: string | null
+          project_title: string
+          public_display_name: string
+          publication_status: Database["public"]["Enums"]["community_publication_status"]
+          published_at: string | null
+          related_product_url: string | null
+          related_resource_slug: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          source_type: string
+          stage: Database["public"]["Enums"]["community_stage"]
+          submission_id: string
+          updated_at: string
+          verified_hwabelle_customer: boolean
+          video_caption_provided: boolean
+        }
+        Insert: {
+          approved_social_handle?: string | null
+          archived_at?: string | null
+          category: Database["public"]["Enums"]["community_category"]
+          created_at?: string
+          edited_story: string
+          featured?: boolean
+          flowers_used?: string | null
+          has_video?: boolean
+          id?: string
+          og_image_path?: string | null
+          project_title: string
+          public_display_name: string
+          publication_status?: Database["public"]["Enums"]["community_publication_status"]
+          published_at?: string | null
+          related_product_url?: string | null
+          related_resource_slug?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          source_type?: string
+          stage: Database["public"]["Enums"]["community_stage"]
+          submission_id: string
+          updated_at?: string
+          verified_hwabelle_customer?: boolean
+          video_caption_provided?: boolean
+        }
+        Update: {
+          approved_social_handle?: string | null
+          archived_at?: string | null
+          category?: Database["public"]["Enums"]["community_category"]
+          created_at?: string
+          edited_story?: string
+          featured?: boolean
+          flowers_used?: string | null
+          has_video?: boolean
+          id?: string
+          og_image_path?: string | null
+          project_title?: string
+          public_display_name?: string
+          publication_status?: Database["public"]["Enums"]["community_publication_status"]
+          published_at?: string | null
+          related_product_url?: string | null
+          related_resource_slug?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          source_type?: string
+          stage?: Database["public"]["Enums"]["community_stage"]
+          submission_id?: string
+          updated_at?: string
+          verified_hwabelle_customer?: boolean
+          video_caption_provided?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_publications_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "community_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_rate_limit: {
+        Row: {
+          id: string
+          identifier_hash: string
+          request_count: number
+          window_start: string
+        }
+        Insert: {
+          id?: string
+          identifier_hash: string
+          request_count?: number
+          window_start?: string
+        }
+        Update: {
+          id?: string
+          identifier_hash?: string
+          request_count?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
+      community_submission_media: {
+        Row: {
+          byte_size: number
+          created_at: string
+          duration_seconds: number | null
+          height: number | null
+          id: string
+          media_type: Database["public"]["Enums"]["community_media_type"]
+          mime_type: string
+          original_filename: string | null
+          private_storage_path: string
+          processing_status: string
+          sort_order: number
+          submission_id: string
+          width: number | null
+        }
+        Insert: {
+          byte_size: number
+          created_at?: string
+          duration_seconds?: number | null
+          height?: number | null
+          id?: string
+          media_type: Database["public"]["Enums"]["community_media_type"]
+          mime_type: string
+          original_filename?: string | null
+          private_storage_path: string
+          processing_status?: string
+          sort_order?: number
+          submission_id: string
+          width?: number | null
+        }
+        Update: {
+          byte_size?: number
+          created_at?: string
+          duration_seconds?: number | null
+          height?: number | null
+          id?: string
+          media_type?: Database["public"]["Enums"]["community_media_type"]
+          mime_type?: string
+          original_filename?: string | null
+          private_storage_path?: string
+          processing_status?: string
+          sort_order?: number
+          submission_id?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_submission_media_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "community_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_submissions: {
+        Row: {
+          category: Database["public"]["Enums"]["community_category"]
+          consent_timestamp: string
+          consent_version: string
+          created_at: string
+          email: string
+          feature_permission: boolean
+          first_name: string
+          flowers_used: string | null
+          id: string
+          moderation_status: Database["public"]["Enums"]["community_moderation_status"]
+          order_reference: string | null
+          original_story: string
+          project_title: string
+          rights_confirmed: boolean
+          social_handle: string | null
+          social_tag_permission: boolean
+          stage: Database["public"]["Enums"]["community_stage"]
+          updated_at: string
+          upload_finalized: boolean
+          upload_session_expires: string
+          upload_session_id: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["community_category"]
+          consent_timestamp?: string
+          consent_version?: string
+          created_at?: string
+          email: string
+          feature_permission?: boolean
+          first_name: string
+          flowers_used?: string | null
+          id?: string
+          moderation_status?: Database["public"]["Enums"]["community_moderation_status"]
+          order_reference?: string | null
+          original_story: string
+          project_title: string
+          rights_confirmed?: boolean
+          social_handle?: string | null
+          social_tag_permission?: boolean
+          stage: Database["public"]["Enums"]["community_stage"]
+          updated_at?: string
+          upload_finalized?: boolean
+          upload_session_expires?: string
+          upload_session_id?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["community_category"]
+          consent_timestamp?: string
+          consent_version?: string
+          created_at?: string
+          email?: string
+          feature_permission?: boolean
+          first_name?: string
+          flowers_used?: string | null
+          id?: string
+          moderation_status?: Database["public"]["Enums"]["community_moderation_status"]
+          order_reference?: string | null
+          original_story?: string
+          project_title?: string
+          rights_confirmed?: boolean
+          social_handle?: string | null
+          social_tag_permission?: boolean
+          stage?: Database["public"]["Enums"]["community_stage"]
+          updated_at?: string
+          upload_finalized?: boolean
+          upload_session_expires?: string
+          upload_session_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -640,6 +988,26 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      community_category:
+        | "weddings"
+        | "garden_flowers"
+        | "gifts_memorials"
+        | "unboxing"
+        | "before_after"
+        | "in_progress"
+        | "finished_piece"
+        | "other"
+      community_media_type: "image" | "video"
+      community_moderation_status:
+        | "received"
+        | "pending_review"
+        | "changes_requested"
+        | "approved"
+        | "rejected"
+        | "published"
+        | "archived"
+      community_publication_status: "draft" | "published" | "archived"
+      community_stage: "unboxing" | "in_progress" | "finished" | "before_after"
     }
     CompositeTypes: {
       [_ in never]: never

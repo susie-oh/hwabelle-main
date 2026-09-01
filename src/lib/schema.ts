@@ -43,3 +43,56 @@ export const faqSchema = (
     },
   })),
 });
+
+export const collectionPageSchema = (
+  name = "Hwabelle in Bloom Community Gallery",
+  description = "Wedding bouquets, garden flowers, and botanical keepsakes created by the Hwabelle community.",
+  url = `${SITE_URL}/community`,
+) => ({
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name,
+  description,
+  url,
+  publisher: {
+    "@type": "Organization",
+    name: BRAND_NAME,
+    url: SITE_URL,
+  },
+});
+
+export const creativeWorkSchema = ({
+  title,
+  description,
+  authorName,
+  datePublished,
+  image,
+  url,
+  genre,
+}: {
+  title: string;
+  description: string;
+  authorName: string;
+  datePublished?: string;
+  image?: string;
+  url: string;
+  genre?: string;
+}) => ({
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  name: title,
+  description,
+  author: {
+    "@type": "Person",
+    name: authorName,
+  },
+  ...(datePublished ? { datePublished } : {}),
+  ...(image ? { image } : {}),
+  url,
+  ...(genre ? { genre } : {}),
+  publisher: {
+    "@type": "Organization",
+    name: BRAND_NAME,
+    url: SITE_URL,
+  },
+});

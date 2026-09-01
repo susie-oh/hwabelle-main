@@ -42,6 +42,12 @@ verify_jwt = false
 [functions.resource-lead-submit]
 verify_jwt = false
 
+[functions.community-submit]
+verify_jwt = false
+
+[functions.community-moderate]
+verify_jwt = false
+
 [auth]
 site_url = "https://hwabelle.shop"
 additional_redirect_urls = ["https://hwabelle.com/*", "https://www.hwabelle.com/*", "https://hwabelle.shop/*", "https://www.hwabelle.shop/*", "http://localhost:3000/*"]

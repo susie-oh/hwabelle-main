@@ -18,6 +18,7 @@ import logoImage from "@/assets/hwabelle-logo.png";
 import { PRODUCT_PATH, defaultKeywords } from "@/lib/site";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 import CustomerStories from "@/components/CustomerStories";
+import { CommunityHomepageModule } from "@/components/community/CommunityHomepageModule";
 
 const Index = () => {
   const productHighlights = [
@@ -446,6 +447,10 @@ const Index = () => {
 
       <section className="bg-background border-t border-b border-border/40 py-8">
         <CustomerStories />
+      </section>
+
+      <section className="bg-background py-16 md:py-24 border-b border-border/40">
+        <CommunityHomepageModule />
       </section>
 
       <section className="bg-secondary py-20 md:py-30">

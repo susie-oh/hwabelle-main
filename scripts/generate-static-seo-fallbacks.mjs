@@ -249,6 +249,37 @@ const routes = [
     schema: [breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Resources", path: "/resources" }])],
   },
   {
+    path: "/community",
+    title: "Hwabelle in Bloom | Community Pressed Flower Creations & Stories",
+    description:
+      "Wedding bouquets, garden finds, meaningful gifts, and works in progress — see what the Hwabelle community is creating, then share your own.",
+    image: `${siteUrl}/assets/blog-botanical-art.jpg`,
+    schema: [
+      {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: "Hwabelle in Bloom Community Gallery",
+        description: "Wedding bouquets, garden finds, and botanical keepsakes created by the Hwabelle community.",
+        url: `${siteUrl}/community`,
+      },
+      breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Community", path: "/community" }]),
+    ],
+  },
+  {
+    path: "/community/submit",
+    title: "Share Your Creation | Hwabelle in Bloom Community",
+    description:
+      "Submit your DIY pressed flower wedding bouquet, floral keepsake, or botanical craft project to be featured in the Hwabelle community gallery.",
+    image: `${siteUrl}/assets/blog-botanical-art.jpg`,
+    schema: [
+      breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Community", path: "/community" },
+        { name: "Share Creation", path: "/community/submit" },
+      ]),
+    ],
+  },
+  {
     path: "/resources/flower-pressing-guide",
     title: "The Beginner's Master Guide to Flower Pressing | Hwabelle Botanical Masterclass",
     description:

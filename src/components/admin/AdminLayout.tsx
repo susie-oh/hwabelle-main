@@ -2,7 +2,19 @@ import { ReactNode, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Loader2, LayoutDashboard, FileText, HelpCircle, LogOut, Home, Mail, Menu, X, Package } from "lucide-react";
+import {
+  Loader2,
+  LayoutDashboard,
+  FileText,
+  HelpCircle,
+  LogOut,
+  Home,
+  Mail,
+  Menu,
+  X,
+  Package,
+  Sparkles,
+} from "lucide-react";
 import logoImage from "@/assets/hwabelle-full-logo.jpg";
 import { cn } from "@/lib/utils";
 import Seo from "@/components/seo/Seo";
@@ -13,6 +25,7 @@ interface AdminLayoutProps {
 
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/community", label: "Community UGC", icon: Sparkles },
   { href: "/admin/orders", label: "Orders", icon: Package },
   { href: "/admin/blog", label: "Blog / SEO", icon: FileText },
   { href: "/admin/faqs", label: "FAQ Manager", icon: HelpCircle },
@@ -65,7 +78,9 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       <nav className="flex-1 p-4 space-y-1">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.href || (item.href !== "/admin/dashboard" && location.pathname.startsWith(item.href));
+          const isActive =
+            location.pathname === item.href ||
+            (item.href !== "/admin/dashboard" && location.pathname.startsWith(item.href));
           return (
             <Link
               key={item.href}
@@ -85,7 +100,10 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       </nav>
 
       <div className="p-4 border-t border-divider space-y-2">
-        <Link to="/" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+        <Link
+          to="/"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+        >
           <Home className="h-4 w-4" />
           View Site
         </Link>
@@ -136,9 +154,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
       {/* Main Content */}
       <main className="md:ml-64 min-h-screen pt-14 md:pt-0">
-        <div className="p-4 md:p-8">
-          {children}
-        </div>
+        <div className="p-4 md:p-8">{children}</div>
       </main>
     </div>
   );
