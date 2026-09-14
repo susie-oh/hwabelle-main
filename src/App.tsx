@@ -19,6 +19,7 @@ import ResourcesHub from "./pages/ResourcesHub";
 import ResourceDetailPage from "./pages/ResourceDetailPage";
 import FreeGuideLandingPage from "./pages/FreeGuideLandingPage";
 import { FreeResourceOffer } from "./components/resources/FreeResourceOffer";
+import { WelcomeDiscountPopup } from "./components/offers/WelcomeDiscountPopup";
 import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import Shipping from "./pages/Shipping";
@@ -78,7 +79,7 @@ const App = () => (
           <BrowserRouter>
             <ScrollToTop />
             <AnalyticsTracker />
-            <FreeResourceOffer />
+            <WelcomeDiscountPopup />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/shop" element={<Shop />} />

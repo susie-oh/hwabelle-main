@@ -29,6 +29,7 @@ interface CheckoutRequest {
     successUrl: string;
     cancelUrl: string;
     customerEmail?: string;
+    discountCode?: string;
 }
 
 Deno.serve(async (req) => {
@@ -53,7 +54,7 @@ Deno.serve(async (req) => {
         });
 
         const body = await req.json();
-        const { items, successUrl, cancelUrl, customerEmail } = body as CheckoutRequest;
+        const { items, successUrl, cancelUrl, customerEmail, discountCode } = body as CheckoutRequest;
 
         if (!items?.length) {
             return new Response(JSON.stringify({ error: "No items provided" }), {
@@ -91,6 +92,7 @@ Deno.serve(async (req) => {
             payment_method_types: ["card"],
             line_items,
             mode: "payment",
+            allow_promotion_codes: true,
             success_url: `${successUrl}?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: cancelUrl,
             ...(customerEmail ? { customer_email: customerEmail } : {}),
@@ -99,6 +101,7 @@ Deno.serve(async (req) => {
             },
             metadata: {
                 source: "hwabelle",
+                discount_code: discountCode || "none",
                 // Stable product type map: webhook reads this to create order_items correctly.
                 // Format: JSON object of { productName: productType }
                 line_item_types: JSON.stringify(lineItemTypes),

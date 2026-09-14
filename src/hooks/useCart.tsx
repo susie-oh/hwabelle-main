@@ -8,6 +8,12 @@ export interface CartItem {
     image?: string;
 }
 
+const VALID_DISCOUNTS: Record<string, number> = {
+    "WELCOME10": 10,
+    "BLOOM10": 10,
+    "HWABELLE10": 10,
+};
+
 interface CartContextType {
     items: CartItem[];
     addItem: (item: Omit<CartItem, "quantity">) => void;
@@ -16,6 +22,12 @@ interface CartContextType {
     clearCart: () => void;
     itemCount: number;
     totalPrice: number;
+    discountCode: string | null;
+    discountPercent: number;
+    discountAmount: number;
+    finalPrice: number;
+    applyDiscountCode: (code: string) => { success: boolean; message: string };
+    removeDiscountCode: () => void;
     isCartOpen: boolean;
     openCart: () => void;
     closeCart: () => void;
@@ -24,6 +36,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const STORAGE_KEY = "hwabelle-cart";
+const DISCOUNT_STORAGE_KEY = "hwabelle-discount";
 
 function loadCart(): CartItem[] {
     try {
@@ -34,17 +47,38 @@ function loadCart(): CartItem[] {
     }
 }
 
+function loadDiscountCode(): string | null {
+    try {
+        const stored = localStorage.getItem(DISCOUNT_STORAGE_KEY);
+        if (stored && VALID_DISCOUNTS[stored.toUpperCase().trim()]) {
+            return stored.toUpperCase().trim();
+        }
+        return null;
+    } catch {
+        return null;
+    }
+}
+
 function saveCart(items: CartItem[]) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
     const [items, setItems] = useState<CartItem[]>(loadCart);
+    const [discountCode, setDiscountCode] = useState<string | null>(loadDiscountCode);
     const [isCartOpen, setIsCartOpen] = useState(false);
 
     useEffect(() => {
         saveCart(items);
     }, [items]);
+
+    useEffect(() => {
+        if (discountCode) {
+            localStorage.setItem(DISCOUNT_STORAGE_KEY, discountCode);
+        } else {
+            localStorage.removeItem(DISCOUNT_STORAGE_KEY);
+        }
+    }, [discountCode]);
 
     const addItem = useCallback((newItem: Omit<CartItem, "quantity">) => {
         setItems((prev) => {
@@ -79,11 +113,32 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setItems([]);
     }, []);
 
+    const applyDiscountCode = useCallback((code: string): { success: boolean; message: string } => {
+        const normalized = (code || "").trim().toUpperCase();
+        if (!normalized) {
+            return { success: false, message: "Please enter a discount code." };
+        }
+        const percent = VALID_DISCOUNTS[normalized];
+        if (percent) {
+            setDiscountCode(normalized);
+            return { success: true, message: `10% discount applied with code ${normalized}!` };
+        }
+        return { success: false, message: "Invalid discount code." };
+    }, []);
+
+    const removeDiscountCode = useCallback(() => {
+        setDiscountCode(null);
+    }, []);
+
     const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = items.reduce(
         (sum, item) => sum + item.price * item.quantity,
         0
     );
+
+    const discountPercent = discountCode ? (VALID_DISCOUNTS[discountCode] || 0) : 0;
+    const discountAmount = Number(((totalPrice * discountPercent) / 100).toFixed(2));
+    const finalPrice = Math.max(0, Number((totalPrice - discountAmount).toFixed(2)));
 
     return (
         <CartContext.Provider
@@ -95,6 +150,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 clearCart,
                 itemCount,
                 totalPrice,
+                discountCode,
+                discountPercent,
+                discountAmount,
+                finalPrice,
+                applyDiscountCode,
+                removeDiscountCode,
                 isCartOpen,
                 openCart: () => setIsCartOpen(true),
                 closeCart: () => setIsCartOpen(false),
