@@ -134,7 +134,8 @@ export const WelcomeDiscountPopup: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !email.includes("@")) {
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes("@")) {
       setErrorMessage("Please enter a valid email address.");
       return;
     }
@@ -149,29 +150,33 @@ export const WelcomeDiscountPopup: React.FC = () => {
     setIsSubmitting(true);
     setErrorMessage(null);
 
+    // 1. Immediately apply discount and persist claimed state
+    try {
+      localStorage.setItem(POPUP_CLAIMED_KEY, "true");
+    } catch {
+      // LocalStorage unavailable
+    }
+    setIsClaimed(true);
+    applyDiscountCode(DISCOUNT_CODE);
+
     const attribution = getAttribution();
 
+    // 2. Dispatch backend subscriptions concurrently with a safe 1.5s timeout cap
     try {
-      // 1. Submit lead to database & trigger automated welcome email with coupon
-      const { error } = await supabase.functions.invoke("subscribe-newsletter", {
+      const subscribePromise = supabase.functions.invoke("subscribe-newsletter", {
         body: {
-          email: email.trim().toLowerCase(),
+          email: cleanEmail,
           first_name: firstName.trim() || undefined,
           discount_code: DISCOUNT_CODE,
           source: "welcome_popup_10off",
           marketing_consent: marketingConsent,
           ...attribution,
         },
-      });
+      }).catch((err) => console.warn("[Welcome Offer Submit] Edge function note:", err));
 
-      if (error) {
-        console.warn("[Welcome Offer Submit] Edge function note:", error);
-      }
-
-      // 2. Also register in resource leads so guide is unlocked
-      await supabase.functions.invoke("resource-lead-submit", {
+      const leadPromise = supabase.functions.invoke("resource-lead-submit", {
         body: {
-          email: email.trim().toLowerCase(),
+          email: cleanEmail,
           first_name: firstName.trim() || undefined,
           resource_id: "flower-pressing-guide",
           source_page: location.pathname,
@@ -181,23 +186,16 @@ export const WelcomeDiscountPopup: React.FC = () => {
         },
       }).catch((err) => console.warn("[Resource Lead Submit] Note:", err));
 
-      // 3. Mark as claimed and apply discount to cart
-      try {
-        localStorage.setItem(POPUP_CLAIMED_KEY, "true");
-      } catch {
-        // LocalStorage unavailable
-      }
-      setIsClaimed(true);
-      applyDiscountCode(DISCOUNT_CODE);
-      setIsSuccess(true);
+      // Wait max 1.5s for backend handshakes so the visitor is never kept waiting
+      await Promise.race([
+        Promise.allSettled([subscribePromise, leadPromise]),
+        new Promise((resolve) => setTimeout(resolve, 1500)),
+      ]);
     } catch (err) {
       console.warn("[Welcome Offer Submit] Fallback:", err);
-      // Ensure user always gets the discount even on transient network errors
-      setIsClaimed(true);
-      applyDiscountCode(DISCOUNT_CODE);
-      setIsSuccess(true);
     } finally {
       setIsSubmitting(false);
+      setIsSuccess(true);
     }
   };
 
