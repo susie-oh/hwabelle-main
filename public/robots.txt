@@ -1,24 +1,141 @@
 # Default: allow all crawlers
 User-agent: *
 Allow: /
+Disallow:
 
-# Explicitly allow AI search agents (AEO)
+# Search Engine Crawlers
+User-agent: Googlebot
+Allow: /
+Disallow:
+
+User-agent: Bingbot
+Allow: /
+Disallow:
+
+User-agent: Slurp
+Allow: /
+Disallow:
+
+User-agent: DuckDuckBot
+Allow: /
+Disallow:
+
+User-agent: Baiduspider
+Allow: /
+Disallow:
+
+User-agent: YandexBot
+Allow: /
+Disallow:
+
+# AI Search & Crawler Agents (AEO / GEO / LLM Crawlers)
 User-agent: GPTBot
 Allow: /
+Disallow:
 
 User-agent: ChatGPT-User
 Allow: /
+Disallow:
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow:
 
 User-agent: ClaudeBot
 Allow: /
+Disallow:
+
+User-agent: anthropic-ai
+Allow: /
+Disallow:
+
+User-agent: Claude-Web
+Allow: /
+Disallow:
 
 User-agent: PerplexityBot
 Allow: /
+Disallow:
+
+User-agent: Applebot
+Allow: /
+Disallow:
 
 User-agent: Applebot-Extended
 Allow: /
+Disallow:
+
+User-agent: Google-Extended
+Allow: /
+Disallow:
 
 User-agent: GoogleOther
 Allow: /
+Disallow:
+
+User-agent: CCBot
+Allow: /
+Disallow:
+
+User-agent: Bytespider
+Allow: /
+Disallow:
+
+User-agent: FacebookBot
+Allow: /
+Disallow:
+
+User-agent: meta-externalagent
+Allow: /
+Disallow:
+
+User-agent: Amazonbot
+Allow: /
+Disallow:
+
+User-agent: cohere-ai
+Allow: /
+Disallow:
+
+User-agent: Diffbot
+Allow: /
+Disallow:
+
+# SEO & Audit Tools Crawlers (Ubersuggest, Ahrefs, Semrush, Moz, Screaming Frog)
+User-agent: UbersuggestBot
+Allow: /
+Disallow:
+
+User-agent: Rogerbot
+Allow: /
+Disallow:
+
+User-agent: DotBot
+Allow: /
+Disallow:
+
+User-agent: SemrushBot
+Allow: /
+Disallow:
+
+User-agent: SemrushBot-SA
+Allow: /
+Disallow:
+
+User-agent: AhrefsBot
+Allow: /
+Disallow:
+
+User-agent: AhrefsSiteAudit
+Allow: /
+Disallow:
+
+User-agent: MJ12bot
+Allow: /
+Disallow:
+
+User-agent: Screaming Frog SEO Spider
+Allow: /
+Disallow:
 
 Sitemap: https://hwabelle.shop/sitemap.xml

@@ -526,7 +526,7 @@ const guide1Html = `<!DOCTYPE html>
   </div>
 
   <div class="footer-stamp">
-    <span>Hwabelle Botanicals • hwabelle.shop</span>
+    <span>Hwabelle • hwabelle.shop</span>
     <span>The Beginner's Master Guide to Flower Pressing</span>
   </div>
 </div>
@@ -662,14 +662,108 @@ const guide2Html = `<!DOCTYPE html>
   </ul>
 
   <div class="alert-box">
-    <strong>GARDEN FORAGER'S QUICK CHECKLIST:</strong>
-    <br>✓ Harvested between 10:00 AM and 11:30 AM
-    <br>✓ Zero moisture or dew droplets on petals
-    <br>✓ Stems trimmed flush with 45° angle cut
-    <br>✓ Heavy flowers sliced in half or deconstructed into petals
-    <br>✓ Spaced at least 0.5" apart on Hwabelle blotting sheets
-    <br>✓ Bolted evenly in X-pattern on Hwabelle Acrylic Press
+    <span><strong>Author:</strong> Hwabelle Botanical Studio</span>
+    <span>•</span>
+    <span><strong>Category:</strong> Botanical Science &amp; Preservation</span>
+    <span>•</span>
+    <span><strong>Website:</strong> hwabelle.shop</span>
   </div>
+
+  <h2>Introduction: The 80% Rule of Flower Pressing</h2>
+  <p>In botanical preservation, <strong>80% of your final piece's quality is determined before the press ever closes</strong>. A bloom harvested with surface moisture will develop mildew in the press. A flower picked past its prime will turn brown regardless of how much pressure you apply.</p>
+  <p>This comprehensive field guide teaches you the exact harvesting science, flower selection criteria, and anatomical preparation methods used by professional botanical preservation artists.</p>
+
+  <h2>The 4 Golden Rules of Botanical Harvesting</h2>
+  <div class="card-grid">
+    <div class="card">
+      <h4>1. The 11:00 AM Harvest Window</h4>
+      <p>Never pick flowers in the early morning when dew coats petals, or in the late afternoon when the sun has dehydrated essential cellular moisture. The golden window is <strong>10:00 AM to 12:00 PM</strong>, once morning dew has evaporated completely but before midday heat stresses the stem.</p>
+    </div>
+    <div class="card">
+      <h4>2. Pick at 80%–90% Bloom Maturity</h4>
+      <p>Harvest flowers just as they reach full bloom or are slightly opening. Fully mature blooms that have already been pollinated will shed petals during pressing. Once petals begin to curl or soften at the margins, it is too late.</p>
+    </div>
+    <div class="card">
+      <h4>3. Inspect for Zero Moisture &amp; Insects</h4>
+      <p>Even microscopic droplets trapped between overlapping petal layers will cause rot inside the press. Shake stems gently to dislodge thrips and aphids. Never wash harvested blooms under running water before pressing.</p>
+    </div>
+    <div class="card">
+      <h4>4. Press Within 60 Minutes of Harvest</h4>
+      <p>Turgor pressure begins dropping immediately after cutting. For field trips, carry the <strong>Hwabelle Pocket Press (3"x3")</strong> so you can press delicate wild specimens directly at the foraging site before cellular collapse begins.</p>
+    </div>
+  </div>
+
+  <h2>Flower Suitability Index (Tiered Botanical Guide)</h2>
+  <div class="card-grid">
+    <div class="tier-badge tier-easy">Tier 1: Natural Pressers (Beginner-Friendly)</div>
+    <p>These flowers have naturally flat anatomy, thin single-layer petals, and moderate moisture content. They press with near-100% color retention and zero preparation:</p>
+    <ul>
+      <li><strong>Pansies &amp; Violas (Viola tricolor):</strong> Retain vivid purples, yellows, and deep velvety blacks. Press whole face-down.</li>
+      <li><strong>Delphinium / Larkspur:</strong> Individual florets press paper-thin with electric blue and lavender tones.</li>
+      <li><strong>Cosmos &amp; Daisies:</strong> Single-layer ray florets press flat without petal displacement.</li>
+      <li><strong>Hydrangea Florets:</strong> Separate large heads into individual 4-petal florets for ethereal transparent textures.</li>
+      <li><strong>Forget-Me-Nots &amp; Sweet Alyssum:</strong> Ideal for micro-botanical layouts, jewelry, and resin work.</li>
+    </ul>
+
+    <div class="tier-badge tier-mod">Tier 2: Moderate Complexity (Requires Technique)</div>
+    <p>Flowers with thicker calyxes or multi-layered petals that require simple mechanical adjustments:</p>
+    <ul>
+      <li><strong>Ranunculus &amp; Anemones:</strong> Remove the thick green stem flush with the base. Press facing down under maximum torque.</li>
+      <li><strong>Carnations (Dianthus):</strong> Slice the thick green calyx in half vertically with an X-Acto blade to reduce bulk by 50%.</li>
+      <li><strong>Zinnias &amp; Marigolds:</strong> Pluck individual petal layers or slice the central cone in half before pressing.</li>
+    </ul>
+
+    <div class="tier-badge tier-adv">Tier 3: Advanced / High Moisture (Deconstruction Required)</div>
+    <p>Heavy, multi-petaled blooms that will rot if pressed whole without dissection:</p>
+    <ul>
+      <li><strong>Bridal Garden Roses &amp; Peonies:</strong> Must be carefully deconstructed petal-by-petal or sliced down the exact center axis. Reconstruct the flower shape on archival paper during framing.</li>
+      <li><strong>Sunflowers &amp; Dahlias:</strong> Pluck ray petals individually. Press the center disc separately under heavy drying layers.</li>
+      <li><strong>Lilies &amp; Orchids:</strong> Remove moisture-heavy pistils and pollen-bearing anthers first to prevent dark staining.</li>
+    </ul>
+  </div>
+
+  <h2>3D Rose Dissection: The Step-by-Step Method</h2>
+  <div class="card">
+    <h4>How to Press a Full Bridal Rose (Reconstruction Technique)</h4>
+    <p><strong>Step 1:</strong> Place the fresh rose on a clean cutting board. Using a sterile craft scalpel, slice the stem completely flush with the receptacle base.</p>
+    <p><strong>Step 2:</strong> Gently peel the outermost 5–8 guard petals and lay them flat on your blotter sheet in order of removal.</p>
+    <p><strong>Step 3:</strong> Continue peeling concentric petal rings, placing smaller inner petals grouped together.</p>
+    <p><strong>Step 4:</strong> Press all petals for 14–21 days under firm compression with the Hwabelle Acrylic Press.</p>
+    <p><strong>Step 5 (Archival Reassembly):</strong> When completely dry, use fine-point tweezers and a micro-drop of pH-neutral archival glue to overlap petals outward in a spiral, perfectly recreating the 3D rose in a 2D pressed plane!</p>
+  </div>
+
+  <h2>Color Retention Science: Preventing Browning &amp; Fading</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Color Group</th>
+        <th>Vulnerability</th>
+        <th>Studio Preservation Technique</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>White &amp; Cream</strong></td>
+        <td>Oxidizes to yellow/brown quickly</td>
+        <td>Use rapid-drying silica-assisted blotting layers; change sheets after 48 hours.</td>
+      </tr>
+      <tr>
+        <td><strong>Red &amp; Deep Burgundy</strong></td>
+        <td>Darkens to near-black</td>
+        <td>Pick slightly before full bloom; press with maximum initial pressure to speed moisture exit.</td>
+      </tr>
+      <tr>
+        <td><strong>Blue, Violet, Purple</strong></td>
+        <td>Extremely stable anthocyanins</td>
+        <td>Natural high color retention; store completed artwork behind UV-filtering museum glass.</td>
+      </tr>
+      <tr>
+        <td><strong>Yellow &amp; Orange</strong></td>
+        <td>Carotenoid pigments</td>
+        <td>Most durable botanical colors; retains vibrant sunshine hues for years with minimal fading.</td>
+      </tr>
+    </tbody>
+  </table>
 
   <div class="cta-box">
     <h3>The Hwabelle Acrylic Flower Press Kit</h3>
@@ -678,7 +772,7 @@ const guide2Html = `<!DOCTYPE html>
   </div>
 
   <div class="footer-stamp">
-    <span>Hwabelle Botanicals • hwabelle.shop</span>
+    <span>Hwabelle • hwabelle.shop</span>
     <span>The Botanical Selection & Harvesting Field Guide</span>
   </div>
 </div>
@@ -696,7 +790,7 @@ const guide3Html = `<!DOCTYPE html>
 <body>
 <div class="guide-container">
   <div class="header-banner">
-    <div class="logo-brand">H W A B E L L E &nbsp; B O T A N I C A L S</div>
+    <div class="logo-brand">H W A B E L L E</div>
     <div class="brand-motto">Fresh today. Fragile tomorrow. Framed forever.</div>
   </div>
 
@@ -795,7 +889,7 @@ const guide3Html = `<!DOCTYPE html>
   </div>
 
   <div class="footer-stamp">
-    <span>Hwabelle Botanicals • hwabelle.shop</span>
+    <span>Hwabelle • hwabelle.shop</span>
     <span>Press Flowers in 4 Simple Steps</span>
   </div>
 </div>

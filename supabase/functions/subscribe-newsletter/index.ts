@@ -44,7 +44,7 @@ serve(async (req) => {
     const welcomeHtml = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e8e4df; border-radius: 12px; overflow: hidden; color: #2c2c2c;">
         <div style="background-color: #3f1e3c; padding: 28px 24px; text-align: center;">
-          <h1 style="font-family: Georgia, serif; color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 0.5px;">Hwabelle Botanicals</h1>
+          <h1 style="font-family: Georgia, serif; color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 0.5px;">Hwabelle</h1>
           <p style="color: #e5d2e2; margin: 6px 0 0 0; font-size: 13px;">Fresh today. Fragile tomorrow. Framed forever.</p>
         </div>
 
@@ -87,7 +87,7 @@ serve(async (req) => {
         </div>
 
         <div style="background-color: #f6f6f6; border-top: 1px solid #eeeeee; padding: 16px; text-align: center; font-size: 11px; color: #999999;">
-          <p style="margin: 0;">Hwabelle Botanicals · <a href="https://hwabelle.shop" style="color: #999999;">hwabelle.shop</a></p>
+          <p style="margin: 0;">Hwabelle · <a href="https://hwabelle.shop" style="color: #999999;">hwabelle.shop</a></p>
         </div>
       </div>
     `;

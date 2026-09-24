@@ -205,7 +205,7 @@ const CartDrawer = () => {
                                         <div className="relative flex-1">
                                             <Tag className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                                             <Input
-                                                placeholder="Promo code (e.g. WELCOME10)"
+                                                placeholder="Promo code"
                                                 value={couponInput}
                                                 onChange={(e) => {
                                                     setCouponInput(e.target.value);

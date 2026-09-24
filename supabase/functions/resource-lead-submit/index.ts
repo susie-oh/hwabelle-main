@@ -101,7 +101,7 @@ Explore the Hwabelle Acrylic Flower Press Kit:
 ${productUrl}
 
 Warmly,
-The Hwabelle Botanical Design Studio
+The Hwabelle Team
 hwabelle.shop`;
 
   const html = `<!DOCTYPE html>
@@ -120,7 +120,7 @@ hwabelle.shop`;
           <tr>
             <td style="background-color: #1E342B; padding: 36px 40px; text-align: center;">
               <span style="color: #A3C9B8; font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 8px;">
-                Hwabelle Botanical Studio
+                Hwabelle
               </span>
               <h1 style="color: #FFFFFF; font-family: 'Playfair Display', Georgia, serif; font-size: 26px; font-weight: 600; margin: 0; line-height: 1.3;">
                 Your Free Botanical Guide is Ready 🌸
@@ -193,7 +193,7 @@ hwabelle.shop`;
           <tr>
             <td style="background-color: #F8F9F8; padding: 24px 40px; text-align: center; border-top: 1px solid #E6ECE8;">
               <p style="font-size: 12px; color: #7A8E82; margin: 0 0 6px 0;">
-                Hwabelle Botanicals · Fresh today. Fragile tomorrow. Framed forever.
+                Hwabelle · Fresh today. Fragile tomorrow. Framed forever.
               </p>
               <p style="font-size: 11px; color: #9AB0A4; margin: 0;">
                 You received this email because you requested a free botanical guide on hwabelle.shop.
@@ -221,7 +221,7 @@ async function sendGuideEmail(
   try {
     const sesResult = await sendSesEmail({
       to: toEmail,
-      from: "Hwabelle Botanicals <hello@hwabelle.shop>",
+      from: "Hwabelle <hello@hwabelle.shop>",
       subject,
       html,
       text,
