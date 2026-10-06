@@ -1,4 +1,8 @@
+import { isTrackingExcluded } from '@/lib/trackingExclusion';
+
 export const initGA = () => {
+  if (isTrackingExcluded()) return;
+
   const gaId = import.meta.env.VITE_GA_MEASUREMENT_ID;
   if (!gaId) {
     console.warn("GA Measurement ID is missing. Google Analytics will not be initialized.");
