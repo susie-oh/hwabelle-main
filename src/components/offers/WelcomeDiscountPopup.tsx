@@ -28,15 +28,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/hooks/useCart";
 import { getAttribution } from "@/lib/resources/attribution";
 
-const POPUP_DISMISS_KEY = "hwabelle_welcome_offer_dismissed_until";
-const POPUP_CLAIMED_KEY = "hwabelle_welcome_offer_claimed";
+import {
+  getOrCreateUserWelcomeCode,
+  POPUP_CLAIMED_KEY,
+  POPUP_DISMISS_KEY,
+} from "@/lib/welcomeDiscount";
+
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-const DISCOUNT_CODE = "WELCOME10";
 
 export const WelcomeDiscountPopup: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { applyDiscountCode } = useCart();
+
+  // Persistent unique code generated per user/browser session
+  const [discountCode] = useState<string>(() => getOrCreateUserWelcomeCode());
 
   const [isOpen, setIsOpen] = useState(false);
   const [isClaimed, setIsClaimed] = useState<boolean>(() => {
@@ -57,7 +63,7 @@ export const WelcomeDiscountPopup: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Check if current route should suppress popup
+  // Check if current route should suppress popup per Slide 6 display rules
   const isExcludedRoute = useCallback((path: string) => {
     const excludedPrefixes = [
       "/admin",
@@ -65,6 +71,8 @@ export const WelcomeDiscountPopup: React.FC = () => {
       "/account",
       "/order-confirmation",
       "/unlock",
+      "/cart",
+      "/checkout",
     ];
     return excludedPrefixes.some((prefix) => path.startsWith(prefix));
   }, []);
@@ -82,7 +90,11 @@ export const WelcomeDiscountPopup: React.FC = () => {
     }
   }, []);
 
-  // Automated entrance timer, query param override (?offer=1 / ?popup=1), & exit intent
+  // Display rules per Slide 6:
+  // - Show after 8-12 seconds or meaningful scroll
+  // - Desktop exit intent (when not converted/dismissed)
+  // - Suppression on checkout/cart/admin/subscribers
+  // - Override with ?offer=1 or ?popup=1
   useEffect(() => {
     const currentPath = location.pathname;
     if (isExcludedRoute(currentPath)) return;
@@ -99,13 +111,26 @@ export const WelcomeDiscountPopup: React.FC = () => {
 
     let timerFired = false;
 
-    // Trigger after 2.5 seconds on fresh visit
+    // Trigger after 9 seconds on fresh visit
     const timerId = setTimeout(() => {
       if (!timerFired && !isDismissed() && !isOpen) {
         timerFired = true;
         setIsOpen(true);
       }
-    }, 2500);
+    }, 9000);
+
+    // Trigger on meaningful scroll (>400px or >35% page height)
+    const handleScroll = () => {
+      if (timerFired || isDismissed() || isOpen) return;
+      const scrollY = window.scrollY || document.documentElement.scrollTop;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (scrollY > 400 || (docHeight > 0 && scrollY / docHeight > 0.35)) {
+        timerFired = true;
+        setIsOpen(true);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     // Desktop Exit Intent trigger (mouse leaving viewport at top)
     const handleMouseLeave = (e: MouseEvent) => {
@@ -119,6 +144,7 @@ export const WelcomeDiscountPopup: React.FC = () => {
 
     return () => {
       clearTimeout(timerId);
+      window.removeEventListener("scroll", handleScroll);
       document.removeEventListener("mouseleave", handleMouseLeave);
     };
   }, [location.pathname, location.search, isClaimed, isDismissed, isOpen, isExcludedRoute]);
@@ -134,9 +160,9 @@ export const WelcomeDiscountPopup: React.FC = () => {
   };
 
   const handleCopyCode = () => {
-    navigator.clipboard.writeText(DISCOUNT_CODE);
+    navigator.clipboard.writeText(discountCode);
     setCopied(true);
-    applyDiscountCode(DISCOUNT_CODE);
+    applyDiscountCode(discountCode);
     setTimeout(() => setCopied(false), 2500);
   };
 
@@ -165,7 +191,7 @@ export const WelcomeDiscountPopup: React.FC = () => {
       // LocalStorage unavailable
     }
     setIsClaimed(true);
-    applyDiscountCode(DISCOUNT_CODE);
+    applyDiscountCode(discountCode);
 
     const attribution = getAttribution();
 
@@ -175,7 +201,7 @@ export const WelcomeDiscountPopup: React.FC = () => {
         body: {
           email: cleanEmail,
           first_name: firstName.trim() || undefined,
-          discount_code: DISCOUNT_CODE,
+          discount_code: discountCode,
           source: "welcome_popup_10off",
           marketing_consent: marketingConsent,
           ...attribution,
@@ -208,7 +234,7 @@ export const WelcomeDiscountPopup: React.FC = () => {
   };
 
   const handleShopNow = () => {
-    applyDiscountCode(DISCOUNT_CODE);
+    applyDiscountCode(discountCode);
     setIsOpen(false);
     navigate("/product/flower-press-kit");
   };
@@ -246,10 +272,10 @@ export const WelcomeDiscountPopup: React.FC = () => {
                   Exclusive Welcome Value Offer
                 </div>
                 <DialogTitle className="font-serif text-xl sm:text-2xl md:text-3xl font-bold text-foreground tracking-tight leading-tight">
-                  Get 10% Off Your First Order 🌸
+                  Get 10% Off Your First Order
                 </DialogTitle>
                 <DialogDescription className="text-xs sm:text-sm text-muted-foreground leading-relaxed pt-0.5 sm:pt-1">
-                  Join the Hwabelle botanical circle. Unlock an instant 10% discount on your flower press kit + receive our free Masterclass Pressing Guide.
+                  Join the Hwabelle circle and receive 10% off your first flower press kit, plus our free Bouquet Pressing Guide.
                 </DialogDescription>
               </DialogHeader>
 
@@ -261,7 +287,7 @@ export const WelcomeDiscountPopup: React.FC = () => {
                 </div>
                 <div className="flex items-start gap-2 text-xs text-foreground">
                   <Flower2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span><strong>Free Masterclass Guide:</strong> Secrets to vibrant, mold-free pressed blooms</span>
+                  <span><strong>Free Bouquet Pressing Guide:</strong> Secrets to vibrant, mold-free blooms</span>
                 </div>
                 <div className="flex items-start gap-2 text-xs text-foreground">
                   <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600 shrink-0 mt-0.5" />
@@ -355,7 +381,7 @@ export const WelcomeDiscountPopup: React.FC = () => {
                     onClick={handleDismiss}
                     className="w-full text-center text-xs text-muted-foreground hover:text-foreground py-1.5 transition-colors touch-manipulation"
                   >
-                    No thanks, I&apos;ll pay full price
+                    Continue without offer
                   </button>
                 </div>
               </form>
@@ -369,7 +395,7 @@ export const WelcomeDiscountPopup: React.FC = () => {
 
               <div className="space-y-1">
                 <DialogTitle className="font-serif text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
-                  You&apos;ve Unlocked 10% Off! 🌸
+                  You&apos;ve Unlocked 10% Off!
                 </DialogTitle>
                 <DialogDescription className="text-xs sm:text-sm text-muted-foreground px-2">
                   Your discount code has been applied to your cart session and emailed to{" "}
@@ -384,7 +410,7 @@ export const WelcomeDiscountPopup: React.FC = () => {
                 </span>
                 <div className="flex items-center justify-center gap-2.5 sm:gap-3">
                   <span className="font-mono text-xl sm:text-2xl font-bold tracking-wider text-foreground">
-                    {DISCOUNT_CODE}
+                    {discountCode}
                   </span>
                   <Button
                     type="button"
@@ -427,7 +453,7 @@ export const WelcomeDiscountPopup: React.FC = () => {
                 <div className="grid grid-cols-2 gap-2">
                   <a
                     href="/guides/hwabelle-flower-pressing-master-guide.pdf"
-                    download="Hwabelle-Flower-Pressing-Master-Guide.pdf"
+                    download="Hwabelle-Bouquet-Pressing-Guide.pdf"
                     className="h-10 rounded-xl border border-border text-xs font-medium text-foreground hover:bg-secondary active:bg-secondary/80 flex items-center justify-center gap-1.5 transition-colors touch-manipulation"
                   >
                     <Download className="w-3.5 h-3.5 text-primary shrink-0" />

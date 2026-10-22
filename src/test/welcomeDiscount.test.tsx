@@ -39,6 +39,12 @@ const CartTestConsumer = () => {
         Apply WELCOME10
       </button>
       <button
+        data-testid="apply-unique"
+        onClick={() => applyDiscountCode("WELCOME-7K9PX")}
+      >
+        Apply Unique
+      </button>
+      <button
         data-testid="apply-invalid"
         onClick={() => applyDiscountCode("INVALID")}
       >
@@ -85,6 +91,21 @@ describe("Cart Discount Integration", () => {
     expect(screen.getByTestId("final-price").textContent).toBe("49.99");
   });
 
+  it("calculates 10% discount correctly when a unique generated welcome code is applied", () => {
+    render(
+      <CartProvider>
+        <CartTestConsumer />
+      </CartProvider>
+    );
+
+    fireEvent.click(screen.getByTestId("add-kit"));
+    fireEvent.click(screen.getByTestId("apply-unique"));
+    expect(screen.getByTestId("discount-code").textContent).toBe("WELCOME-7K9PX");
+    expect(screen.getByTestId("discount-percent").textContent).toBe("10");
+    expect(screen.getByTestId("discount-amount").textContent).toBe("5");
+    expect(screen.getByTestId("final-price").textContent).toBe("44.99");
+  });
+
   it("rejects invalid discount codes", () => {
     render(
       <CartProvider>
@@ -118,7 +139,7 @@ describe("WelcomeDiscountPopup Component", () => {
     expect(triggerBtn.textContent).toContain("Get 10% Off");
   });
 
-  it("opens modal dialog when trigger button is clicked", async () => {
+  it("opens modal dialog with updated stream.pptx wordings when trigger button is clicked", async () => {
     render(
       <MemoryRouter initialEntries={["/"]}>
         <CartProvider>
@@ -132,8 +153,10 @@ describe("WelcomeDiscountPopup Component", () => {
 
     await waitFor(() => {
       expect(screen.getByText(/Get 10% Off Your First Order/i)).toBeDefined();
+      expect(screen.getByText(/Bouquet Pressing Guide/i)).toBeDefined();
       expect(screen.getByPlaceholderText("you@example.com")).toBeDefined();
       expect(screen.getByRole("button", { name: /Claim 10% Off \+ Free Guide/i })).toBeDefined();
+      expect(screen.getByText(/Continue without offer/i)).toBeDefined();
     });
   });
 });

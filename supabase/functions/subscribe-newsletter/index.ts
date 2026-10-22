@@ -20,7 +20,8 @@ serve(async (req) => {
       throw new Error("Email is required");
     }
 
-    const couponCode = (discount_code || "WELCOME10").trim().toUpperCase();
+    const randomSuffix = Math.random().toString(36).substring(2, 7).toUpperCase();
+    const couponCode = (discount_code || `WELCOME-${randomSuffix}`).trim().toUpperCase();
     const greeting = first_name ? `Hi ${first_name.trim()},` : "Hello,";
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -63,9 +64,9 @@ serve(async (req) => {
 
           <!-- Free Guide Access -->
           <div style="background-color: #f8f9f8; border-left: 4px solid #3f1e3c; padding: 16px; margin: 24px 0; border-radius: 4px;">
-            <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #2c2c2c;">📖 Complimentary Botanical Guide</p>
+            <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #2c2c2c;">📖 Complimentary Bouquet Pressing Guide</p>
             <p style="margin: 0; font-size: 13px; color: #555555; line-height: 1.5;">
-              Explore our comprehensive <em>Beginner's Master Guide to Flower Pressing</em> with step-by-step instructions, moisture extraction science, and bridal bouquet preservation tips.
+              Explore our comprehensive <em>Bouquet Pressing Guide: Master Edition</em> with step-by-step instructions, moisture extraction science, and bridal bouquet preservation tips.
             </p>
             <p style="margin: 10px 0 0 0;">
               <a href="https://hwabelle.shop/resources/flower-pressing-guide" style="font-size: 13px; color: #3f1e3c; font-weight: 600; text-decoration: underline;">Read Your Free Guide Online →</a>

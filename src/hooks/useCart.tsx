@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import { isValidWelcomeDiscountCode, getWelcomeDiscountPercent } from "@/lib/welcomeDiscount";
 
 export interface CartItem {
     id: string;
@@ -50,8 +51,8 @@ function loadCart(): CartItem[] {
 function loadDiscountCode(): string | null {
     try {
         const stored = localStorage.getItem(DISCOUNT_STORAGE_KEY);
-        if (stored && VALID_DISCOUNTS[stored.toUpperCase().trim()]) {
-            return stored.toUpperCase().trim();
+        if (stored && isValidWelcomeDiscountCode(stored.trim().toUpperCase())) {
+            return stored.trim().toUpperCase();
         }
         return null;
     } catch {
@@ -118,10 +119,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (!normalized) {
             return { success: false, message: "Please enter a discount code." };
         }
-        const percent = VALID_DISCOUNTS[normalized];
-        if (percent) {
+        const percent = getWelcomeDiscountPercent(normalized);
+        if (percent > 0) {
             setDiscountCode(normalized);
-            return { success: true, message: `10% discount applied with code ${normalized}!` };
+            return { success: true, message: `${percent}% discount applied with code ${normalized}!` };
         }
         return { success: false, message: "Invalid discount code." };
     }, []);
@@ -136,7 +137,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         0
     );
 
-    const discountPercent = discountCode ? (VALID_DISCOUNTS[discountCode] || 0) : 0;
+    const discountPercent = discountCode ? getWelcomeDiscountPercent(discountCode) : 0;
     const discountAmount = Number(((totalPrice * discountPercent) / 100).toFixed(2));
     const finalPrice = Math.max(0, Number((totalPrice - discountAmount).toFixed(2)));
 
