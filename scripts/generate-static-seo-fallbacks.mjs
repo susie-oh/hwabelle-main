@@ -144,6 +144,48 @@ const resourcePosts = [
       "Your ultimate guide to using a DIY wedding bouquet preservation kit. Learn which bridal flowers press best, how to setup your press, and layout tips.",
     category: "Wedding Preservation",
   },
+  {
+    slug: "pressing-daisies-and-clover",
+    title: "How to Press Daisies and Clover: The Field-to-Keepsake Guide | Hwabelle",
+    description:
+      "Master the art of pressing fresh daisies without brown center disc oxidation, paired with delicate clover sprigs for crisp bookmarks, frames, and botanical stationery.",
+    category: "Beginner Guide",
+  },
+  {
+    slug: "pressing-wild-violets-and-fern",
+    title: "How to Press Wild Violets and Ferns: The Woodland Keepsake Guide | Hwabelle",
+    description:
+      "Discover how to press delicate wild violet blooms and fragile fern fronds without bruising, pigment fading, or curled pinnae leaflets in a crystal-clear press.",
+    category: "Beginner Guide",
+  },
+  {
+    slug: "pressing-tulips-and-small-wildflowers",
+    title: "How to Press Tulips and Small Wildflowers: The Tulip Edition | Hwabelle",
+    description:
+      "Master the art of flattening cup-shaped spring tulips without mold or petal creasing, combined with airy garden wildflowers for stunning seasonal wall art.",
+    category: "Beginner Guide",
+  },
+  {
+    slug: "pressing-pansies-and-cosmos",
+    title: "How to Press Pansies and Cosmos: Preserving Faces & Feathery Textures | Hwabelle",
+    description:
+      "Learn how to press velvety pansy faces and delicate, feathery cosmos flowers without crushing intricate facial markings or tearing airy ray petals.",
+    category: "Beginner Guide",
+  },
+  {
+    slug: "pressing-lavender-and-babys-breath",
+    title: "How to Press Lavender and Baby's Breath: Slender Stems & Airy Sprigs | Hwabelle",
+    description:
+      "Master the botanical techniques for pressing fragrant lavender spikes and airy baby's breath sprays without bud drop, browned calyxes, or tangled stem overlaps.",
+    category: "Beginner Guide",
+  },
+  {
+    slug: "pressing-calla-lilies-and-babys-breath",
+    title: "How to Press Calla Lilies and Baby's Breath: Wedding Preservation Guide | Hwabelle",
+    description:
+      "Master the professional spathe flattening and calyx reduction techniques for preserving sculptural bridal calla lilies and airy baby's breath for wedding keepsakes.",
+    category: "Wedding Preservation",
+  },
 ];
 
 const routes = [
@@ -346,6 +388,90 @@ const routes = [
         datePublished: "2026-08-25T00:00:00.000Z",
         image: `${siteUrl}/assets/blog-botanical-art.jpg`,
       },
+    ],
+  },
+  {
+    path: "/resources/pressing-daisies-and-clover",
+    title: "Pressing Daisies and Clover Field Guide | Hwabelle",
+    description:
+      "A species-specific botanical field guide for daisies and clover. Master the technique of keeping white petals flat and sunny center discs crisp without browning.",
+    image: `${siteUrl}/assets/blog-botanical-art.jpg`,
+    schema: [
+      breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Resources", path: "/resources" },
+        { name: "Pressing Daisies and Clover", path: "/resources/pressing-daisies-and-clover" },
+      ]),
+    ],
+  },
+  {
+    path: "/resources/pressing-wild-violets-and-fern",
+    title: "Pressing Wild Violets and Fern Field Guide | Hwabelle",
+    description:
+      "A quiet field-to-keepsake guide for delicate wild violets and woodland fern fronds. Card-guided flattening and ethical foraging rhythms.",
+    image: `${siteUrl}/assets/blog-botanical-art.jpg`,
+    schema: [
+      breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Resources", path: "/resources" },
+        { name: "Pressing Wild Violets and Fern", path: "/resources/pressing-wild-violets-and-fern" },
+      ]),
+    ],
+  },
+  {
+    path: "/resources/pressing-tulips-and-small-wildflowers",
+    title: "Pressing Tulips and Small Wildflowers Field Guide | Hwabelle",
+    description:
+      "A thoughtful guide to arranging cup-shaped spring tulips and delicate garden wildflowers in the Hwabelle acrylic press.",
+    image: `${siteUrl}/assets/blog-botanical-art.jpg`,
+    schema: [
+      breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Resources", path: "/resources" },
+        { name: "Pressing Tulips and Small Wildflowers", path: "/resources/pressing-tulips-and-small-wildflowers" },
+      ]),
+    ],
+  },
+  {
+    path: "/resources/pressing-pansies-and-cosmos",
+    title: "Pressing Pansies and Cosmos Field Guide | Hwabelle",
+    description:
+      "Master preserving intricate pansy face markings and airy, feathery cosmos blooms with balanced 360-degree acrylic press pressure.",
+    image: `${siteUrl}/assets/blog-botanical-art.jpg`,
+    schema: [
+      breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Resources", path: "/resources" },
+        { name: "Pressing Pansies and Cosmos", path: "/resources/pressing-pansies-and-cosmos" },
+      ]),
+    ],
+  },
+  {
+    path: "/resources/pressing-lavender-and-babys-breath",
+    title: "Pressing Lavender and Baby's Breath Field Guide | Hwabelle",
+    description:
+      "A calm guide to preparing fresh lavender spikes and airy baby's breath clusters. Preserve slender texture and scent memory.",
+    image: `${siteUrl}/assets/blog-botanical-art.jpg`,
+    schema: [
+      breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Resources", path: "/resources" },
+        { name: "Pressing Lavender and Baby's Breath", path: "/resources/pressing-lavender-and-babys-breath" },
+      ]),
+    ],
+  },
+  {
+    path: "/resources/pressing-calla-lilies-and-babys-breath",
+    title: "Pressing Calla Lilies and Baby's Breath Wedding Field Guide | Hwabelle",
+    description:
+      "Professional spathe flattening and calyx reduction techniques for preserving sculptural bridal calla lilies and airy baby's breath.",
+    image: `${siteUrl}/assets/blog-botanical-art.jpg`,
+    schema: [
+      breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Resources", path: "/resources" },
+        { name: "Pressing Calla Lilies and Baby's Breath", path: "/resources/pressing-calla-lilies-and-babys-breath" },
+      ]),
     ],
   },
   {
