@@ -186,6 +186,13 @@ const resourcePosts = [
       "Master the professional spathe flattening and calyx reduction techniques for preserving sculptural bridal calla lilies and airy baby's breath for wedding keepsakes.",
     category: "Wedding Preservation",
   },
+  {
+    slug: "pressing-roses-and-eucalyptus",
+    title: "How to Press Roses and Eucalyptus: Whole Blooms, Split Roses & Flat Greenery | Hwabelle",
+    description:
+      "A gentle, experiment-first guide to pressing roses and eucalyptus together. Compare whole, split, and loose-petal roses, trim woody eucalyptus, and build a flat paper stack.",
+    category: "Beginner Guide",
+  },
 ];
 
 const routes = [
@@ -471,6 +478,20 @@ const routes = [
         { name: "Home", path: "/" },
         { name: "Resources", path: "/resources" },
         { name: "Pressing Calla Lilies and Baby's Breath", path: "/resources/pressing-calla-lilies-and-babys-breath" },
+      ]),
+    ],
+  },
+  {
+    path: "/resources/pressing-roses-and-eucalyptus",
+    title: "Pressing Roses and Eucalyptus Field Guide (Free PDF) | Hwabelle",
+    description:
+      "Step-by-step guide to pressing whole, split, and loose-petal roses with flat eucalyptus sprigs in your 12x12 Hwabelle press.",
+    image: `${siteUrl}/assets/blog-botanical-art.jpg`,
+    schema: [
+      breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Resources", path: "/resources" },
+        { name: "Pressing Roses and Eucalyptus", path: "/resources/pressing-roses-and-eucalyptus" },
       ]),
     ],
   },

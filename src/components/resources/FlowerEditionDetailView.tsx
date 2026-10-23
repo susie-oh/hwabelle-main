@@ -63,6 +63,11 @@ const BOTANICAL_COLORS: Record<string, PaletteColorStyle> = {
   "Orange Calla Lily": { bg: "#F97316", border: "#EA580C", shadow: "0 1px 3px rgba(249,115,22,0.4)" },
   "Golden-Yellow Calla Lily": { bg: "#EAB308", border: "#CA8A04", shadow: "0 1px 3px rgba(234,179,8,0.4)" },
   "Ivory Calla Lily": { bg: "#FEF9C3", border: "#FACC15", shadow: "0 1px 2px rgba(0,0,0,0.08)" },
+
+  // Roses and Eucalyptus
+  "Blush Rose": { bg: "#F4B6C2", border: "#E58FA2", shadow: "0 1px 3px rgba(229,143,162,0.4)" },
+  "Peach Rose": { bg: "#F8C4A4", border: "#E9A07A", shadow: "0 1px 3px rgba(233,160,122,0.4)" },
+  "Eucalyptus Sage": { bg: "#8FA89B", border: "#6B8A7A", shadow: "0 1px 3px rgba(107,138,122,0.35)" },
 };
 
 function getBotanicalColor(name: string): PaletteColorStyle {

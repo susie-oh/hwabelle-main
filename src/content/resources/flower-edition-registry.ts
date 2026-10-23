@@ -5,6 +5,7 @@ import { pressingTulipsAndSmallWildflowersGuideContent } from "./pressing-tulips
 import { pressingPansiesAndCosmosGuideContent } from "./pressing-pansies-and-cosmos-guide";
 import { pressingLavenderAndBabysBreathGuideContent } from "./pressing-lavender-and-babys-breath-guide";
 import { pressingCallaLiliesAndBabysBreathGuideContent } from "./pressing-calla-lilies-and-babys-breath-guide";
+import { pressingRosesAndEucalyptusGuideContent } from "./pressing-roses-and-eucalyptus-guide";
 
 export const FLOWER_EDITIONS: Record<string, FlowerEditionContent> = {
   "pressing-daisies-and-clover": pressingDaisiesAndCloverGuideContent,
@@ -13,6 +14,7 @@ export const FLOWER_EDITIONS: Record<string, FlowerEditionContent> = {
   "pressing-pansies-and-cosmos": pressingPansiesAndCosmosGuideContent,
   "pressing-lavender-and-babys-breath": pressingLavenderAndBabysBreathGuideContent,
   "pressing-calla-lilies-and-babys-breath": pressingCallaLiliesAndBabysBreathGuideContent,
+  "pressing-roses-and-eucalyptus": pressingRosesAndEucalyptusGuideContent,
 };
 
 export function getFlowerEdition(id: string): FlowerEditionContent | undefined {

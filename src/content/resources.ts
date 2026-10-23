@@ -10,6 +10,7 @@ import { pressingTulipsAndSmallWildflowers } from "./blog/pressing-tulips-and-sm
 import { pressingPansiesAndCosmos } from "./blog/pressing-pansies-and-cosmos";
 import { pressingLavenderAndBabysBreath } from "./blog/pressing-lavender-and-babys-breath";
 import { pressingCallaLiliesAndBabysBreath } from "./blog/pressing-calla-lilies-and-babys-breath";
+import { pressingRosesAndEucalyptus } from "./blog/pressing-roses-and-eucalyptus";
 
 export interface ResourcePost {
   slug: string;
@@ -37,6 +38,7 @@ export const initialBlogArticles: ResourcePost[] = [
   pressingPansiesAndCosmos,
   pressingLavenderAndBabysBreath,
   pressingCallaLiliesAndBabysBreath,
+  pressingRosesAndEucalyptus,
 ];
 
 // Combine static articles

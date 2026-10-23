@@ -45,11 +45,12 @@ const ResourcesHub: React.FC = () => {
     <Layout>
       <Seo
         title="Botanical Resource Hub | Free Flower Pressing Guides & PDFs | Hwabelle"
-        description="Free downloadable flower pressing field guides and masterclasses from Hwabelle. Species guides for daisies, violets, ferns, tulips, pansies, cosmos, lavender, and calla lilies."
+        description="Free downloadable flower pressing field guides and masterclasses from Hwabelle. Species guides for roses, eucalyptus, daisies, violets, ferns, tulips, pansies, cosmos, lavender, and calla lilies."
         path="/resources"
         keywords={[
           ...defaultKeywords,
           "free flower pressing guide pdf",
+          "how to press roses and eucalyptus",
           "how to press daisies",
           "how to press calla lilies",
           "how to press lavender",

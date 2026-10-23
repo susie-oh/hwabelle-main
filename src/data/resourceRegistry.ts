@@ -7,6 +7,7 @@ import { pressingTulipsAndSmallWildflowersGuideContent } from "@/content/resourc
 import { pressingPansiesAndCosmosGuideContent } from "@/content/resources/pressing-pansies-and-cosmos-guide";
 import { pressingLavenderAndBabysBreathGuideContent } from "@/content/resources/pressing-lavender-and-babys-breath-guide";
 import { pressingCallaLiliesAndBabysBreathGuideContent } from "@/content/resources/pressing-calla-lilies-and-babys-breath-guide";
+import { pressingRosesAndEucalyptusGuideContent } from "@/content/resources/pressing-roses-and-eucalyptus-guide";
 
 export interface ResourceMeta {
   id: string;
@@ -47,6 +48,7 @@ export const CANONICAL_RESOURCE_IDS = [
   "pressing-pansies-and-cosmos",
   "pressing-lavender-and-babys-breath",
   "pressing-calla-lilies-and-babys-breath",
+  "pressing-roses-and-eucalyptus",
 ] as const;
 
 export type CanonicalResourceId = typeof CANONICAL_RESOURCE_IDS[number];
@@ -303,6 +305,34 @@ export const RESOURCE_REGISTRY: Record<CanonicalResourceId, ResourceMeta> = {
     pdfFileName: pressingCallaLiliesAndBabysBreathGuideContent.pdfFileName,
     isFlagship: false,
     blogSlug: pressingCallaLiliesAndBabysBreathGuideContent.blogSlug,
+  },
+  "pressing-roses-and-eucalyptus": {
+    id: "pressing-roses-and-eucalyptus",
+    slug: "pressing-roses-and-eucalyptus",
+    title: pressingRosesAndEucalyptusGuideContent.title,
+    subtitle: pressingRosesAndEucalyptusGuideContent.subtitle,
+    tagline: pressingRosesAndEucalyptusGuideContent.tagline,
+    description: pressingRosesAndEucalyptusGuideContent.description,
+    badge: pressingRosesAndEucalyptusGuideContent.editionBadge,
+    author: pressingRosesAndEucalyptusGuideContent.author,
+    publishedAt: pressingRosesAndEucalyptusGuideContent.publishedAt,
+    readTime: pressingRosesAndEucalyptusGuideContent.readTime,
+    skillLevel: pressingRosesAndEucalyptusGuideContent.skillLevel,
+    category: "Species Guide",
+    keyTakeaways: pressingRosesAndEucalyptusGuideContent.keyTakeaways,
+    metaDescription: pressingRosesAndEucalyptusGuideContent.metaDescription,
+    seoKeywords: pressingRosesAndEucalyptusGuideContent.seoKeywords,
+    productCTA: {
+      title: "Press Roses You Can See Before You Close",
+      description: "Clear 12x12 acrylic plates let you check every rose petal and eucalyptus leaf is flat before tightening the four corner knobs.",
+      buttonText: "Shop the Acrylic Press Kit",
+      path: "/product/flower-press-kit",
+    },
+    downloadable: true,
+    pdfUrl: pressingRosesAndEucalyptusGuideContent.pdfUrl,
+    pdfFileName: pressingRosesAndEucalyptusGuideContent.pdfFileName,
+    isFlagship: false,
+    blogSlug: pressingRosesAndEucalyptusGuideContent.blogSlug,
   },
 };
 
