@@ -28,3 +28,10 @@ dist-ssr
 *.sw?
 mcf-verification.html
 supabase/.temp
+# Local ad-hoc test scripts (contain real account credentials; never commit)
+/test-auth.*
+/test-designer.*
+/test-e2e-redeem.*
+/test-jwt.*
+/test-my-orders.*
+/test-signup.*
