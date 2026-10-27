@@ -4,7 +4,7 @@ export const bestFlowersForPressing = {
   excerpt: "Discover which flowers press into paper-thin botanical masterpieces with ease, and how to classify flowers by difficulty tiers from beginner to advanced.",
   metaDescription: "Learn which flowers are best for pressing. Explore beginner-friendly flat blooms, intermediate varieties, and how to handle thick bouquet flowers.",
   publishedAt: "2026-08-25T00:00:00.000Z",
-  authorName: "Hwabelle Botanical Design Studio",
+  authorName: "Hwabelle",
   category: "Flower Selection",
   readTime: "7 min read",
   seoKeywords: [

@@ -8,7 +8,7 @@ export const pressingTulipsAndSmallWildflowers: ResourcePost = {
   metaDescription:
     "Learn how to press tulips and spring wildflowers at home. Step-by-step techniques for petal relaxation, stem trimming, avoiding browning, and archival styling.",
   publishedAt: "2026-10-23T00:00:00.000Z",
-  authorName: "Hwabelle Botanical Design Studio",
+  authorName: "Hwabelle",
   category: "Beginner Guide",
   readTime: "7 min read",
   seoKeywords: [

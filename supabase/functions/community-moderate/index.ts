@@ -105,7 +105,7 @@ function generatePublicationEmail(pub: {
           </tr>
           <tr>
             <td style="padding:20px 32px; background-color:#faf7f2; text-align:center; border-top:1px solid #ede7df; font-size:12px; color:#999;">
-              <p style="margin:0;">Hwabelle Botanical Art & Keepsake Preservation · <a href="${SITE_URL}" style="color:#666;">hwabelle.shop</a></p>
+              <p style="margin:0;">Hwabelle · <a href="${SITE_URL}" style="color:#666;">hwabelle.shop</a></p>
             </td>
           </tr>
         </table>

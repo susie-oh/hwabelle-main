@@ -129,7 +129,7 @@ export const pressingRosesAndEucalyptusGuideContent: FlowerEditionContent = {
       "Pressed Rose Practice Journal",
     ],
   },
-  author: "Hwabelle Botanical Design Studio",
+  author: "Hwabelle",
   publishedAt: "2026-10-23T00:00:00.000Z",
   readTime: "7 min read",
   skillLevel: "Beginner",

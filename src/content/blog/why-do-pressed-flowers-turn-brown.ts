@@ -4,7 +4,7 @@ export const whyDoPressedFlowersTurnBrown = {
   excerpt: "Understand the botanical science behind enzymatic oxidation and learn the 5 proven techniques to keep your pressed flowers bright and vivid.",
   metaDescription: "Find out why pressed flowers turn brown and how to stop it. Learn about moisture control, the 48-hour blotter swap, and UV protection.",
   publishedAt: "2026-08-25T00:00:00.000Z",
-  authorName: "Hwabelle Botanical Design Studio",
+  authorName: "Hwabelle",
   category: "Flower Pressing Basics",
   readTime: "5 min read",
   seoKeywords: [

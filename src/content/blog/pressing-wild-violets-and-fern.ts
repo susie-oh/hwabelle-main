@@ -8,7 +8,7 @@ export const pressingWildVioletsAndFern: ResourcePost = {
   metaDescription:
     "Master pressing wild violets and delicate fern fronds. Step-by-step tutorial on woodland foraging ethics, petal flattening, moisture control, and archival framing.",
   publishedAt: "2026-10-23T00:00:00.000Z",
-  authorName: "Hwabelle Botanical Design Studio",
+  authorName: "Hwabelle",
   category: "Beginner Guide",
   readTime: "6 min read",
   seoKeywords: [

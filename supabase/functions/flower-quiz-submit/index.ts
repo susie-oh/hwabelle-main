@@ -289,7 +289,7 @@ function generateEmailHtml(flower: FlowerData, slug: string, firstName?: string)
                 <a href="https://hwabelle.shop" style="color:#555; text-decoration:underline;">hwabelle.shop</a>
               </p>
               <p style="margin:0; font-size:12px; color:#aaa;">
-                Hwabelle Botanical Art & Flower Preservation
+                Hwabelle
               </p>
             </td>
           </tr>

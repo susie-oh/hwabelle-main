@@ -4,7 +4,7 @@ export const howToPressFlowersForBeginners = {
   excerpt: "A straightforward, beginner-friendly guide to harvesting flowers, assembling the 5-layer press, avoiding browning, and testing for complete dryness.",
   metaDescription: "Master flower pressing for beginners with simple step-by-step instructions. Learn harvesting timing, 5-layer assembly, drying times, and framing tips.",
   publishedAt: "2026-08-25T00:00:00.000Z",
-  authorName: "Hwabelle Botanical Design Studio",
+  authorName: "Hwabelle",
   category: "Beginner Guide",
   readTime: "6 min read",
   seoKeywords: [

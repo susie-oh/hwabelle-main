@@ -330,7 +330,7 @@ const routes = [
   },
   {
     path: "/resources/flower-pressing-guide",
-    title: "The Beginner's Master Guide to Flower Pressing | Hwabelle Botanical Masterclass",
+    title: "The Beginner's Master Guide to Flower Pressing | Hwabelle Masterclass",
     description:
       "Learn how to press flowers at home with Hwabelle's complete master guide. Master drying timelines, avoid browning, assemble the 5-layer press, and create lasting keepsakes.",
     image: `${siteUrl}/assets/blog-botanical-art.jpg`,

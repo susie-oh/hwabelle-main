@@ -8,7 +8,7 @@ export const pressingDaisiesAndClover: ResourcePost = {
   metaDescription:
     "Learn how to press daisies and clover at home. Discover moisture control for thick daisy centers, petal flattening techniques, drying timelines, and archival mounting tips.",
   publishedAt: "2026-10-23T00:00:00.000Z",
-  authorName: "Hwabelle Botanical Design Studio",
+  authorName: "Hwabelle",
   category: "Beginner Guide",
   readTime: "6 min read",
   seoKeywords: [

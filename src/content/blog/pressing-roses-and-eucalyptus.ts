@@ -8,7 +8,7 @@ export const pressingRosesAndEucalyptus: ResourcePost = {
   metaDescription:
     "Learn how to press roses and eucalyptus together. Compare whole, split, and loose-petal rose samples, prepare woody eucalyptus sprigs, and layer your 12x12 flower press.",
   publishedAt: "2026-10-23T00:00:00.000Z",
-  authorName: "Hwabelle Botanical Design Studio",
+  authorName: "Hwabelle",
   category: "Beginner Guide",
   readTime: "7 min read",
   seoKeywords: [

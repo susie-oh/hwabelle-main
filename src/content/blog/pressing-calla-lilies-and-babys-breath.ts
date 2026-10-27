@@ -8,7 +8,7 @@ export const pressingCallaLiliesAndBabysBreath: ResourcePost = {
   metaDescription:
     "Complete wedding bouquet preservation guide for calla lilies and baby's breath. Learn spathe opening, spadix care, moisture control, and archival framing.",
   publishedAt: "2026-10-23T00:00:00.000Z",
-  authorName: "Hwabelle Botanical Design Studio",
+  authorName: "Hwabelle",
   category: "Wedding Preservation",
   readTime: "7 min read",
   seoKeywords: [

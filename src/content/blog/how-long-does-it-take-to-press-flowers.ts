@@ -4,7 +4,7 @@ export const howLongDoesItTakeToPressFlowers = {
   excerpt: "From delicate 3-day baby's breath to 3-week dissected peonies, learn exact drying timelines, blotter swap schedules, and how to test for 100% dryness.",
   metaDescription: "How long does flower pressing take? See the complete drying schedule matrix for 15+ popular species and learn 2 foolproof dryness tests.",
   publishedAt: "2026-08-25T00:00:00.000Z",
-  authorName: "Hwabelle Botanical Design Studio",
+  authorName: "Hwabelle",
   category: "Flower Pressing Basics",
   readTime: "6 min read",
   seoKeywords: [

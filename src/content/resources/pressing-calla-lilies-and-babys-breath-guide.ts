@@ -122,7 +122,7 @@ export const pressingCallaLiliesAndBabysBreathGuideContent: FlowerEditionContent
       "Minimalist Modern Floral Wall Art",
     ],
   },
-  author: "Hwabelle Botanical Design Studio",
+  author: "Hwabelle",
   publishedAt: "2026-10-23T00:00:00.000Z",
   readTime: "6 min read",
   skillLevel: "Intermediate",

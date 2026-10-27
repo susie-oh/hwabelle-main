@@ -106,7 +106,7 @@ export const pressingPansiesAndCosmosGuideContent: FlowerEditionContent = {
       "Deckle-Edge Botanical Greeting Cards",
     ],
   },
-  author: "Hwabelle Botanical Design Studio",
+  author: "Hwabelle",
   publishedAt: "2026-10-23T00:00:00.000Z",
   readTime: "5 min read",
   skillLevel: "Beginner",

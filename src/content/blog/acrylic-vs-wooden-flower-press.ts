@@ -4,7 +4,7 @@ export const acrylicVsWoodenFlowerPress = {
   excerpt: "A detailed comparison of visibility, pressure distribution, durability, and moisture resistance between modern acrylic and traditional wooden flower presses.",
   metaDescription: "Compare acrylic vs wooden flower presses. Discover why 360-degree transparency, corner brass bolts, and non-porous plates make acrylic ideal for beginners.",
   publishedAt: "2026-08-25T00:00:00.000Z",
-  authorName: "Hwabelle Botanical Design Studio",
+  authorName: "Hwabelle",
   category: "Product Education",
   readTime: "5 min read",
   seoKeywords: [

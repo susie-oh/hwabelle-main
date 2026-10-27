@@ -4,7 +4,7 @@ export const howToPressRoses = {
   excerpt: "Learn how to preserve thick garden roses and wedding bouquet blooms without browning or mold using petal deconstruction and calyx halving techniques.",
   metaDescription: "Master pressing roses at home. Step-by-step instructions for petal deconstruction, calyx halving, drying schedules, and preserving rose keepsakes.",
   publishedAt: "2026-08-25T00:00:00.000Z",
-  authorName: "Hwabelle Botanical Design Studio",
+  authorName: "Hwabelle",
   category: "Flower Selection",
   readTime: "6 min read",
   seoKeywords: [

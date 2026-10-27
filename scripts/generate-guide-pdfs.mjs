@@ -323,7 +323,7 @@ const guide1Html = `<!DOCTYPE html>
   <div class="subtitle">How to Preserve Wedding Bouquets, Garden Blooms, and Sentimental Keepsakes in Crystal-Clear Acrylic</div>
 
   <div class="meta-row">
-    <span><strong>Author:</strong> Hwabelle Botanical Design Studio</span>
+    <span><strong>Author:</strong> Hwabelle</span>
     <span>•</span>
     <span><strong>Website:</strong> hwabelle.shop</span>
     <span>•</span>
@@ -553,7 +553,7 @@ const guide2Html = `<!DOCTYPE html>
   <div class="subtitle">How to Forage, Pick, and Prepare Blooms for Flawless Pressed Flower Art</div>
 
   <div class="meta-row">
-    <span><strong>Author:</strong> Hwabelle Botanical Design Studio</span>
+    <span><strong>Author:</strong> Hwabelle</span>
     <span>•</span>
     <span><strong>Website:</strong> hwabelle.shop</span>
     <span>•</span>
@@ -662,7 +662,7 @@ const guide2Html = `<!DOCTYPE html>
   </ul>
 
   <div class="alert-box">
-    <span><strong>Author:</strong> Hwabelle Botanical Studio</span>
+    <span><strong>Author:</strong> Hwabelle</span>
     <span>•</span>
     <span><strong>Category:</strong> Botanical Science &amp; Preservation</span>
     <span>•</span>

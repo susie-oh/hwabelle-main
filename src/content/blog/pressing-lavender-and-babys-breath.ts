@@ -8,7 +8,7 @@ export const pressingLavenderAndBabysBreath: ResourcePost = {
   metaDescription:
     "Learn how to press lavender and baby's breath at home. Master floret protection, slender stem alignment, drying times, and archival wedding keepsake designs.",
   publishedAt: "2026-10-23T00:00:00.000Z",
-  authorName: "Hwabelle Botanical Design Studio",
+  authorName: "Hwabelle",
   category: "Beginner Guide",
   readTime: "6 min read",
   seoKeywords: [

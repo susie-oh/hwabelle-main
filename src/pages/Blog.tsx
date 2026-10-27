@@ -74,7 +74,7 @@ const Blog = () => {
         <div className="container">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
             <div className="max-w-2xl">
-              <p className="caption mb-3">Hwabelle Botanical Library</p>
+              <p className="caption mb-3">Hwabelle</p>
               <h1 className="font-serif text-display-lg mb-3">Flower Preservation Guides & Insights</h1>
               <p className="text-muted-foreground text-base sm:text-lg">
                 Practical botanical science for preserving wedding bouquets, avoiding browning, and pressing flowers at home.

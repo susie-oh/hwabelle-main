@@ -43,7 +43,7 @@ export const quickStartGuideContent: ResourceContentC = {
   tagline: "The visual 4-step framework: CHOOSE → ARRANGE → PRESS → CREATE.",
   description: "A picture-book style visual guide to assembling your Hwabelle Acrylic Flower Press, layering your botanical specimens, applying torque evenly, and creating framed floral keepsakes.",
   badge: "Official User Manual & Quick Start",
-  author: "Hwabelle Botanical Design Studio",
+  author: "Hwabelle",
   publishedAt: "2026-08-25T00:00:00.000Z",
   readTime: "5 min read",
   skillLevel: "Beginner",

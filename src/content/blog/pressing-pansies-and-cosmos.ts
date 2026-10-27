@@ -8,7 +8,7 @@ export const pressingPansiesAndCosmos: ResourcePost = {
   metaDescription:
     "Complete guide to pressing pansies and cosmos at home. Master face-up petal positioning, calyx trimming, balanced torque, and archival botanical craft mounting.",
   publishedAt: "2026-10-23T00:00:00.000Z",
-  authorName: "Hwabelle Botanical Design Studio",
+  authorName: "Hwabelle",
   category: "Beginner Guide",
   readTime: "6 min read",
   seoKeywords: [
