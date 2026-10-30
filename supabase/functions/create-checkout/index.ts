@@ -1,6 +1,6 @@
 import "https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts";
 import Stripe from "https://esm.sh/stripe@14.14.0?target=deno&no-check";
-import { withAllowedOrigin } from "../_shared/cors.ts";
+import { ALLOWED_ORIGINS, withAllowedOrigin } from "../_shared/cors.ts";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -77,6 +77,17 @@ Deno.serve(withAllowedOrigin(async (req) => {
 
         if (!items?.length) {
             return new Response(JSON.stringify({ error: "No items provided" }), {
+                status: 400,
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+        }
+
+        // Stripe redirects the buyer to these URLs, so only allow our own origins
+        const isOwnUrl = (url: string) => {
+            try { return ALLOWED_ORIGINS.includes(new URL(url).origin); } catch { return false; }
+        };
+        if (!isOwnUrl(successUrl) || !isOwnUrl(cancelUrl)) {
+            return new Response(JSON.stringify({ error: "Invalid redirect URL" }), {
                 status: 400,
                 headers: { ...corsHeaders, "Content-Type": "application/json" },
             });
