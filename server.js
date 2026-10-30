@@ -8,6 +8,21 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 8080;
 
+app.disable('x-powered-by');
+
+const securityHeaders = {
+  'Strict-Transport-Security': 'max-age=31536000',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'SAMEORIGIN',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+};
+
+app.use((req, res, next) => {
+  res.set(securityHeaders);
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'dist')));
 
 app.use((req, res) => {
