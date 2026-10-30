@@ -74,15 +74,3 @@ content_path = "./supabase/templates/email_change.html"
 [auth.email.template.invite]
 subject = "You have been invited"
 content_path = "./supabase/templates/invite.html"
-
-[functions.reset-test-user]
-enabled = true
-verify_jwt = true
-import_map = "./functions/reset-test-user/deno.json"
-entrypoint = "./functions/reset-test-user/index.ts"
-
-[functions.delete-mock-user]
-enabled = true
-verify_jwt = true
-import_map = "./functions/delete-mock-user/deno.json"
-entrypoint = "./functions/delete-mock-user/index.ts"
