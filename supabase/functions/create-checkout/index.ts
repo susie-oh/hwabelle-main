@@ -17,6 +17,24 @@ const PRODUCT_TYPE_MAP: Record<string, "ai-designer" | "flower-press-kit" | "oth
     "flower-press-kit": "flower-press-kit",
 } as const;
 
+// Authoritative prices in USD. The price sent by the client is ignored, so
+// keep these in sync with src/pages/Shop.tsx and src/lib/site.ts.
+const PRODUCT_PRICES: Record<string, number> = {
+    "ai-designer-access": 19.99,
+    "flower-press-kit": 34.99,
+};
+
+// Mirrors src/lib/welcomeDiscount.ts so the discount is computed server-side.
+const STATIC_DISCOUNTS: Record<string, number> = { WELCOME10: 10, BLOOM10: 10, HWABELLE10: 10 };
+const WELCOME_CODE_PATTERN = /^(WELCOME|HW10)(-?[2-9A-HJ-NP-Z0-9]{4,8})$/i;
+
+function discountPercentFor(code?: string): number {
+    if (!code) return 0;
+    const normalized = code.trim().toUpperCase();
+    if (STATIC_DISCOUNTS[normalized]) return STATIC_DISCOUNTS[normalized];
+    return WELCOME_CODE_PATTERN.test(normalized) ? 10 : 0;
+}
+
 interface LineItem {
     id: string;       // must match a key in PRODUCT_TYPE_MAP or falls back to "other"
     name: string;
@@ -63,6 +81,19 @@ Deno.serve(async (req) => {
             });
         }
 
+        const invalidItem = items.find((item) =>
+            !(item.id in PRODUCT_PRICES) ||
+            !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 20
+        );
+        if (invalidItem) {
+            return new Response(JSON.stringify({ error: "Invalid cart item" }), {
+                status: 400,
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+        }
+
+        const discountMultiplier = (100 - discountPercentFor(discountCode)) / 100;
+
         // Build line items and collect product_type map for metadata
         // This is the ONLY place product_types are associated with line items.
         const lineItemTypes: Record<string, string> = {};  // stripe_temp_key -> product_type
@@ -73,11 +104,14 @@ Deno.serve(async (req) => {
             // so the webhook can read it without any string inference.
             lineItemTypes[item.name] = productType;
 
+            // Same rounding as the cart (CartDrawer.tsx) so totals match
+            const unitPrice = Number((PRODUCT_PRICES[item.id] * discountMultiplier).toFixed(2));
+
             return {
                 price_data: {
                     currency: "usd",
                     product_data: { name: item.name },
-                    unit_amount: Math.round(item.price * 100),
+                    unit_amount: Math.round(unitPrice * 100),
                 },
                 quantity: item.quantity,
             };
