@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { sendSesEmail } from "../_shared/ses.ts";
+import { withAllowedOrigin } from "../_shared/cors.ts";
 
 interface FlowerData {
   name: string;
@@ -384,7 +385,7 @@ async function sendEmailWithFallback(
   return { success: true, provider: "Resend" };
 }
 
-Deno.serve(async (req) => {
+Deno.serve(withAllowedOrigin(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -534,4 +535,4 @@ Deno.serve(async (req) => {
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
-});
+}));

@@ -1,6 +1,7 @@
 import "https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { sendSesEmail } from "../_shared/ses.ts";
+import { withAllowedOrigin } from "../_shared/cors.ts";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -207,7 +208,7 @@ async function sendAdminRedeemNotification(orderNumber: string, customerEmail: s
 }
 
 
-Deno.serve(async (req) => {
+Deno.serve(withAllowedOrigin(async (req) => {
     if (req.method === "OPTIONS") {
         return new Response(null, { headers: corsHeaders });
     }
@@ -444,4 +445,4 @@ Deno.serve(async (req) => {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
     }
-});
+}));

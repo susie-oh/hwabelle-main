@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { withAllowedOrigin } from "../_shared/cors.ts";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -462,7 +463,7 @@ async function handleFinalize(
 
 // ── Main Handler ──────────────────────────────────────────────────────────────
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withAllowedOrigin(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: CORS_HEADERS });
   }
@@ -505,4 +506,4 @@ Deno.serve(async (req: Request) => {
     console.error(`[community-submit ${action}] Unexpected error:`, message);
     return err("An unexpected error occurred. Please try again.", 500);
   }
-});
+}));

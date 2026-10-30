@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { sendSesEmail } from "../_shared/ses.ts";
+import { withAllowedOrigin } from "../_shared/cors.ts";
 
 const ALLOWED_RESOURCE_IDS = [
   "flower-pressing-guide",
@@ -272,7 +273,7 @@ async function sendGuideEmail(
   return { success: false, error: "Both SES and Resend delivery attempts failed or unconfigured." };
 }
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withAllowedOrigin(async (req: Request) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -461,4 +462,4 @@ Deno.serve(async (req: Request) => {
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
-});
+}));

@@ -1,5 +1,6 @@
 import "https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts";
 import Stripe from "https://esm.sh/stripe@14.14.0?target=deno&no-check";
+import { withAllowedOrigin } from "../_shared/cors.ts";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -50,7 +51,7 @@ interface CheckoutRequest {
     discountCode?: string;
 }
 
-Deno.serve(async (req) => {
+Deno.serve(withAllowedOrigin(async (req) => {
     if (req.method === "OPTIONS") {
         return new Response(null, { headers: corsHeaders });
     }
@@ -172,4 +173,4 @@ Deno.serve(async (req) => {
             { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
     }
-});
+}));

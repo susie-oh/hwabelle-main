@@ -1,5 +1,6 @@
 import "https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { withAllowedOrigin } from "../_shared/cors.ts";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -80,7 +81,7 @@ async function fetchOrders(accessToken: string, createdAfter: string, createdBef
     return allOrders;
 }
 
-Deno.serve(async (req) => {
+Deno.serve(withAllowedOrigin(async (req) => {
     if (req.method === "OPTIONS") {
         return new Response(null, { headers: corsHeaders });
     }
@@ -195,4 +196,4 @@ Deno.serve(async (req) => {
             { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
     }
-});
+}));
