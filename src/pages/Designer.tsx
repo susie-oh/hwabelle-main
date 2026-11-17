@@ -20,7 +20,7 @@ import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import productImage from "@/assets/product-flower-press.jpg";
 import designerImage from "@/assets/digital-designer.jpeg";
-import { defaultKeywords } from "@/lib/site";
+import { PRODUCT, defaultKeywords } from "@/lib/site";
 import { getFlowerProfile } from "@/data/flowerQuizProfiles";
 
 const features = [
@@ -101,9 +101,10 @@ const Designer = () => {
 
   const handleAddKitAndAI = () => {
     addItem({
-      id: "flower-press-kit",
-      name: "Acrylic Flower Press Kit",
-      price: 34.99,
+      id: PRODUCT.id,
+      name: PRODUCT.shortName,
+      price: PRODUCT.price,
+      originalPrice: PRODUCT.originalPrice,
       image: productImage,
     });
     addItem({ id: "ai-designer-access", name: "AI Designer Access", price: 19.99 });

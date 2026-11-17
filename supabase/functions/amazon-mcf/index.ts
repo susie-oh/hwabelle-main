@@ -81,13 +81,13 @@ interface CreateMcfOrderRequest {
 async function createFulfillmentOrder(
     accessToken: string,
     req: CreateMcfOrderRequest
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; blankBoxPolicy?: "Required" | "NotRequired"; fallbackReason?: string; error?: string }> {
     const marketplace = Deno.env.get("AMAZON_MARKETPLACE_ID") || "ATVPDKIKX0DER"; // US marketplace default
 
     const now = new Date();
     const displayableDate = now.toISOString();
 
-    const body = {
+    const buildBody = (blankBoxPolicy: "Required" | "NotRequired") => ({
         sellerFulfillmentOrderId: req.orderId,
         displayableOrderId: req.orderId,
         displayableOrderDate: displayableDate,
@@ -107,29 +107,64 @@ async function createFulfillmentOrder(
             sellerFulfillmentOrderItemId: item.sellerFulfillmentOrderItemId || `${req.orderId}-item-${idx + 1}`,
             quantity: item.quantity,
         })),
+        featureConstraints: [
+            {
+                featureName: "BLANK_BOX",
+                featureFulfillmentPolicy: blankBoxPolicy,
+            },
+        ],
         marketplaceId: marketplace,
-    };
-
-    console.log("Submitting MCF fulfillment order:", JSON.stringify(body));
+    });
 
     const endpoint = "https://sellingpartnerapi-na.amazon.com";
+
+    // Attempt 1: Strictly require unbranded Blank Box packaging
+    const requiredBody = buildBody("Required");
+    console.log("Submitting MCF fulfillment order (BLANK_BOX=Required):", JSON.stringify(requiredBody));
+
     const res = await fetch(`${endpoint}/fba/outbound/2020-07-01/fulfillmentOrders`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             "x-amz-access-token": accessToken,
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify(requiredBody),
     });
 
-    if (!res.ok) {
-        const errText = await res.text();
-        console.error("MCF createFulfillmentOrder failed:", res.status, errText);
-        return { success: false, error: `${res.status}: ${errText} — Submitted: ${JSON.stringify(body)}` };
+    if (res.ok) {
+        console.log("MCF fulfillment order created successfully (BLANK_BOX=Required) for:", req.orderId);
+        return { success: true, blankBoxPolicy: "Required" };
     }
 
-    console.log("MCF fulfillment order created successfully for:", req.orderId);
-    return { success: true };
+    const firstErrText = await res.text();
+    console.warn("MCF createFulfillmentOrder (BLANK_BOX=Required) failed:", res.status, firstErrText);
+
+    // Fall back to NotRequired ONLY if Amazon rejected due to Blank Box / Delivery SLA unavailability
+    if (res.status === 400 && /blank_box|delivery sla|feature/i.test(firstErrText)) {
+        const fallbackBody = buildBody("NotRequired");
+        console.log("Retrying MCF fulfillment order with BLANK_BOX=NotRequired:", JSON.stringify(fallbackBody));
+
+        const retryRes = await fetch(`${endpoint}/fba/outbound/2020-07-01/fulfillmentOrders`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-amz-access-token": accessToken,
+            },
+            body: JSON.stringify(fallbackBody),
+        });
+
+        if (retryRes.ok) {
+            console.log("MCF fulfillment order created successfully (BLANK_BOX=NotRequired fallback) for:", req.orderId);
+            return { success: true, blankBoxPolicy: "NotRequired", fallbackReason: firstErrText };
+        }
+
+        const retryErrText = await retryRes.text();
+        console.error("MCF createFulfillmentOrder fallback failed:", retryRes.status, retryErrText);
+        return { success: false, error: `${retryRes.status}: ${retryErrText} — Submitted: ${JSON.stringify(fallbackBody)}` };
+    }
+
+    console.error("MCF createFulfillmentOrder failed:", res.status, firstErrText);
+    return { success: false, error: `${res.status}: ${firstErrText} — Submitted: ${JSON.stringify(requiredBody)}` };
 }
 
 // ─── MCF Order Status ──────────────────────────────────────────────

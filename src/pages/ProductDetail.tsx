@@ -112,6 +112,7 @@ const ProductDetail = () => {
       id: PRODUCT.id,
       name: PRODUCT.shortName,
       price: PRODUCT.price,
+      originalPrice: PRODUCT.originalPrice,
       image: img1,
     });
     toast({
@@ -196,7 +197,15 @@ const ProductDetail = () => {
             <div className="lg:py-4">
               <p className="caption mb-3">Hwabelle</p>
               <h1 className="font-serif text-display mb-2">Hwabelle Acrylic Flower Press Kit — DIY Wedding Bouquet Preservation Kit</h1>
-              <p className="text-2xl font-serif mb-6">${PRODUCT.price.toFixed(2)}</p>
+              <div className="flex items-baseline gap-3 mb-6">
+                <span className="text-2xl font-serif">${PRODUCT.price.toFixed(2)}</span>
+                <span className="text-lg font-serif text-muted-foreground line-through">
+                  ${PRODUCT.originalPrice.toFixed(2)}
+                </span>
+                <span className="text-xs font-medium tracking-wide uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
+                  Save ${(PRODUCT.originalPrice - PRODUCT.price).toFixed(0)}
+                </span>
+              </div>
 
               <p className="text-muted-foreground leading-relaxed mb-8">
                 A beginner-friendly acrylic flower press designed as the ultimate DIY wedding bouquet preservation kit. Use it to press wedding bouquet petals, garden flowers, wildflowers, memorial blooms, and sentimental keepsakes at home.

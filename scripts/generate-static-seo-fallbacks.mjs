@@ -257,7 +257,7 @@ const routes = [
         ],
         offers: {
           "@type": "Offer",
-          price: 34.99,
+          price: 39.99,
           priceCurrency: "USD",
           url: `${siteUrl}/product/flower-press-kit`,
         },

@@ -139,6 +139,15 @@ const CartDrawer = () => {
                                                         ${item.price.toFixed(2)}
                                                     </span>
                                                 </>
+                                            ) : item.originalPrice && item.originalPrice > item.price ? (
+                                                <>
+                                                    <span className="text-sm font-medium text-foreground">
+                                                        ${item.price.toFixed(2)}
+                                                    </span>
+                                                    <span className="text-xs text-muted-foreground line-through">
+                                                        ${item.originalPrice.toFixed(2)}
+                                                    </span>
+                                                </>
                                             ) : (
                                                 <p className="text-sm text-muted-foreground">
                                                     ${item.price.toFixed(2)}

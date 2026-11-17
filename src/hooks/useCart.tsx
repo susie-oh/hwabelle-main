@@ -5,6 +5,7 @@ export interface CartItem {
     id: string;
     name: string;
     price: number;
+    originalPrice?: number;
     quantity: number;
     image?: string;
 }
@@ -42,7 +43,13 @@ const DISCOUNT_STORAGE_KEY = "hwabelle-discount";
 function loadCart(): CartItem[] {
     try {
         const stored = localStorage.getItem(STORAGE_KEY);
-        return stored ? JSON.parse(stored) : [];
+        if (!stored) return [];
+        const parsed: CartItem[] = JSON.parse(stored);
+        return parsed.map((item) =>
+            item.id === "flower-press-kit" && item.price === 34.99
+                ? { ...item, price: 39.99, originalPrice: 49.99 }
+                : item
+        );
     } catch {
         return [];
     }
@@ -87,7 +94,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             if (existing) {
                 return prev.map((item) =>
                     item.id === newItem.id
-                        ? { ...item, quantity: item.quantity + 1 }
+                        ? { ...item, price: newItem.price, originalPrice: newItem.originalPrice, quantity: item.quantity + 1 }
                         : item
                 );
             }

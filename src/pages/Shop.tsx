@@ -8,14 +8,15 @@ import designerImage from "@/assets/digital-designer.jpeg";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import { ShoppingBag, Sparkles } from "lucide-react";
-import { PRODUCT_PATH, defaultKeywords } from "@/lib/site";
+import { PRODUCT, PRODUCT_PATH, defaultKeywords } from "@/lib/site";
 
 const products = [
   {
-    id: "flower-press-kit",
-    name: "Acrylic Flower Press Kit",
+    id: PRODUCT.id,
+    name: PRODUCT.shortName,
     variant: "For adults, beginners, and keepsake makers",
-    price: 34.99,
+    price: PRODUCT.price,
+    originalPrice: PRODUCT.originalPrice as number | undefined,
     description:
       "A complete acrylic flower pressing kit for preserving wedding bouquets, garden flowers, wildflowers, and meaningful blooms at home.",
     image: productImage,
@@ -28,6 +29,7 @@ const products = [
     name: "Hwabelle AI Designer",
     variant: "Digital guidance for planning keepsakes",
     price: 19.99,
+    originalPrice: undefined as number | undefined,
     description:
       "Get flower selection help, keepsake ideas, and beginner-friendly pressing guidance for bouquets, garden blooms, and botanical crafts.",
     image: designerImage,
@@ -46,6 +48,7 @@ const Shop = () => {
       id: product.id,
       name: product.name,
       price: product.price,
+      originalPrice: product.originalPrice,
       image: product.image ?? undefined,
     });
     toast({
@@ -125,7 +128,14 @@ const Shop = () => {
                     <h2 className="font-serif text-xl">{product.name}</h2>
                     <p className="text-muted-foreground text-sm">{product.variant}</p>
                   </div>
-                  <span className="font-serif text-lg">${product.price.toFixed(2)}</span>
+                  <div className="flex items-baseline gap-2 shrink-0">
+                    {product.originalPrice && product.originalPrice > product.price && (
+                      <span className="font-serif text-sm text-muted-foreground line-through">
+                        ${product.originalPrice.toFixed(2)}
+                      </span>
+                    )}
+                    <span className="font-serif text-lg">${product.price.toFixed(2)}</span>
+                  </div>
                 </div>
                 <p className="text-muted-foreground text-sm mb-4">{product.description}</p>
                 <div className="flex flex-wrap gap-3">

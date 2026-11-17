@@ -22,7 +22,7 @@ const PRODUCT_TYPE_MAP: Record<string, "ai-designer" | "flower-press-kit" | "oth
 // keep these in sync with src/pages/Shop.tsx and src/lib/site.ts.
 const PRODUCT_PRICES: Record<string, number> = {
     "ai-designer-access": 19.99,
-    "flower-press-kit": 34.99,
+    "flower-press-kit": 39.99,
 };
 
 // Mirrors src/lib/welcomeDiscount.ts so the discount is computed server-side.
