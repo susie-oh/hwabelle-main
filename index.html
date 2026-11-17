@@ -191,5 +191,15 @@
       </div>
     </div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Graceful recovery: If the pre-hydration loader is still present after 6s due to deployment cache transition, refresh once
+      setTimeout(function () {
+        var loader = document.getElementById("app-initial-loader");
+        if (loader && !sessionStorage.getItem("hwb_cache_recovery")) {
+          sessionStorage.setItem("hwb_cache_recovery", "1");
+          window.location.reload();
+        }
+      }, 6000);
+    </script>
   </body>
 </html>
