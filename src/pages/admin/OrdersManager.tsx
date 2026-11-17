@@ -12,6 +12,7 @@ import {
   DollarSign, Sparkles, LayoutList,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { isAmazonOrder, isTestOrder } from "@/lib/orderUtils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type OrderChannel = "all" | "website" | "amazon";
@@ -37,22 +38,6 @@ interface EntitlementRow {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const isAmazonOrder = (order: OrderRow) =>
-  order.stripe_session_id?.startsWith("amz_") || false;
-
-const isTestOrder = (order: OrderRow) => {
-  const testEmails = ["ivllnv.000@gmail.com", "chrbxdev@gmail.com"];
-  const orderNum = order.order_number || "";
-  const email = order.customer_email || "";
-  return (
-    testEmails.some(te => email.toLowerCase().includes(te)) ||
-    orderNum.startsWith("E2E-TEST-") ||
-    orderNum.startsWith("TEST-") ||
-    order.stripe_session_id?.startsWith("test_") ||
-    (order.items && typeof order.items === 'object' && (order.items.verify_method === "sp-api" || order.items.note === "e2e test"))
-  );
-};
-
 const statusBadge = (status: string) => {
   const map: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; className?: string }> = {
     pending:    { variant: "secondary" },

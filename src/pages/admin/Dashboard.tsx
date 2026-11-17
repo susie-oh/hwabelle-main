@@ -9,10 +9,7 @@ import {
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-const isAmazonOrder = (order: any) =>
-  order?.stripe_session_id?.startsWith("amz_") || false;
+import { isAmazonOrder, isTestOrder } from "@/lib/orderUtils";
 
 const Dashboard = () => {
   // ── Orders & revenue stats ──────────────────────────────────────────────────
@@ -21,7 +18,7 @@ const Dashboard = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
-        .select("id, status, total_amount, stripe_session_id, customer_email, order_number, created_at")
+        .select("id, status, total_amount, stripe_session_id, customer_email, order_number, items, created_at")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -316,9 +313,16 @@ const Dashboard = () => {
                           }
                         </div>
                         <div>
-                          <p className="text-sm font-medium">
-                            {order.order_number || `HW-${order.id.substring(0, 8).toUpperCase()}`}
-                          </p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-sm font-medium">
+                              {order.order_number || `HW-${order.id.substring(0, 8).toUpperCase()}`}
+                            </p>
+                            {isTestOrder(order) && (
+                              <Badge variant="secondary" className="text-[9px] font-sans h-4 px-1.5 py-0 bg-purple-500/10 text-purple-600 border-purple-200/50 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800/40">
+                                Test Order
+                              </Badge>
+                            )}
+                          </div>
                           <p className="text-xs text-muted-foreground">{order.customer_email || "—"}</p>
                         </div>
                       </div>

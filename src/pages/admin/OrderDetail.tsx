@@ -13,23 +13,7 @@ import {
   Calendar, Activity, Key, ShoppingCart, Sparkles, CheckCircle2, XCircle,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-const isAmazonOrder = (order: any) =>
-  order?.stripe_session_id?.startsWith("amz_") || false;
-
-const isTestOrder = (order: any) => {
-  const testEmails = ["ivllnv.000@gmail.com", "chrbxdev@gmail.com"];
-  const orderNum = order?.order_number || "";
-  const email = order?.customer_email || "";
-  return (
-    testEmails.some(te => email.toLowerCase().includes(te)) ||
-    orderNum.startsWith("E2E-TEST-") ||
-    orderNum.startsWith("TEST-") ||
-    order?.stripe_session_id?.startsWith("test_") ||
-    (order?.items && typeof order.items === 'object' && (order.items.verify_method === "sp-api" || order.items.note === "e2e test"))
-  );
-};
+import { isAmazonOrder, isTestOrder } from "@/lib/orderUtils";
 
 const OrderDetail = () => {
   const { id } = useParams<{ id: string }>();
