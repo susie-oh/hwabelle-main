@@ -18,7 +18,7 @@ const Dashboard = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
-        .select("id, status, total_amount, stripe_session_id, customer_email, order_number, items, created_at")
+        .select("id, status, total_amount, stripe_session_id, customer_email, order_number, items, shipping_address, created_at")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -323,6 +323,9 @@ const Dashboard = () => {
                               </Badge>
                             )}
                           </div>
+                          {order.shipping_address?.name && (
+                            <p className="text-xs font-medium text-foreground">{order.shipping_address.name}</p>
+                          )}
                           <p className="text-xs text-muted-foreground">{order.customer_email || "—"}</p>
                         </div>
                       </div>

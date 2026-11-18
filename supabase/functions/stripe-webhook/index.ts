@@ -407,7 +407,12 @@ Deno.serve(async (req) => {
                         total_amount: session.amount_total || 0,
                         currency: session.currency || "usd",
                         status: "paid",
-                        shipping_address: session.shipping_details?.address || null,
+                        shipping_address: session.shipping_details?.address
+                            ? {
+                                name: session.shipping_details?.name || session.customer_details?.name || null,
+                                ...session.shipping_details.address,
+                              }
+                            : null,
                     })
                     .select("id")
                     .single();

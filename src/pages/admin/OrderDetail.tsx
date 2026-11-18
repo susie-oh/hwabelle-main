@@ -404,6 +404,12 @@ const OrderDetail = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                {shipping?.name && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Name</p>
+                    <p className="font-medium">{shipping.name}</p>
+                  </div>
+                )}
                 <div>
                   <p className="text-sm text-muted-foreground">Email</p>
                   <p className="font-medium">{order.customer_email || "N/A"}</p>

@@ -113,9 +113,11 @@ const OrdersManager = () => {
       // Search filter
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
+        const shippingName = (order.shipping_address as any)?.name?.toLowerCase() || "";
         return (
           (order.order_number?.toLowerCase() || "").includes(term) ||
           (order.customer_email?.toLowerCase() || "").includes(term) ||
+          shippingName.includes(term) ||
           order.id.toLowerCase().includes(term)
         );
       }
@@ -310,7 +312,14 @@ const OrdersManager = () => {
                             {new Date(order.created_at).toLocaleDateString()}
                           </TableCell>
                           {/* Customer */}
-                          <TableCell className="text-sm">{order.customer_email || "—"}</TableCell>
+                          <TableCell className="text-sm">
+                            <div>
+                              {(order.shipping_address as any)?.name && (
+                                <p className="font-medium text-foreground">{(order.shipping_address as any).name}</p>
+                              )}
+                              <p className="text-xs text-muted-foreground">{order.customer_email || "—"}</p>
+                            </div>
+                          </TableCell>
                           {/* Amount or Access */}
                           <TableCell>
                             {amazon
