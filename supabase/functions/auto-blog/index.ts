@@ -207,14 +207,7 @@ Return a JSON object with these fields:
         }
 
         if (!blogData) {
-            blogData = {
-                title: topic.length > 58 ? topic.slice(0, 55) + "..." : topic,
-                metaDescription: `Learn everything about ${topic.toLowerCase()} with step-by-step botanical preservation tips from Hwabelle.`,
-                excerpt: `A complete botanical pressing and flower preservation guide covering ${topic.toLowerCase()}.`,
-                content: `## ${topic}\n\nPreserving botanical blooms at peak vibrancy requires careful moisture control, even pressure, and archival materials.\n\n### What Are the Essential Steps for ${topic}?\n1. Harvest blooms in the morning after dew has evaporated.\n2. Arrange petals flat on absorbent pressing paper without overlapping.\n3. Apply steady pressure in your Hwabelle flower press and store in a dry, warm room.\n\n### Frequently Asked Questions\n#### How long does flower pressing take?\nMost delicate blooms press in 7 to 14 days, while thicker stems and roses take 2 to 3 weeks.`,
-                seoKeywords: ["pressed flowers", "flower preservation", "botanical art", "Hwabelle flower press"],
-                longTailQueries: [`how to master ${topic.toLowerCase()}`, "best flower pressing techniques at home"],
-            };
+            throw new Error("Both primary and backup AI providers failed to generate blog content; skipping publish.");
         }
 
         // Generate unique slug

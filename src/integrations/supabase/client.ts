@@ -8,15 +8,26 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
+// In-memory per-key mutex queue: avoids browser navigator.locks deadlocks
+// while preventing concurrent single-use refresh_token races across queries.
+const lockQueues = new Map<string, Promise<unknown>>();
+
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
-    // Add custom lock to prevent gotrue-js deadlocks on simultaneous queries (e.g. Admin Dashboard)
-    lock: async (name, acquireTimeout, acquire) => {
-      // By executing acquire() directly and returning its result, we bypass navigator.locks which causes contention
-      return await acquire();
+    lock: async <R>(name: string, _acquireTimeout: number, fn: () => Promise<R>): Promise<R> => {
+      const prev = lockQueues.get(name) ?? Promise.resolve();
+      const next = prev.catch(() => undefined).then(() => fn());
+      lockQueues.set(name, next);
+      try {
+        return await next;
+      } finally {
+        if (lockQueues.get(name) === next) {
+          lockQueues.delete(name);
+        }
+      }
     },
   }
 });

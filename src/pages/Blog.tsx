@@ -1,10 +1,10 @@
+import { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import Seo from "@/components/seo/Seo";
 import { breadcrumbSchema } from "@/lib/schema";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import blogImage from "@/assets/blog-botanical-art.jpg";
 import { resourcePosts } from "@/content/resources";
@@ -12,19 +12,29 @@ import { defaultKeywords } from "@/lib/site";
 
 const categories = ["All", "Wedding Preservation", "Beginner Guide", "Buying Guide", "Craft Ideas"];
 
+const formatPublishedDate = (dateStr?: string | null) => {
+  if (!dateStr) return "Resource";
+  const parsed = new Date(dateStr);
+  return Number.isNaN(parsed.getTime()) ? "Resource" : format(parsed, "MMM d, yyyy");
+};
+
 const Blog = () => {
-  const { data: posts, isLoading, error } = useQuery({
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  const { data: posts } = useQuery({
     queryKey: ["blog-posts"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("*")
+        .select("slug, title, excerpt, featured_image_url, seo_keywords, published_at")
         .eq("status", "published")
         .order("published_at", { ascending: false });
 
       if (error) throw error;
       return data;
     },
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
   });
 
   const supabasePosts =
@@ -49,10 +59,24 @@ const Blog = () => {
   const mergedPosts = [...staticPosts, ...supabasePosts]
     .filter((post, index, array) => array.findIndex((item) => item.slug === post.slug) === index)
     .sort((a, b) => {
-      const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
-      const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+      const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() || 0 : 0;
+      const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() || 0 : 0;
       return dateB - dateA;
     });
+
+  const filteredPosts =
+    selectedCategory === "All"
+      ? mergedPosts
+      : mergedPosts.filter((post) => {
+          const cat = (post.category || "").toLowerCase();
+          const title = (post.title || "").toLowerCase();
+          const target = selectedCategory.toLowerCase();
+          if (target === "wedding preservation") return cat.includes("wedding") || cat.includes("bouquet") || title.includes("wedding") || title.includes("bouquet");
+          if (target === "beginner guide") return cat.includes("beginner") || cat.includes("selection") || title.includes("beginner") || title.includes("how to press");
+          if (target === "buying guide") return cat.includes("buying") || title.includes("kit") || title.includes("acrylic") || title.includes("vs");
+          if (target === "craft ideas") return cat.includes("craft") || title.includes("frame") || title.includes("art") || title.includes("card") || title.includes("gift");
+          return cat === target;
+        });
 
   return (
     <Layout>
@@ -105,37 +129,36 @@ const Blog = () => {
       <section className="py-8 border-b border-divider bg-background sticky top-16 md:top-20 z-40">
         <div className="container">
           <div className="flex gap-6 overflow-x-auto pb-2">
-            {categories.map((category, index) => (
-              <span
-                key={index}
-                className={`text-sm whitespace-nowrap ${
-                  index === 0 ? "text-foreground" : "text-muted-foreground"
-                }`}
-              >
-                {category}
-              </span>
-            ))}
+            {categories.map((category) => {
+              const isActive = selectedCategory === category;
+              return (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => setSelectedCategory(category)}
+                  className={`text-sm whitespace-nowrap transition-colors pb-1 border-b-2 ${
+                    isActive
+                      ? "text-foreground font-medium border-primary"
+                      : "text-muted-foreground border-transparent hover:text-foreground"
+                  }`}
+                >
+                  {category}
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>
 
       <section className="py-16 md:py-24 bg-background">
         <div className="container">
-          {isLoading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : error && mergedPosts.length === 0 ? (
+          {filteredPosts.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              Failed to load resources. Please try again later.
-            </div>
-          ) : mergedPosts.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              No resources available yet. Check back soon.
+              No resources found in this category yet.
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-x-8 gap-y-16 md:grid-cols-2 lg:grid-cols-3">
-              {mergedPosts.map((post) => (
+              {filteredPosts.map((post) => (
                 <article key={post.slug}>
                   <Link to={`/blog/${post.slug}`} className="group block">
                     <div className="aspect-[4/3] mb-5 overflow-hidden bg-secondary">
@@ -150,7 +173,7 @@ const Blog = () => {
                       <span className="caption">{post.category}</span>
                       <span className="text-muted-foreground/40">·</span>
                       <span className="text-xs text-muted-foreground">
-                        {post.publishedAt ? format(new Date(post.publishedAt), "MMM d, yyyy") : "Resource"}
+                        {formatPublishedDate(post.publishedAt)}
                       </span>
                     </div>
                     <h2 className="font-serif text-xl mb-2 group-hover:underline underline-offset-4">

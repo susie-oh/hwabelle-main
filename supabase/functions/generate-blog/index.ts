@@ -99,8 +99,9 @@ serve(async (req) => {
     }
 
     const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
-    if (!GOOGLE_API_KEY) {
-      throw new Error("GOOGLE_API_KEY is not configured");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!GOOGLE_API_KEY && !OPENAI_API_KEY) {
+      throw new Error("Neither GOOGLE_API_KEY nor OPENAI_API_KEY is configured");
     }
 
     const userPrompt = `Generate a comprehensive blog post about: "${topic}"
@@ -116,36 +117,61 @@ Return a JSON object with these fields:
 - seoKeywords: Array of 5-8 relevant SEO keywords
 - longTailQueries: Array of 3-5 long-tail search queries this post answers`;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            { role: "user", parts: [{ text: systemPrompt + "\n\n" + userPrompt }] },
-          ],
-          generationConfig: {
-            responseMimeType: "application/json",
-          },
-        }),
-      }
-    );
+    let textContent: string | undefined;
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again later." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+    if (GOOGLE_API_KEY) {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              { role: "user", parts: [{ text: systemPrompt + "\n\n" + userPrompt }] },
+            ],
+            generationConfig: {
+              responseMimeType: "application/json",
+            },
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const aiResponse = await response.json();
+        textContent = aiResponse.candidates?.[0]?.content?.parts?.[0]?.text;
+      } else {
+        const errorText = await response.text();
+        console.warn("Gemini API error in generate-blog, checking OpenAI backup:", response.status, errorText);
+        if (!OPENAI_API_KEY) {
+          throw new Error("Failed to generate blog post");
+        }
       }
-      const errorText = await response.text();
-      console.error("Gemini API error:", response.status, errorText);
-      throw new Error("Failed to generate blog post");
     }
 
-    const aiResponse = await response.json();
-    const textContent = aiResponse.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!textContent && OPENAI_API_KEY) {
+      const oaRes = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+        }),
+      });
+      if (!oaRes.ok) {
+        const oaErr = await oaRes.text();
+        console.error("OpenAI backup error in generate-blog:", oaRes.status, oaErr);
+        throw new Error("Failed to generate blog post");
+      }
+      const oaData = await oaRes.json();
+      textContent = oaData?.choices?.[0]?.message?.content;
+    }
 
     if (!textContent) {
       throw new Error("Invalid AI response format");

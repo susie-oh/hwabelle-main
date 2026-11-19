@@ -61,7 +61,10 @@ serve(async (req) => {
 
     const { purpose, ageGroup, embedLink, feedback } = await req.json();
     const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
-    if (!GOOGLE_API_KEY) throw new Error("GOOGLE_API_KEY is not configured");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!GOOGLE_API_KEY && !OPENAI_API_KEY) {
+      throw new Error("Neither GOOGLE_API_KEY nor OPENAI_API_KEY is configured");
+    }
 
     const linkInstruction = embedLink ? `Include this CTA link in the emails: ${embedLink}` : "No specific CTA link provided.";
     const feedbackInstruction = feedback ? `Previous feedback to incorporate: ${feedback}` : "";
@@ -83,30 +86,61 @@ Return ONLY valid JSON with this exact structure:
   ]
 }`;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            { role: "user", parts: [{ text: SYSTEM_PROMPT + "\n\n" + userPrompt }] },
-          ],
-          generationConfig: {
-            responseMimeType: "application/json",
-          },
-        }),
-      }
-    );
+    let textContent: string | undefined;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Gemini API error:", response.status, errorText);
-      throw new Error("Failed to generate email sequence");
+    if (GOOGLE_API_KEY) {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              { role: "user", parts: [{ text: SYSTEM_PROMPT + "\n\n" + userPrompt }] },
+            ],
+            generationConfig: {
+              responseMimeType: "application/json",
+            },
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const aiResponse = await response.json();
+        textContent = aiResponse.candidates?.[0]?.content?.parts?.[0]?.text;
+      } else {
+        const errorText = await response.text();
+        console.warn("Gemini API error in generate-email-funnel, checking OpenAI backup:", response.status, errorText);
+        if (!OPENAI_API_KEY) {
+          throw new Error("Failed to generate email sequence");
+        }
+      }
     }
 
-    const aiResponse = await response.json();
-    const textContent = aiResponse.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!textContent && OPENAI_API_KEY) {
+      const oaRes = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: userPrompt },
+          ],
+        }),
+      });
+      if (!oaRes.ok) {
+        const oaErr = await oaRes.text();
+        console.error("OpenAI backup error in generate-email-funnel:", oaRes.status, oaErr);
+        throw new Error("Failed to generate email sequence");
+      }
+      const oaData = await oaRes.json();
+      textContent = oaData?.choices?.[0]?.message?.content;
+    }
 
     if (!textContent) {
       throw new Error("Invalid AI response format");
