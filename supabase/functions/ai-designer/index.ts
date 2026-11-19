@@ -340,7 +340,10 @@ serve(async (req) => {
     // ── Entitlement verified — proceed with AI request ────────────────────────
   try {
     const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
-    if (!GOOGLE_API_KEY) throw new Error("GOOGLE_API_KEY is not configured");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!GOOGLE_API_KEY && !OPENAI_API_KEY) {
+      throw new Error("Neither GOOGLE_API_KEY nor OPENAI_API_KEY is configured");
+    }
 
     // Parse request — supports multipart/form-data (with image) or JSON (text only)
     const contentType = req.headers.get("content-type") || "";
@@ -428,47 +431,124 @@ serve(async (req) => {
       }
     }
 
-    // Build Gemini multi-turn conversation using proper system_instruction
-    const contents: Array<{ role: string; parts: Array<{ text: string } | { inline_data: { mime_type: string; data: string } }> }> = [];
+    const promptText =
+      userMessage || "Please analyse this image and provide botanical identification and design suggestions.";
 
-    for (const msg of history) {
-      contents.push({
-        role: msg.role === "user" ? "user" : "model",
-        parts: [{ text: msg.content }],
-      });
-    }
+    let reply = "";
+    let usedProvider = "gemini";
 
-    const currentParts: Array<{ text: string } | { inline_data: { mime_type: string; data: string } }> = [];
-    if (imageBase64) {
-      currentParts.push({ inline_data: { mime_type: imageMimeType, data: imageBase64 } });
-    }
-    currentParts.push({
-      text: userMessage || "Please analyse this image and provide botanical identification and design suggestions.",
-    });
-    contents.push({ role: "user", parts: currentParts });
+    // ── Primary: Gemini (gemini-2.5-flash) ──
+    if (GOOGLE_API_KEY) {
+      const contents: Array<{ role: string; parts: Array<{ text: string } | { inline_data: { mime_type: string; data: string } }> }> = [];
 
-    const requestBody = {
-      system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-      contents,
-    };
-
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
+      for (const msg of history) {
+        contents.push({
+          role: msg.role === "user" ? "user" : "model",
+          parts: [{ text: msg.content }],
+        });
       }
-    );
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(JSON.stringify({ function: "ai-designer", event: "gemini_error", status: response.status, user_id: user.id, ts: new Date().toISOString() }));
-      throw new Error(`AI service error (${response.status}): ${errorText.substring(0, 200)}`);
+      const currentParts: Array<{ text: string } | { inline_data: { mime_type: string; data: string } }> = [];
+      if (imageBase64) {
+        currentParts.push({ inline_data: { mime_type: imageMimeType, data: imageBase64 } });
+      }
+      currentParts.push({ text: promptText });
+      contents.push({ role: "user", parts: currentParts });
+
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+              contents,
+            }),
+          }
+        );
+
+        if (response.ok) {
+          const aiResponse = await response.json();
+          reply = aiResponse.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        } else {
+          const errorText = await response.text();
+          console.warn(
+            JSON.stringify({
+              function: "ai-designer",
+              event: "gemini_error_falling_back",
+              status: response.status,
+              detail: errorText.substring(0, 180),
+              user_id: user.id,
+              ts: new Date().toISOString(),
+            })
+          );
+          if (!OPENAI_API_KEY) {
+            throw new Error(`AI service error (${response.status}): ${errorText.substring(0, 200)}`);
+          }
+        }
+      } catch (geminiErr) {
+        if (!OPENAI_API_KEY) throw geminiErr;
+        console.warn(
+          JSON.stringify({
+            function: "ai-designer",
+            event: "gemini_exception_falling_back",
+            error: String(geminiErr),
+            user_id: user.id,
+            ts: new Date().toISOString(),
+          })
+        );
+      }
     }
 
-    const aiResponse = await response.json();
-    const reply = aiResponse.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
+    // ── Backup: OpenAI (gpt-4o-mini — supports text + flower photo vision) ──
+    if (!reply && OPENAI_API_KEY) {
+      usedProvider = "openai";
+      const oaMessages: Array<Record<string, unknown>> = [
+        { role: "system", content: SYSTEM_PROMPT },
+        ...history.map((msg) => ({
+          role: msg.role === "user" ? "user" : "assistant",
+          content: msg.content,
+        })),
+      ];
+
+      if (imageBase64) {
+        oaMessages.push({
+          role: "user",
+          content: [
+            { type: "text", text: promptText },
+            { type: "image_url", image_url: { url: `data:${imageMimeType};base64,${imageBase64}` } },
+          ],
+        });
+      } else {
+        oaMessages.push({ role: "user", content: promptText });
+      }
+
+      const oaRes = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: oaMessages,
+        }),
+      });
+
+      if (!oaRes.ok) {
+        const oaErrText = await oaRes.text();
+        console.error(JSON.stringify({ function: "ai-designer", event: "openai_error", status: oaRes.status, user_id: user.id, ts: new Date().toISOString() }));
+        throw new Error(`Backup AI service error (${oaRes.status}): ${oaErrText.substring(0, 200)}`);
+      }
+
+      const oaData = await oaRes.json();
+      reply = oaData.choices?.[0]?.message?.content || "";
+    }
+
+    if (!reply) {
+      reply = "No response received.";
+    }
 
     // ── Database: Save Assistant Message ──
     if (sessionId) {
