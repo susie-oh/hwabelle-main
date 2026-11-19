@@ -95,12 +95,13 @@ Deno.serve(async (req) => {
                 .maybeSingle();
 
             if (existingOrder) {
-                // Order exists — check if it includes an ai-designer item
+                // Order exists — check if it includes an ai-designer or flower-press-kit item
                 const { data: aiItem } = await adminClient
                     .from("order_items")
                     .select("id")
                     .eq("order_id", existingOrder.id)
-                    .eq("product_type", "ai-designer")
+                    .in("product_type", ["ai-designer", "flower-press-kit"])
+                    .limit(1)
                     .maybeSingle();
 
                 console.log(JSON.stringify({
@@ -142,8 +143,10 @@ Deno.serve(async (req) => {
                 });
             }
 
-            // Payment confirmed — check metadata for AI Designer flag (set by create-checkout)
-            const hasAiDesigner = stripeSession.metadata?.has_ai_designer === "true";
+            // Payment confirmed — check metadata for AI Designer or Flower Press Kit flag (set by create-checkout)
+            const hasAiDesigner =
+                stripeSession.metadata?.has_ai_designer === "true" ||
+                stripeSession.metadata?.has_physical === "true";
 
             console.log(JSON.stringify({
                 function: "lookup-orders",

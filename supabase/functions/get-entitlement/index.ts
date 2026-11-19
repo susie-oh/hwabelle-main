@@ -144,12 +144,12 @@ Deno.serve(async (req) => {
             );
         }
 
-        // Find historical paid orders with ai-designer order_items for this email
+        // Find historical fulfilled/paid orders for this email
         const { data: historicalOrders, error: histErr } = await adminClient
             .from("orders")
             .select("id, user_id, status")
             .eq("customer_email", userEmail.toLowerCase())
-            .eq("status", "paid");
+            .in("status", ["paid", "processing", "shipped", "delivered"]);
 
         if (histErr) throw histErr;
 
@@ -169,12 +169,12 @@ Deno.serve(async (req) => {
 
         const orderIds = historicalOrders.map((o: any) => o.id);
 
-        // Check that at least one of those orders has an ai-designer order_item
+        // Check that at least one of those orders has an ai-designer or flower-press-kit order_item
         const { data: aiItems, error: aiItemErr } = await adminClient
             .from("order_items")
             .select("id, order_id")
             .in("order_id", orderIds)
-            .eq("product_type", "ai-designer");
+            .in("product_type", ["ai-designer", "flower-press-kit"]);
 
         if (aiItemErr) throw aiItemErr;
 

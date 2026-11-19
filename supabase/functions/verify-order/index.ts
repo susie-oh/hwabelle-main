@@ -264,14 +264,26 @@ Deno.serve(withAllowedOrigin(async (req) => {
 
         // ── Validation (Both Stages) ──
 
-        // 1. Find the order by order_number or mcf_order_id and email exactly
+        // 1. Find the order by order_number, mcf_order_id, or linked amazon_order_id and email
+        const cleanOrderNum = String(order_number).trim().replace(/[,()]/g, "");
         let { data: order, error: orderErr } = await adminClient
             .from("orders")
             .select("id, status, customer_email")
-            .or(`order_number.eq.${order_number},mcf_order_id.eq.${order_number}`)
-            .eq("customer_email", email.toLowerCase())
+            .or(`order_number.eq.${cleanOrderNum},mcf_order_id.eq.${cleanOrderNum}`)
+            .eq("customer_email", email.toLowerCase().trim())
             .limit(1)
             .maybeSingle();
+
+        if (!order && !orderErr) {
+            const { data: mcfLinkedOrder } = await adminClient
+                .from("orders")
+                .select("id, status, customer_email")
+                .eq("items->>amazon_order_id", cleanOrderNum)
+                .eq("customer_email", email.toLowerCase().trim())
+                .limit(1)
+                .maybeSingle();
+            if (mcfLinkedOrder) order = mcfLinkedOrder;
+        }
 
         // ── Check if order has items; if not, delete the broken stub ──
         if (order) {
@@ -335,7 +347,8 @@ Deno.serve(withAllowedOrigin(async (req) => {
             }
         }
 
-        if (orderErr || !order || order.status !== "paid") {
+        const VALID_ORDER_STATUSES = ["paid", "processing", "shipped", "delivered"];
+        if (orderErr || !order || !VALID_ORDER_STATUSES.includes(order.status)) {
             // Safe generic state - does not leak whether email or order_number was wrong
             console.log(JSON.stringify({ function: "verify-order", event: "order_not_found_or_unpaid", order_number, ip, ts: new Date().toISOString() }));
             return new Response(JSON.stringify({ state: "not-found" }), {
@@ -343,12 +356,12 @@ Deno.serve(withAllowedOrigin(async (req) => {
             });
         }
 
-        // 2. Check order_items for ai-designer
+        // 2. Check order_items for ai-designer or flower-press-kit (kit includes AI Designer)
         const { data: orderItems } = await adminClient
             .from("order_items")
             .select("id")
             .eq("order_id", order.id)
-            .eq("product_type", "ai-designer");
+            .in("product_type", ["ai-designer", "flower-press-kit"]);
 
         if (!orderItems || orderItems.length === 0) {
             console.log(JSON.stringify({ function: "verify-order", event: "no_ai_access_in_order", order_id: order.id, ts: new Date().toISOString() }));

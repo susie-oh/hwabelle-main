@@ -38,7 +38,9 @@ async function sendConfirmationEmail(customerEmail: string, session: any) {
         itemsHtml = `<tr><td colspan="3" style="padding:12px 0;color:#6b6b6b;">See your Stripe receipt for details.</td></tr>`;
     }
 
-    const hasAiDesigner = session.metadata?.has_ai_designer === "true";
+    const hasAiDesigner =
+        session.metadata?.has_ai_designer === "true" ||
+        session.metadata?.has_physical === "true";
 
     const htmlBody = `<!DOCTYPE html>
 <html lang="en">
@@ -461,7 +463,10 @@ Deno.serve(async (req) => {
                     li.description || "",
                     lineItemTypes
                 );
-                if (productType === "ai-designer") hasAiDesigner = true;
+                // Both standalone AI Designer and Flower Press Kit grant AI Designer access
+                if (productType === "ai-designer" || productType === "flower-press-kit") {
+                    hasAiDesigner = true;
+                }
 
                 const { data: insertedItem, error: itemErr } = await supabase
                     .from("order_items")

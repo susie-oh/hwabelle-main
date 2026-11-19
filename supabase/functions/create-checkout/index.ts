@@ -129,8 +129,10 @@ Deno.serve(withAllowedOrigin(async (req) => {
             };
         });
 
-        // Whether any AI Designer item is present determines success redirect path
-        const hasAiDesigner = items.some((item) => PRODUCT_TYPE_MAP[item.id] === "ai-designer");
+        // Both standalone AI Designer and the Flower Press Kit include AI Designer access
+        const hasAiDesigner = items.some(
+            (item) => PRODUCT_TYPE_MAP[item.id] === "ai-designer" || PRODUCT_TYPE_MAP[item.id] === "flower-press-kit"
+        );
         const hasPhysical = items.some((item) => PRODUCT_TYPE_MAP[item.id] === "flower-press-kit");
         const successPath = hasAiDesigner ? "/my-orders" : "/my-orders";
 
