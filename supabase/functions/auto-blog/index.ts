@@ -52,6 +52,48 @@ const TOPIC_POOL = [
     "The Science Behind Flower Pressing: Why Some Colors Fade",
 ];
 
+// Topic-matched cover image pools hosted in public Supabase Storage bucket `blog-images`
+const TOPIC_IMAGE_POOLS: Array<{ re: RegExp; files: string[] }> = [
+    { re: /calla/i, files: ["calla-lilies-bridal.jpg", "bridal-keepsake-frame.jpg"] },
+    { re: /wedding|bridal|special day/i, files: ["fresh-bridal-bouquet.jpg", "bridal-keepsake-frame.jpg", "oak-frame-rose-art.jpg"] },
+    { re: /pansy|pansies|cosmos/i, files: ["pansies-and-cosmos.jpg", "wild-meadow-herbarium.jpg"] },
+    { re: /daisy|daisies|clover|kid/i, files: ["daisies-and-clover.jpg", "mixed-media-journal.jpg"] },
+    { re: /violet|fern|woodland/i, files: ["wild-violets-and-fern.jpg", "wild-meadow-herbarium.jpg"] },
+    { re: /tulip/i, files: ["tulips-and-wildflowers.jpg", "cherry-blossoms-spring.jpg"] },
+    { re: /lavender/i, files: ["lavender-and-babys-breath.jpg", "workbench-tweezers-action.jpg"] },
+    { re: /cherry blossom|sakura/i, files: ["cherry-blossoms-spring.jpg", "tulips-and-wildflowers.jpg"] },
+    { re: /sunflower|large bloom/i, files: ["sunflowers-large-blooms.jpg", "wild-meadow-herbarium.jpg"] },
+    { re: /chrysanthemum|autumn|fall/i, files: ["autumn-chrysanthemums-leaves.jpg", "sunflowers-large-blooms.jpg"] },
+    { re: /beach|coastal|sea grass/i, files: ["coastal-beach-botanicals.jpg", "lavender-and-babys-breath.jpg"] },
+    { re: /evergreen|winter botanical/i, files: ["winter-evergreen-sprigs.jpg", "mindful-winter-pressing.jpg"] },
+    { re: /self-care|mindful|winter|indoor/i, files: ["mindful-winter-pressing.jpg", "winter-evergreen-sprigs.jpg", "workbench-tweezers-action.jpg"] },
+    { re: /card|holiday/i, files: ["holiday-greeting-cards.jpg", "botanical-art-gifts.jpg"] },
+    { re: /phone case|resin|jewelry/i, files: ["resin-jewelry-phone-case.jpg", "botanical-art-gifts.jpg"] },
+    { re: /mixed media|combining/i, files: ["mixed-media-journal.jpg", "wild-meadow-herbarium.jpg"] },
+    { re: /sell|income|profit/i, files: ["artisan-botanical-studio.jpg", "oak-frame-rose-art.jpg"] },
+    { re: /gift/i, files: ["botanical-art-gifts.jpg", "holiday-greeting-cards.jpg"] },
+    { re: /frame/i, files: ["oak-frame-rose-art.jpg", "bridal-keepsake-frame.jpg"] },
+    { re: /store|dried.*bouquet|old arrangement/i, files: ["archival-flower-storage.jpg", "roses-and-eucalyptus.jpg"] },
+    { re: /color|fade|brown|mold|humid|science/i, files: ["color-science-drying.jpg", "pansies-and-cosmos.jpg"] },
+    { re: /acrylic|microwave|paper|material|mistake|how long|timeline/i, files: ["acrylic-press-flatlay.jpg", "workbench-tweezers-action.jpg"] },
+    { re: /rose/i, files: ["roses-and-eucalyptus.jpg", "oak-frame-rose-art.jpg"] },
+    { re: /spring|wildflower|calendar|seasonal/i, files: ["tulips-and-wildflowers.jpg", "wild-meadow-herbarium.jpg", "cherry-blossoms-spring.jpg"] },
+];
+
+function pickTopicImageUrl(supabaseUrl: string, title: string, slug: string, keywords: string[] = []): string {
+    const haystack = `${title} ${slug} ${keywords.join(" ")}`;
+    let pool = ["acrylic-press-flatlay.jpg", "wild-meadow-herbarium.jpg", "workbench-tweezers-action.jpg", "botanical-specimen-grid.jpg"];
+    for (const rule of TOPIC_IMAGE_POOLS) {
+        if (rule.re.test(haystack)) {
+            pool = rule.files;
+            break;
+        }
+    }
+    let h = 0;
+    for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0;
+    return `${supabaseUrl}/storage/v1/object/public/blog-images/${pool[h % pool.length]}`;
+}
+
 // Pick a topic that hasn't been used recently
 async function pickTopic(supabase: any): Promise<string> {
     // Fetch recent post titles to avoid duplicates
@@ -231,6 +273,13 @@ Return a JSON object with these fields:
         const timestamp = Date.now().toString(36);
         const slug = `${baseSlug}-${timestamp}`;
 
+        const featuredImageUrl = pickTopicImageUrl(
+            supabaseUrl,
+            blogData.title,
+            slug,
+            blogData.seoKeywords || []
+        );
+
         // Insert as published
         const { data: post, error: insertError } = await supabase
             .from("blog_posts")
@@ -240,6 +289,7 @@ Return a JSON object with these fields:
                 content: blogData.content,
                 excerpt: blogData.excerpt,
                 meta_description: blogData.metaDescription,
+                featured_image_url: featuredImageUrl,
                 seo_keywords: blogData.seoKeywords || [],
                 long_tail_queries: blogData.longTailQueries || [],
                 author_name: "Hwabelle",

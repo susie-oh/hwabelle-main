@@ -5,6 +5,25 @@ const siteUrl = "https://hwabelle.shop";
 const defaultImage = `${siteUrl}/favicon.png`;
 const logoImage = `${siteUrl}/assets/hwabelle-logo.png`;
 
+const BLOG_IMAGE_MAP = {
+  "how-to-press-flowers-for-beginners": `${siteUrl}/blog-images/acrylic-press-flatlay.jpg`,
+  "best-flowers-for-pressing": `${siteUrl}/blog-images/wild-meadow-herbarium.jpg`,
+  "how-to-press-roses": `${siteUrl}/blog-images/roses-and-eucalyptus.jpg`,
+  "why-do-pressed-flowers-turn-brown": `${siteUrl}/blog-images/color-science-drying.jpg`,
+  "how-long-does-it-take-to-press-flowers": `${siteUrl}/blog-images/workbench-tweezers-action.jpg`,
+  "acrylic-vs-wooden-flower-press": `${siteUrl}/blog-images/acrylic-press-flatlay.jpg`,
+  "how-to-preserve-wedding-bouquet-at-home": `${siteUrl}/blog-images/fresh-bridal-bouquet.jpg`,
+  "what-to-do-with-pressed-flowers": `${siteUrl}/blog-images/botanical-art-gifts.jpg`,
+  "diy-wedding-bouquet-preservation-kit-guide": `${siteUrl}/blog-images/bridal-keepsake-frame.jpg`,
+  "pressing-daisies-and-clover": `${siteUrl}/blog-images/daisies-and-clover.jpg`,
+  "pressing-wild-violets-and-fern": `${siteUrl}/blog-images/wild-violets-and-fern.jpg`,
+  "pressing-tulips-and-small-wildflowers": `${siteUrl}/blog-images/tulips-and-wildflowers.jpg`,
+  "pressing-pansies-and-cosmos": `${siteUrl}/blog-images/pansies-and-cosmos.jpg`,
+  "pressing-lavender-and-babys-breath": `${siteUrl}/blog-images/lavender-and-babys-breath.jpg`,
+  "pressing-calla-lilies-and-babys-breath": `${siteUrl}/blog-images/calla-lilies-bridal.jpg`,
+  "pressing-roses-and-eucalyptus": `${siteUrl}/blog-images/roses-and-eucalyptus.jpg`,
+};
+
 const faqHome = [
   {
     question: "Can I use this flower press kit for a wedding bouquet?",
@@ -614,28 +633,31 @@ const routes = [
     image: `${siteUrl}/assets/hero-pressed-arrangement.webp`,
     schema: [breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Find Your Flower", path: "/flower-quiz" }])],
   },
-  ...resourcePosts.map((post) => ({
-    path: `/blog/${post.slug}`,
-    title: post.title,
-    description: post.description,
-    image: `${siteUrl}/assets/blog-botanical-art.jpg`,
-    schema: [
-      breadcrumbSchema([
-        { name: "Home", path: "/" },
-        { name: "Resources", path: "/blog" },
-        { name: post.title.replace(" | Hwabelle", ""), path: `/blog/${post.slug}` },
-      ]),
-      {
-        "@context": "https://schema.org",
-        "@type": "Article",
-        headline: post.title.replace(" | Hwabelle", ""),
-        description: post.description,
-        author: { "@type": "Organization", name: "Hwabelle" },
-        datePublished: "2026-05-20T09:00:00.000Z",
-        image: `${siteUrl}/assets/blog-botanical-art.jpg`,
-      },
-    ],
-  })),
+  ...resourcePosts.map((post) => {
+    const postImage = BLOG_IMAGE_MAP[post.slug] || `${siteUrl}/blog-images/acrylic-press-flatlay.jpg`;
+    return {
+      path: `/blog/${post.slug}`,
+      title: post.title,
+      description: post.description,
+      image: postImage,
+      schema: [
+        breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "Resources", path: "/blog" },
+          { name: post.title.replace(" | Hwabelle", ""), path: `/blog/${post.slug}` },
+        ]),
+        {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: post.title.replace(" | Hwabelle", ""),
+          description: post.description,
+          author: { "@type": "Organization", name: "Hwabelle" },
+          datePublished: "2026-05-20T09:00:00.000Z",
+          image: postImage,
+        },
+      ],
+    };
+  }),
   {
     path: "/contact",
     title: "Contact Hwabelle | Flower Press Kit Support",

@@ -9,9 +9,35 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import ReactMarkdown from "react-markdown";
-import blogImage from "@/assets/blog-botanical-art.jpg";
 import { resourcePostBySlug } from "@/content/resources";
 import ResourceCTA from "@/components/resources/ResourceCTA";
+import { resolveBlogCoverImage, resolveBlogInlineImage } from "@/lib/blogImages";
+
+function splitMarkdownAfterSecondSection(md: string): [string, string | null] {
+  if (!md || md.includes("![")) return [md, null];
+  const headingMatches = [...md.matchAll(/^##\s+/gm)];
+  // Split right before the 3rd H2 (i.e., after the 2nd H2 section), or before the 2nd H2 if short
+  const splitMatch = headingMatches[2] || headingMatches[1];
+  if (!splitMatch || splitMatch.index === undefined) return [md, null];
+  // Trim trailing horizontal rule before the split so spacing looks clean
+  const before = md.slice(0, splitMatch.index).replace(/\n---\s*$/, "").trimEnd();
+  const after = md.slice(splitMatch.index).trimStart();
+  return [before, after];
+}
+
+const PROSE_CLASSES = `prose prose-lg max-w-none
+  prose-headings:font-serif prose-headings:text-foreground prose-headings:tracking-tight
+  prose-h2:text-2xl prose-h2:md:text-3xl prose-h2:mt-14 prose-h2:mb-6 prose-h2:leading-snug prose-h2:border-b prose-h2:border-divider/40 prose-h2:pb-3
+  prose-h3:text-xl prose-h3:md:text-2xl prose-h3:mt-10 prose-h3:mb-5 prose-h3:leading-snug
+  prose-p:text-muted-foreground prose-p:text-base prose-p:md:text-lg prose-p:leading-[1.85] prose-p:mb-7
+  prose-ul:text-muted-foreground prose-ul:leading-[1.85] prose-ul:my-6 prose-ul:pl-6
+  prose-ol:text-muted-foreground prose-ol:leading-[1.85] prose-ol:my-6 prose-ol:pl-6
+  prose-li:text-muted-foreground prose-li:text-base prose-li:md:text-lg prose-li:mb-3
+  prose-strong:text-foreground prose-strong:font-semibold
+  prose-a:text-emerald-600 dark:prose-a:text-emerald-400 prose-a:underline prose-a:underline-offset-2
+  prose-img:rounded-2xl prose-img:shadow-sm prose-img:my-10
+  prose-blockquote:border-l-emerald-500 prose-blockquote:bg-secondary/30 prose-blockquote:py-1 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:not-italic
+  [&>*:first-child]:mt-0`;
 
 const BlogPost = () => {
   const { slug } = useParams();
@@ -37,7 +63,7 @@ const BlogPost = () => {
   const resolvedPost = staticPost
     ? {
         title: staticPost.title,
-        featured_image_url: blogImage,
+        featured_image_url: staticPost.featuredImage,
         seo_keywords: staticPost.seoKeywords,
         published_at: staticPost.publishedAt,
         author_name: staticPost.authorName,
@@ -46,6 +72,26 @@ const BlogPost = () => {
         meta_description: staticPost.metaDescription,
       }
     : post;
+
+  const heroImageUrl = resolvedPost
+    ? resolveBlogCoverImage({
+        slug,
+        title: resolvedPost.title,
+        featuredImageUrl: resolvedPost.featured_image_url,
+        keywords: resolvedPost.seo_keywords,
+      })
+    : "/blog-images/acrylic-press-flatlay.jpg";
+
+  const inlineVisual = resolvedPost
+    ? resolveBlogInlineImage({
+        slug,
+        title: resolvedPost.title,
+        coverUrl: heroImageUrl,
+        keywords: resolvedPost.seo_keywords,
+      })
+    : null;
+
+  const [contentPartA, contentPartB] = splitMarkdownAfterSecondSection(resolvedPost?.content || "");
 
   const derivedFaqs =
     resolvedPost?.content
@@ -95,7 +141,7 @@ const BlogPost = () => {
         title={`${resolvedPost.title} | Hwabelle`}
         description={resolvedPost.meta_description || resolvedPost.excerpt || resolvedPost.title}
         path={`/blog/${slug}`}
-        image={new URL(resolvedPost.featured_image_url || blogImage, window.location.origin).toString()}
+        image={new URL(heroImageUrl, window.location.origin).toString()}
         type="article"
         keywords={resolvedPost.seo_keywords || []}
         schema={[
@@ -116,10 +162,7 @@ const BlogPost = () => {
                 }
               : undefined,
             datePublished: resolvedPost.published_at,
-            image: new URL(
-              resolvedPost.featured_image_url || blogImage,
-              window.location.origin,
-            ).toString(),
+            image: new URL(heroImageUrl, window.location.origin).toString(),
           },
           ...(derivedFaqs?.length ? [faqSchema(derivedFaqs)] : []),
         ]}
@@ -132,16 +175,18 @@ const BlogPost = () => {
         </Link>
       </div>
 
-      <div className="aspect-[21/9] overflow-hidden">
-        <img
-          src={resolvedPost.featured_image_url || blogImage}
-          alt={resolvedPost.title}
-          className="w-full h-full object-cover"
-          loading="eager"
-        />
+      <div className="container">
+        <div className="max-w-4xl mx-auto aspect-[16/10] md:aspect-[16/9] rounded-2xl overflow-hidden bg-secondary shadow-sm border border-border/40">
+          <img
+            src={heroImageUrl}
+            alt={resolvedPost.title}
+            className="w-full h-full object-cover"
+            loading="eager"
+          />
+        </div>
       </div>
 
-      <article className="py-12 md:py-20">
+      <article className="py-12 md:py-16">
         <div className="container">
           <div className="max-w-2xl mx-auto">
             <div className="flex items-center gap-3 mb-6 flex-wrap">
@@ -200,22 +245,31 @@ const BlogPost = () => {
               </a>
             </div>
 
-            <div
-              className="prose prose-lg max-w-none
-              prose-headings:font-serif prose-headings:text-foreground prose-headings:tracking-tight
-              prose-h2:text-2xl prose-h2:md:text-3xl prose-h2:mt-14 prose-h2:mb-6 prose-h2:leading-snug prose-h2:border-b prose-h2:border-divider/40 prose-h2:pb-3
-              prose-h3:text-xl prose-h3:md:text-2xl prose-h3:mt-10 prose-h3:mb-5 prose-h3:leading-snug
-              prose-p:text-muted-foreground prose-p:text-base prose-p:md:text-lg prose-p:leading-[1.85] prose-p:mb-7
-              prose-ul:text-muted-foreground prose-ul:leading-[1.85] prose-ul:my-6 prose-ul:pl-6
-              prose-ol:text-muted-foreground prose-ol:leading-[1.85] prose-ol:my-6 prose-ol:pl-6
-              prose-li:text-muted-foreground prose-li:text-base prose-li:md:text-lg prose-li:mb-3
-              prose-strong:text-foreground prose-strong:font-semibold
-              prose-a:text-emerald-600 dark:prose-a:text-emerald-400 prose-a:underline prose-a:underline-offset-2
-              prose-blockquote:border-l-emerald-500 prose-blockquote:bg-secondary/30 prose-blockquote:py-1 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:not-italic
-              [&>*:first-child]:mt-0"
-            >
-              <ReactMarkdown>{resolvedPost.content || ""}</ReactMarkdown>
+            <div className={PROSE_CLASSES}>
+              <ReactMarkdown>{contentPartA}</ReactMarkdown>
             </div>
+
+            {contentPartB && inlineVisual && (
+              <>
+                <figure className="my-12 rounded-2xl overflow-hidden bg-secondary/40 border border-border/50 shadow-sm">
+                  <div className="aspect-[4/3] overflow-hidden bg-secondary">
+                    <img
+                      src={inlineVisual.src}
+                      alt={inlineVisual.alt}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <figcaption className="px-5 py-3.5 text-xs sm:text-sm text-muted-foreground font-serif italic text-center">
+                    {inlineVisual.caption}
+                  </figcaption>
+                </figure>
+
+                <div className={PROSE_CLASSES}>
+                  <ReactMarkdown>{contentPartB}</ReactMarkdown>
+                </div>
+              </>
+            )}
 
             {/* Lead Magnet CTA for Guide Acquisition */}
             <div className="mt-10">

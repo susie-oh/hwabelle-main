@@ -11,6 +11,7 @@ import { pressingPansiesAndCosmos } from "./blog/pressing-pansies-and-cosmos";
 import { pressingLavenderAndBabysBreath } from "./blog/pressing-lavender-and-babys-breath";
 import { pressingCallaLiliesAndBabysBreath } from "./blog/pressing-calla-lilies-and-babys-breath";
 import { pressingRosesAndEucalyptus } from "./blog/pressing-roses-and-eucalyptus";
+import { getStaticBlogCover } from "@/lib/blogImages";
 
 export interface ResourcePost {
   slug: string;
@@ -21,6 +22,7 @@ export interface ResourcePost {
   authorName: string;
   category: string;
   readTime?: string;
+  featuredImage?: string;
   seoKeywords: string[];
   content: string;
 }
@@ -41,8 +43,11 @@ export const initialBlogArticles: ResourcePost[] = [
   pressingRosesAndEucalyptus,
 ];
 
-// Combine static articles
-export const resourcePosts: ResourcePost[] = initialBlogArticles;
+// Combine static articles with dedicated topic cover images
+export const resourcePosts: ResourcePost[] = initialBlogArticles.map((post) => ({
+  ...post,
+  featuredImage: post.featuredImage || getStaticBlogCover(post.slug),
+}));
 
 export const resourcePostBySlug = Object.fromEntries(
   resourcePosts.map((post) => [post.slug, post]),

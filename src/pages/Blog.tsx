@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import blogImage from "@/assets/blog-botanical-art.jpg";
 import { resourcePosts } from "@/content/resources";
 import { defaultKeywords } from "@/lib/site";
+import { resolveBlogCoverImage } from "@/lib/blogImages";
 
 const categories = ["All", "Wedding Preservation", "Beginner Guide", "Buying Guide", "Craft Ideas"];
 
@@ -42,7 +43,12 @@ const Blog = () => {
       slug: post.slug,
       title: post.title,
       excerpt: post.excerpt,
-      featuredImageUrl: post.featured_image_url,
+      featuredImageUrl: resolveBlogCoverImage({
+        slug: post.slug,
+        title: post.title,
+        featuredImageUrl: post.featured_image_url,
+        keywords: post.seo_keywords,
+      }),
       category: post.seo_keywords?.[0] || "Resource",
       publishedAt: post.published_at,
     })) ?? [];
@@ -51,7 +57,7 @@ const Blog = () => {
     slug: post.slug,
     title: post.title,
     excerpt: post.excerpt,
-    featuredImageUrl: blogImage,
+    featuredImageUrl: post.featuredImage || resolveBlogCoverImage({ slug: post.slug, title: post.title, keywords: post.seoKeywords }),
     category: post.category,
     publishedAt: post.publishedAt,
   }));

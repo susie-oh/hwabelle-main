@@ -199,10 +199,10 @@ const BlogManager = () => {
           content: data.content || "",
           excerpt: data.excerpt || "",
           meta_description: data.metaDescription || "",
-          featured_image_url: "",
+          featured_image_url: data.featuredImageUrl || "",
           seo_keywords: data.seoKeywords?.join(", ") || "",
           long_tail_queries: data.longTailQueries?.join(", ") || "",
-          author_name: "",
+          author_name: "Hwabelle",
           status: "draft",
         });
         setAiPanelOpen(false);
@@ -360,8 +360,16 @@ const BlogManager = () => {
                 {filteredPosts.map((post) => (
                   <div
                     key={post.id}
-                    className="flex items-center justify-between p-4 border border-divider rounded-xl hover:bg-secondary/50 transition-colors"
+                    className="flex items-center justify-between p-4 border border-divider rounded-xl hover:bg-secondary/50 transition-colors gap-4"
                   >
+                    {post.featured_image_url && (
+                      <img
+                        src={post.featured_image_url}
+                        alt={post.title}
+                        className="w-16 h-12 rounded-lg object-cover shrink-0 bg-secondary border border-border/40"
+                        loading="lazy"
+                      />
+                    )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1">
                         <h3 className="font-medium truncate">{post.title}</h3>
