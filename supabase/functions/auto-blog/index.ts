@@ -80,18 +80,114 @@ const TOPIC_IMAGE_POOLS: Array<{ re: RegExp; files: string[] }> = [
     { re: /spring|wildflower|calendar|seasonal/i, files: ["tulips-and-wildflowers.jpg", "wild-meadow-herbarium.jpg", "cherry-blossoms-spring.jpg"] },
 ];
 
-function pickTopicImageUrl(supabaseUrl: string, title: string, slug: string, keywords: string[] = []): string {
+const ALL_LIBRARY_FILES = [
+    "acrylic-press-flatlay.jpg",
+    "pansies-and-cosmos.jpg",
+    "daisies-and-clover.jpg",
+    "wild-violets-and-fern.jpg",
+    "tulips-and-wildflowers.jpg",
+    "lavender-and-babys-breath.jpg",
+    "roses-and-eucalyptus.jpg",
+    "cherry-blossoms-spring.jpg",
+    "sunflowers-large-blooms.jpg",
+    "autumn-chrysanthemums-leaves.jpg",
+    "coastal-beach-botanicals.jpg",
+    "winter-evergreen-sprigs.jpg",
+    "holiday-greeting-cards.jpg",
+    "resin-jewelry-phone-case.jpg",
+    "mixed-media-journal.jpg",
+    "color-science-drying.jpg",
+    "artisan-botanical-studio.jpg",
+    "mindful-winter-pressing.jpg",
+    "archival-flower-storage.jpg",
+    "botanical-art-gifts.jpg",
+    "calla-lilies-bridal.jpg",
+    "bridal-keepsake-frame.jpg",
+    "fresh-bridal-bouquet.jpg",
+    "wild-meadow-herbarium.jpg",
+    "workbench-tweezers-action.jpg",
+    "oak-frame-rose-art.jpg",
+    "botanical-specimen-grid.jpg",
+];
+
+async function resolveFutureBlogImage(
+    supabase: any,
+    supabaseUrl: string,
+    googleApiKey: string,
+    title: string,
+    slug: string,
+    keywords: string[] = []
+): Promise<string> {
+    // 1. Attempt fresh bespoke Gemini image generation if image quota is active on GOOGLE_API_KEY
+    try {
+        const imgPrompt = `Overhead sunlit Kinfolk-style botanical editorial flat-lay photograph illustrating "${title}". Natural linen and warm oak craft table aesthetic, real pressed flowers and botanical tools, photorealistic, 4:3 aspect ratio, strictly NO text, NO words, NO logos, NO watermarks.`;
+        const genRes = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${encodeURIComponent(googleApiKey)}`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                signal: AbortSignal.timeout(15_000),
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: imgPrompt }] }],
+                    generationConfig: { responseModalities: ["IMAGE"] },
+                }),
+            }
+        );
+        if (genRes.ok) {
+            const genJson = await genRes.json();
+            const imgPart = (genJson.candidates?.[0]?.content?.parts || []).find((p: any) => p.inlineData?.data);
+            if (imgPart) {
+                const mimeType: string = imgPart.inlineData.mimeType || "image/jpeg";
+                const ext = mimeType.includes("png") ? "png" : "jpg";
+                const binary = atob(imgPart.inlineData.data);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                const fileName = `ai-${slug}.${ext}`;
+                const { error: upErr } = await supabase.storage
+                    .from("blog-images")
+                    .upload(fileName, bytes, { contentType: mimeType, cacheControl: "31536000", upsert: true });
+                if (!upErr) {
+                    return `${supabaseUrl}/storage/v1/object/public/blog-images/${fileName}`;
+                }
+            }
+        }
+    } catch {
+        // Fall through cleanly to curated non-repeating library selection
+    }
+
+    // 2. Anti-duplicate selection from 28-photo curated botanical library
+    const { data: recent } = await supabase
+        .from("blog_posts")
+        .select("featured_image_url")
+        .not("featured_image_url", "is", null)
+        .order("published_at", { ascending: false })
+        .limit(8);
+
+    const recentFiles = new Set(
+        (recent || [])
+            .map((r: any) => (r.featured_image_url || "").split("/").pop())
+            .filter(Boolean)
+    );
+
     const haystack = `${title} ${slug} ${keywords.join(" ")}`;
-    let pool = ["acrylic-press-flatlay.jpg", "wild-meadow-herbarium.jpg", "workbench-tweezers-action.jpg", "botanical-specimen-grid.jpg"];
+    let pool = ALL_LIBRARY_FILES;
     for (const rule of TOPIC_IMAGE_POOLS) {
         if (rule.re.test(haystack)) {
             pool = rule.files;
             break;
         }
     }
+
+    const freshTopicCandidates = pool.filter((f) => !recentFiles.has(f));
+    const candidates =
+        freshTopicCandidates.length > 0
+            ? freshTopicCandidates
+            : ALL_LIBRARY_FILES.filter((f) => !recentFiles.has(f));
+    const finalPool = candidates.length > 0 ? candidates : pool;
+
     let h = 0;
     for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0;
-    return `${supabaseUrl}/storage/v1/object/public/blog-images/${pool[h % pool.length]}`;
+    return `${supabaseUrl}/storage/v1/object/public/blog-images/${finalPool[h % finalPool.length]}`;
 }
 
 // Pick a topic that hasn't been used recently
@@ -273,8 +369,10 @@ Return a JSON object with these fields:
         const timestamp = Date.now().toString(36);
         const slug = `${baseSlug}-${timestamp}`;
 
-        const featuredImageUrl = pickTopicImageUrl(
+        const featuredImageUrl = await resolveFutureBlogImage(
+            supabase,
             supabaseUrl,
+            GOOGLE_API_KEY,
             blogData.title,
             slug,
             blogData.seoKeywords || []

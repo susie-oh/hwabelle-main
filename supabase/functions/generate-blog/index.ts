@@ -200,45 +200,115 @@ Return a JSON object with these fields:
     const timestamp = Date.now().toString(36);
     const slug = `${baseSlug}-${timestamp}`;
 
-    // Select a topic-matched cover image from Supabase Storage `blog-images`
+    // Select or generate a non-repeating topic-matched cover image in Supabase Storage `blog-images`
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const topicPools: Array<{ re: RegExp; files: string[] }> = [
-      { re: /calla/i, files: ["calla-lilies-bridal.jpg", "bridal-keepsake-frame.jpg"] },
-      { re: /wedding|bridal|special day/i, files: ["fresh-bridal-bouquet.jpg", "bridal-keepsake-frame.jpg", "oak-frame-rose-art.jpg"] },
-      { re: /pansy|pansies|cosmos/i, files: ["pansies-and-cosmos.jpg", "wild-meadow-herbarium.jpg"] },
-      { re: /daisy|daisies|clover|kid/i, files: ["daisies-and-clover.jpg", "mixed-media-journal.jpg"] },
-      { re: /violet|fern|woodland/i, files: ["wild-violets-and-fern.jpg", "wild-meadow-herbarium.jpg"] },
-      { re: /tulip/i, files: ["tulips-and-wildflowers.jpg", "cherry-blossoms-spring.jpg"] },
-      { re: /lavender/i, files: ["lavender-and-babys-breath.jpg", "workbench-tweezers-action.jpg"] },
-      { re: /cherry blossom|sakura/i, files: ["cherry-blossoms-spring.jpg", "tulips-and-wildflowers.jpg"] },
-      { re: /sunflower|large bloom/i, files: ["sunflowers-large-blooms.jpg", "wild-meadow-herbarium.jpg"] },
-      { re: /chrysanthemum|autumn|fall/i, files: ["autumn-chrysanthemums-leaves.jpg", "sunflowers-large-blooms.jpg"] },
-      { re: /beach|coastal|sea grass/i, files: ["coastal-beach-botanicals.jpg", "lavender-and-babys-breath.jpg"] },
-      { re: /evergreen|winter botanical/i, files: ["winter-evergreen-sprigs.jpg", "mindful-winter-pressing.jpg"] },
-      { re: /self-care|mindful|winter|indoor/i, files: ["mindful-winter-pressing.jpg", "winter-evergreen-sprigs.jpg"] },
-      { re: /card|holiday/i, files: ["holiday-greeting-cards.jpg", "botanical-art-gifts.jpg"] },
-      { re: /phone case|resin|jewelry/i, files: ["resin-jewelry-phone-case.jpg", "botanical-art-gifts.jpg"] },
-      { re: /mixed media|combining/i, files: ["mixed-media-journal.jpg", "wild-meadow-herbarium.jpg"] },
-      { re: /sell|income|profit/i, files: ["artisan-botanical-studio.jpg", "oak-frame-rose-art.jpg"] },
-      { re: /gift/i, files: ["botanical-art-gifts.jpg", "holiday-greeting-cards.jpg"] },
-      { re: /frame/i, files: ["oak-frame-rose-art.jpg", "bridal-keepsake-frame.jpg"] },
-      { re: /store|dried.*bouquet|old arrangement/i, files: ["archival-flower-storage.jpg", "roses-and-eucalyptus.jpg"] },
-      { re: /color|fade|brown|mold|humid|science/i, files: ["color-science-drying.jpg", "pansies-and-cosmos.jpg"] },
-      { re: /acrylic|microwave|paper|material|mistake|how long|timeline/i, files: ["acrylic-press-flatlay.jpg", "workbench-tweezers-action.jpg"] },
-      { re: /rose/i, files: ["roses-and-eucalyptus.jpg", "oak-frame-rose-art.jpg"] },
-      { re: /spring|wildflower|calendar|seasonal/i, files: ["tulips-and-wildflowers.jpg", "wild-meadow-herbarium.jpg", "cherry-blossoms-spring.jpg"] },
-    ];
-    const haystack = `${blogData.title || ""} ${topic} ${(blogData.seoKeywords || []).join(" ")}`;
-    let pool = ["acrylic-press-flatlay.jpg", "wild-meadow-herbarium.jpg", "workbench-tweezers-action.jpg"];
-    for (const rule of topicPools) {
-      if (rule.re.test(haystack)) {
-        pool = rule.files;
-        break;
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const adminSupabase = createClient(supabaseUrl, serviceRoleKey);
+
+    let featuredImageUrl = "";
+    if (GOOGLE_API_KEY) {
+      try {
+        const imgPrompt = `Overhead sunlit Kinfolk-style botanical editorial flat-lay photograph illustrating "${blogData.title || topic}". Natural linen and warm oak craft table aesthetic, real pressed flowers and botanical tools, photorealistic, 4:3 aspect ratio, strictly NO text, NO words, NO logos, NO watermarks.`;
+        const genRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${encodeURIComponent(GOOGLE_API_KEY)}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            signal: AbortSignal.timeout(15_000),
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: imgPrompt }] }],
+              generationConfig: { responseModalities: ["IMAGE"] },
+            }),
+          }
+        );
+        if (genRes.ok) {
+          const genJson = await genRes.json();
+          const imgPart = (genJson.candidates?.[0]?.content?.parts || []).find((p: { inlineData?: { data: string; mimeType?: string } }) => p.inlineData?.data);
+          if (imgPart?.inlineData) {
+            const mimeType = imgPart.inlineData.mimeType || "image/jpeg";
+            const ext = mimeType.includes("png") ? "png" : "jpg";
+            const binary = atob(imgPart.inlineData.data);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            const fileName = `ai-${slug}.${ext}`;
+            const { error: upErr } = await adminSupabase.storage
+              .from("blog-images")
+              .upload(fileName, bytes, { contentType: mimeType, cacheControl: "31536000", upsert: true });
+            if (!upErr) {
+              featuredImageUrl = `${supabaseUrl}/storage/v1/object/public/blog-images/${fileName}`;
+            }
+          }
+        }
+      } catch {
+        // Fall through to curated non-repeating library selection
       }
     }
-    let hash = 0;
-    for (let i = 0; i < slug.length; i++) hash = (hash * 31 + slug.charCodeAt(i)) >>> 0;
-    const featuredImageUrl = `${supabaseUrl}/storage/v1/object/public/blog-images/${pool[hash % pool.length]}`;
+
+    if (!featuredImageUrl) {
+      const topicPools: Array<{ re: RegExp; files: string[] }> = [
+        { re: /calla/i, files: ["calla-lilies-bridal.jpg", "bridal-keepsake-frame.jpg"] },
+        { re: /wedding|bridal|special day/i, files: ["fresh-bridal-bouquet.jpg", "bridal-keepsake-frame.jpg", "oak-frame-rose-art.jpg"] },
+        { re: /pansy|pansies|cosmos/i, files: ["pansies-and-cosmos.jpg", "wild-meadow-herbarium.jpg"] },
+        { re: /daisy|daisies|clover|kid/i, files: ["daisies-and-clover.jpg", "mixed-media-journal.jpg"] },
+        { re: /violet|fern|woodland/i, files: ["wild-violets-and-fern.jpg", "wild-meadow-herbarium.jpg"] },
+        { re: /tulip/i, files: ["tulips-and-wildflowers.jpg", "cherry-blossoms-spring.jpg"] },
+        { re: /lavender/i, files: ["lavender-and-babys-breath.jpg", "workbench-tweezers-action.jpg"] },
+        { re: /cherry blossom|sakura/i, files: ["cherry-blossoms-spring.jpg", "tulips-and-wildflowers.jpg"] },
+        { re: /sunflower|large bloom/i, files: ["sunflowers-large-blooms.jpg", "wild-meadow-herbarium.jpg"] },
+        { re: /chrysanthemum|autumn|fall/i, files: ["autumn-chrysanthemums-leaves.jpg", "sunflowers-large-blooms.jpg"] },
+        { re: /beach|coastal|sea grass/i, files: ["coastal-beach-botanicals.jpg", "lavender-and-babys-breath.jpg"] },
+        { re: /evergreen|winter botanical/i, files: ["winter-evergreen-sprigs.jpg", "mindful-winter-pressing.jpg"] },
+        { re: /self-care|mindful|winter|indoor/i, files: ["mindful-winter-pressing.jpg", "winter-evergreen-sprigs.jpg", "workbench-tweezers-action.jpg"] },
+        { re: /card|holiday/i, files: ["holiday-greeting-cards.jpg", "botanical-art-gifts.jpg"] },
+        { re: /phone case|resin|jewelry/i, files: ["resin-jewelry-phone-case.jpg", "botanical-art-gifts.jpg"] },
+        { re: /mixed media|combining/i, files: ["mixed-media-journal.jpg", "wild-meadow-herbarium.jpg"] },
+        { re: /sell|income|profit/i, files: ["artisan-botanical-studio.jpg", "oak-frame-rose-art.jpg"] },
+        { re: /gift/i, files: ["botanical-art-gifts.jpg", "holiday-greeting-cards.jpg"] },
+        { re: /frame/i, files: ["oak-frame-rose-art.jpg", "bridal-keepsake-frame.jpg"] },
+        { re: /store|dried.*bouquet|old arrangement/i, files: ["archival-flower-storage.jpg", "roses-and-eucalyptus.jpg"] },
+        { re: /color|fade|brown|mold|humid|science/i, files: ["color-science-drying.jpg", "pansies-and-cosmos.jpg"] },
+        { re: /acrylic|microwave|paper|material|mistake|how long|timeline/i, files: ["acrylic-press-flatlay.jpg", "workbench-tweezers-action.jpg"] },
+        { re: /rose/i, files: ["roses-and-eucalyptus.jpg", "oak-frame-rose-art.jpg"] },
+        { re: /spring|wildflower|calendar|seasonal/i, files: ["tulips-and-wildflowers.jpg", "wild-meadow-herbarium.jpg", "cherry-blossoms-spring.jpg"] },
+      ];
+      const allFiles = [
+        "acrylic-press-flatlay.jpg", "pansies-and-cosmos.jpg", "daisies-and-clover.jpg",
+        "wild-violets-and-fern.jpg", "tulips-and-wildflowers.jpg", "lavender-and-babys-breath.jpg",
+        "roses-and-eucalyptus.jpg", "cherry-blossoms-spring.jpg", "sunflowers-large-blooms.jpg",
+        "autumn-chrysanthemums-leaves.jpg", "coastal-beach-botanicals.jpg", "winter-evergreen-sprigs.jpg",
+        "holiday-greeting-cards.jpg", "resin-jewelry-phone-case.jpg", "mixed-media-journal.jpg",
+        "color-science-drying.jpg", "artisan-botanical-studio.jpg", "mindful-winter-pressing.jpg",
+        "archival-flower-storage.jpg", "botanical-art-gifts.jpg", "calla-lilies-bridal.jpg",
+        "bridal-keepsake-frame.jpg", "fresh-bridal-bouquet.jpg", "wild-meadow-herbarium.jpg",
+        "workbench-tweezers-action.jpg", "oak-frame-rose-art.jpg", "botanical-specimen-grid.jpg",
+      ];
+
+      const { data: recent } = await adminSupabase
+        .from("blog_posts")
+        .select("featured_image_url")
+        .not("featured_image_url", "is", null)
+        .order("published_at", { ascending: false })
+        .limit(8);
+
+      const recentSet = new Set(
+        (recent || []).map((r: { featured_image_url?: string | null }) => (r.featured_image_url || "").split("/").pop()).filter(Boolean)
+      );
+
+      const haystack = `${blogData.title || ""} ${topic} ${(blogData.seoKeywords || []).join(" ")}`;
+      let pool = allFiles;
+      for (const rule of topicPools) {
+        if (rule.re.test(haystack)) {
+          pool = rule.files;
+          break;
+        }
+      }
+      const fresh = pool.filter((f) => !recentSet.has(f));
+      const candidates = fresh.length > 0 ? fresh : allFiles.filter((f) => !recentSet.has(f));
+      const finalPool = candidates.length > 0 ? candidates : pool;
+      let hash = 0;
+      for (let i = 0; i < slug.length; i++) hash = (hash * 31 + slug.charCodeAt(i)) >>> 0;
+      featuredImageUrl = `${supabaseUrl}/storage/v1/object/public/blog-images/${finalPool[hash % finalPool.length]}`;
+    }
 
     return new Response(
       JSON.stringify({

@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Plus, Edit, Trash2, Sparkles, Eye, ChevronDown, ChevronUp, FileText, Search } from "lucide-react";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
+import { resolveBlogCoverImage } from "@/lib/blogImages";
 
 interface BlogPost {
   id: string;
@@ -88,16 +89,26 @@ const BlogManager = () => {
 
   const saveMutation = useMutation({
     mutationFn: async (data: typeof formData & { id?: string }) => {
+      const parsedKeywords = data.seo_keywords.split(",").map(k => k.trim()).filter(Boolean);
+      const autoCoverPath = resolveBlogCoverImage({
+        slug: data.slug,
+        title: data.title,
+        keywords: parsedKeywords,
+      });
+      const resolvedFeaturedImage =
+        data.featured_image_url.trim() ||
+        `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/blog-images/${autoCoverPath.split("/").pop()}`;
+
       const postData = {
         title: data.title,
         slug: data.slug,
         content: data.content,
         excerpt: data.excerpt,
         meta_description: data.meta_description,
-        featured_image_url: data.featured_image_url || null,
-        seo_keywords: data.seo_keywords.split(",").map(k => k.trim()).filter(Boolean),
+        featured_image_url: resolvedFeaturedImage,
+        seo_keywords: parsedKeywords,
         long_tail_queries: data.long_tail_queries.split(",").map(q => q.trim()).filter(Boolean),
-        author_name: data.author_name || null,
+        author_name: data.author_name || "Hwabelle",
         status: data.status,
         published_at: data.status === "published" ? new Date().toISOString() : null,
       };
@@ -501,13 +512,20 @@ const BlogManager = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="featured_image_url">Featured Image URL</Label>
+                  <Label htmlFor="featured_image_url">Featured Image URL (auto-matched if left blank)</Label>
                   <Input
                     id="featured_image_url"
-                    placeholder="https://..."
+                    placeholder="Auto-assigned from botanical photo library if blank"
                     value={formData.featured_image_url}
                     onChange={(e) => setFormData({ ...formData, featured_image_url: e.target.value })}
                   />
+                  {formData.featured_image_url && (
+                    <img
+                      src={formData.featured_image_url}
+                      alt="Featured preview"
+                      className="h-24 w-36 rounded-lg object-cover border border-border/50 mt-1"
+                    />
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="author_name">Author Name</Label>
