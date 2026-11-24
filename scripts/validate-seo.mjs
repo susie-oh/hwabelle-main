@@ -77,6 +77,27 @@ if (await exists("dist")) {
       errors.push(`Missing built route fallback: ${file}`);
     }
   }
+
+  // Validate built Product JSON-LD for Google Search Console Product Snippets & Merchant Listings
+  const productHtmlPath = path.join(root, "dist/product/flower-press-kit/index.html");
+  if (await exists("dist/product/flower-press-kit/index.html")) {
+    const productHtml = await fs.readFile(productHtmlPath, "utf8");
+    const jsonLdBlocks = [...productHtml.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)].map((m) =>
+      JSON.parse(m[1]),
+    );
+    const productNode = jsonLdBlocks.find((node) => node && node["@type"] === "Product");
+    if (!productNode) {
+      errors.push("Missing Product JSON-LD in dist/product/flower-press-kit/index.html");
+    } else {
+      if (!productNode.offers?.availability) errors.push("Product JSON-LD missing offers.availability");
+      if (!productNode.offers?.shippingDetails) errors.push("Product JSON-LD missing offers.shippingDetails");
+      if (!productNode.offers?.hasMerchantReturnPolicy) errors.push("Product JSON-LD missing offers.hasMerchantReturnPolicy");
+      if (!productNode.aggregateRating) errors.push("Product JSON-LD missing aggregateRating");
+      if (!Array.isArray(productNode.review) || productNode.review.length === 0) {
+        errors.push("Product JSON-LD missing review array");
+      }
+    }
+  }
 }
 
 if (errors.length) {

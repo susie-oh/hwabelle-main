@@ -8,12 +8,13 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
-const reviews = [
+export const PRODUCT_REVIEWS = [
   {
     reviewer: "Amazon Customer",
     title: "Best press I have used",
     rating: 5,
     date: "May 20, 2026",
+    isoDate: "2026-05-20",
     verified: true,
     content: "The best press I have used. The 11x11 size is perfect for handling full wedding bouquet roses and hydrangeas without having to cut them down. The thick acrylic plates do not warp and the layering system provides even pressure, yielding flat flowers with minimal browning and excellent color retention. Highly recommended.",
   },
@@ -22,6 +23,7 @@ const reviews = [
     title: "Such A Special Keepsake!",
     rating: 5,
     date: "June 2, 2026",
+    isoDate: "2026-06-02",
     verified: true,
     content: "Purchased to preserve flowers and special memories. More giftable and pretty than expected; the acrylic style makes it feel modern compared to basic wood craft kits. Highly recommended for weddings, crafts, or any sentimental flowers.",
   },
@@ -30,6 +32,7 @@ const reviews = [
     title: "Elegant, cutesy set",
     rating: 5,
     date: "May 28, 2026",
+    isoDate: "2026-05-28",
     verified: true,
     content: "An elegant and cutesy kit that was easy to figure out. Came with acrylic boards, tweezers, scissors, a carrying bag, and plenty of paper. Fun activity that teaches patience. Amazing value for money.",
   },
@@ -38,6 +41,7 @@ const reviews = [
     title: "Absolutely stunning kit",
     rating: 5,
     date: "June 14, 2026",
+    isoDate: "2026-06-14",
     verified: true,
     content: "Absolutely stunning kit. I bought this to press flowers from my anniversary bouquet. The scalloped edge on the acrylic plates is so elegant. The flowers dried very quickly using the thick blotting papers, keeping their vibrant red and purple colors. I love that it comes with a storage bag to keep everything organized.",
   },
@@ -46,10 +50,13 @@ const reviews = [
     title: "Perfect for bridal bouquets!",
     rating: 5,
     date: "June 8, 2026",
+    isoDate: "2026-06-08",
     verified: true,
     content: "Perfect for bridal bouquets! The 11x11 size is large enough to handle thick flowers like roses and hydrangeas. The instructions are very clear, and the results are amazing. No browning or molding at all.",
   }
 ];
+
+const reviews = PRODUCT_REVIEWS;
 
 const CustomerStories = () => {
   const [api, setApi] = React.useState<CarouselApi>();
@@ -76,7 +83,16 @@ const CustomerStories = () => {
     <div className="w-full max-w-6xl mx-auto px-4 py-16 md:py-24">
       <div className="text-center mb-12">
         <span className="caption mb-2 block">Real Customer Reviews</span>
-        <h2 className="font-serif text-display mb-4">Loved by Flower Artists & Crafters</h2>
+        <h2 className="font-serif text-display mb-3">Loved by Flower Artists & Crafters</h2>
+        <div className="inline-flex items-center gap-2 mb-4 text-sm font-medium text-foreground">
+          <span className="flex gap-0.5 text-[#F1A40E]" aria-hidden="true">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star key={i} size={16} fill="currentColor" stroke="none" />
+            ))}
+          </span>
+          <span>5.0 out of 5 stars</span>
+          <span className="text-muted-foreground">· {reviews.length} verified reviews</span>
+        </div>
         <p className="text-muted-foreground max-w-xl mx-auto leading-relaxed text-sm md:text-base">
           Read real, verified feedback from customer purchases on Amazon. From preserving wedding bouquets to capturing garden memories, see how Hwabelle delivers professional pressing results.
         </p>

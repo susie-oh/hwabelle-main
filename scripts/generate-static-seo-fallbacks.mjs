@@ -243,7 +243,9 @@ const routes = [
       {
         "@context": "https://schema.org",
         "@type": "Product",
+        "@id": `${siteUrl}/product/flower-press-kit#product`,
         name: "Hwabelle Acrylic Flower Press Kit",
+        sku: "FPK-1-2026",
         description:
           "A beginner-friendly acrylic flower press kit for preserving wedding bouquets, garden flowers, wildflowers, and meaningful blooms at home.",
         category: "Flower Press Kit / Botanical Craft Kit",
@@ -259,8 +261,104 @@ const routes = [
           "@type": "Offer",
           price: 39.99,
           priceCurrency: "USD",
+          availability: "https://schema.org/InStock",
+          itemCondition: "https://schema.org/NewCondition",
           url: `${siteUrl}/product/flower-press-kit`,
+          seller: {
+            "@type": "Organization",
+            name: "Hwabelle",
+            url: siteUrl,
+          },
+          shippingDetails: {
+            "@type": "OfferShippingDetails",
+            shippingRate: {
+              "@type": "MonetaryAmount",
+              value: 0,
+              currency: "USD",
+            },
+            shippingDestination: {
+              "@type": "DefinedRegion",
+              addressCountry: "US",
+            },
+            deliveryTime: {
+              "@type": "ShippingDeliveryTime",
+              handlingTime: {
+                "@type": "QuantitativeValue",
+                minValue: 1,
+                maxValue: 2,
+                unitCode: "DAY",
+              },
+              transitTime: {
+                "@type": "QuantitativeValue",
+                minValue: 2,
+                maxValue: 5,
+                unitCode: "DAY",
+              },
+            },
+          },
+          hasMerchantReturnPolicy: {
+            "@type": "MerchantReturnPolicy",
+            applicableCountry: "US",
+            returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+            merchantReturnDays: 30,
+            returnMethod: "https://schema.org/ReturnByMail",
+            returnFees: "https://schema.org/FreeReturn",
+          },
         },
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: 5,
+          reviewCount: 5,
+          bestRating: 5,
+          worstRating: 1,
+        },
+        review: [
+          {
+            "@type": "Review",
+            author: { "@type": "Person", name: "Amazon Customer" },
+            datePublished: "2026-05-20",
+            name: "Best press I have used",
+            reviewBody:
+              "The best press I have used. The 11x11 size is perfect for handling full wedding bouquet roses and hydrangeas without having to cut them down. The thick acrylic plates do not warp and the layering system provides even pressure, yielding flat flowers with minimal browning and excellent color retention. Highly recommended.",
+            reviewRating: { "@type": "Rating", ratingValue: 5, bestRating: 5, worstRating: 1 },
+          },
+          {
+            "@type": "Review",
+            author: { "@type": "Person", name: "Amazon Customer" },
+            datePublished: "2026-06-02",
+            name: "Such A Special Keepsake!",
+            reviewBody:
+              "Purchased to preserve flowers and special memories. More giftable and pretty than expected; the acrylic style makes it feel modern compared to basic wood craft kits. Highly recommended for weddings, crafts, or any sentimental flowers.",
+            reviewRating: { "@type": "Rating", ratingValue: 5, bestRating: 5, worstRating: 1 },
+          },
+          {
+            "@type": "Review",
+            author: { "@type": "Person", name: "GummyCats" },
+            datePublished: "2026-05-28",
+            name: "Elegant, cutesy set",
+            reviewBody:
+              "An elegant and cutesy kit that was easy to figure out. Came with acrylic boards, tweezers, scissors, a carrying bag, and plenty of paper. Fun activity that teaches patience. Amazing value for money.",
+            reviewRating: { "@type": "Rating", ratingValue: 5, bestRating: 5, worstRating: 1 },
+          },
+          {
+            "@type": "Review",
+            author: { "@type": "Person", name: "Elena M." },
+            datePublished: "2026-06-14",
+            name: "Absolutely stunning kit",
+            reviewBody:
+              "Absolutely stunning kit. I bought this to press flowers from my anniversary bouquet. The scalloped edge on the acrylic plates is so elegant. The flowers dried very quickly using the thick blotting papers, keeping their vibrant red and purple colors. I love that it comes with a storage bag to keep everything organized.",
+            reviewRating: { "@type": "Rating", ratingValue: 5, bestRating: 5, worstRating: 1 },
+          },
+          {
+            "@type": "Review",
+            author: { "@type": "Person", name: "CraftyMom" },
+            datePublished: "2026-06-08",
+            name: "Perfect for bridal bouquets!",
+            reviewBody:
+              "Perfect for bridal bouquets! The 11x11 size is large enough to handle thick flowers like roses and hydrangeas. The instructions are very clear, and the results are amazing. No browning or molding at all.",
+            reviewRating: { "@type": "Rating", ratingValue: 5, bestRating: 5, worstRating: 1 },
+          },
+        ],
       },
       faqSchema(productFaq),
     ],

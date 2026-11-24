@@ -3,7 +3,7 @@ import Seo from "@/components/seo/Seo";
 import { breadcrumbSchema, faqSchema } from "@/lib/schema";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Check, ShoppingBag, ExternalLink } from "lucide-react";
+import { Check, ShoppingBag, ExternalLink, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import img1 from "@/assets/capture-moment.jpeg";
 import img2 from "@/assets/step-by-step.jpeg";
@@ -13,9 +13,9 @@ import img5 from "@/assets/kit-contents.jpeg";
 import NewsletterForm from "@/components/sections/NewsletterForm";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
-import { PRODUCT, PRODUCT_PATH, buildCanonicalUrl, defaultKeywords } from "@/lib/site";
+import { PRODUCT, PRODUCT_PATH, SITE_URL, buildCanonicalUrl, defaultKeywords } from "@/lib/site";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
-import CustomerStories from "@/components/CustomerStories";
+import CustomerStories, { PRODUCT_REVIEWS } from "@/components/CustomerStories";
 
 const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -121,10 +121,16 @@ const ProductDetail = () => {
     });
   };
 
+  const averageRating = Number(
+    (PRODUCT_REVIEWS.reduce((sum, r) => sum + r.rating, 0) / PRODUCT_REVIEWS.length).toFixed(1),
+  );
+
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
+    "@id": `${buildCanonicalUrl(PRODUCT_PATH)}#product`,
     name: PRODUCT.name,
+    sku: "FPK-1-2026",
     description: PRODUCT.description,
     category: PRODUCT.category,
     brand: {
@@ -136,8 +142,73 @@ const ProductDetail = () => {
       "@type": "Offer",
       price: PRODUCT.price,
       priceCurrency: PRODUCT.currency,
+      availability: "https://schema.org/InStock",
+      itemCondition: "https://schema.org/NewCondition",
       url: buildCanonicalUrl(PRODUCT_PATH),
+      seller: {
+        "@type": "Organization",
+        name: "Hwabelle",
+        url: SITE_URL,
+      },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: 0,
+          currency: "USD",
+        },
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "US",
+        },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: {
+            "@type": "QuantitativeValue",
+            minValue: 1,
+            maxValue: 2,
+            unitCode: "DAY",
+          },
+          transitTime: {
+            "@type": "QuantitativeValue",
+            minValue: 2,
+            maxValue: 5,
+            unitCode: "DAY",
+          },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "US",
+        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 30,
+        returnMethod: "https://schema.org/ReturnByMail",
+        returnFees: "https://schema.org/FreeReturn",
+      },
     },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: averageRating,
+      reviewCount: PRODUCT_REVIEWS.length,
+      bestRating: 5,
+      worstRating: 1,
+    },
+    review: PRODUCT_REVIEWS.map((r) => ({
+      "@type": "Review",
+      author: {
+        "@type": "Person",
+        name: r.reviewer,
+      },
+      datePublished: r.isoDate,
+      name: r.title,
+      reviewBody: r.content,
+      reviewRating: {
+        "@type": "Rating",
+        ratingValue: r.rating,
+        bestRating: 5,
+        worstRating: 1,
+      },
+    })),
   };
 
   return (
@@ -197,6 +268,17 @@ const ProductDetail = () => {
             <div className="lg:py-4">
               <p className="caption mb-3">Hwabelle</p>
               <h1 className="font-serif text-display mb-2">Hwabelle Acrylic Flower Press Kit — DIY Wedding Bouquet Preservation Kit</h1>
+              <div className="flex flex-wrap items-center gap-2 text-sm mb-4">
+                <span className="flex gap-0.5 text-[#F1A40E]" aria-hidden="true">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} size={15} fill="currentColor" stroke="none" />
+                  ))}
+                </span>
+                <span className="font-medium">{averageRating.toFixed(1)}</span>
+                <span className="text-muted-foreground">({PRODUCT_REVIEWS.length} verified reviews)</span>
+                <span className="text-muted-foreground/40">·</span>
+                <span className="text-emerald-700 dark:text-emerald-400 font-medium">In Stock</span>
+              </div>
               <div className="flex items-baseline gap-3 mb-6">
                 <span className="text-2xl font-serif">${PRODUCT.price.toFixed(2)}</span>
                 <span className="text-lg font-serif text-muted-foreground line-through">
@@ -265,7 +347,7 @@ const ProductDetail = () => {
                 </a>
                 <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground bg-secondary/50 rounded-lg p-3">
                   <Check size={14} className="text-emerald-600 flex-shrink-0" />
-                  <span>Secure checkout: fulfilled by Amazon with fast 2–5 business day delivery.</span>
+                  <span>Free US shipping (2–5 business days via Amazon) · 30-day free returns.</span>
                 </div>
                 <p className="text-center text-sm text-muted-foreground">
                   Need details first? Review <Link to="/shipping" className="underline underline-offset-2">shipping</Link>,{" "}
