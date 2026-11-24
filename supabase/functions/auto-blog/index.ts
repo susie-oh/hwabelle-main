@@ -149,38 +149,51 @@ Return a JSON object with these fields:
 - seoKeywords: Array of 5-8 relevant SEO keywords
 - longTailQueries: Array of 3-5 long-tail search queries this post answers`;
 
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    contents: [
-                        {
-                            role: "user",
-                            parts: [{ text: systemPrompt + "\n\n" + userPrompt }],
-                        },
-                    ],
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                    },
-                }),
-            }
-        );
-
         let blogData: any = null;
 
-        if (response.ok) {
-            const aiResponse = await response.json();
-            const textContent =
-                aiResponse.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (textContent) {
-                blogData = JSON.parse(textContent);
-            }
-        } else {
-            const errorText = await response.text();
-            console.warn("Gemini API error:", response.status, errorText);
+        for (const modelName of ["gemini-3.6-flash", "gemini-3.5-flash"]) {
+            try {
+                const response = await fetch(
+                    `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(GOOGLE_API_KEY)}`,
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        signal: AbortSignal.timeout(45_000),
+                        body: JSON.stringify({
+                            contents: [
+                                {
+                                    role: "user",
+                                    parts: [{ text: systemPrompt + "\n\n" + userPrompt }],
+                                },
+                            ],
+                            generationConfig: {
+                                responseMimeType: "application/json",
+                            },
+                        }),
+                    }
+                );
 
+                if (response.ok) {
+                    const aiResponse = await response.json();
+                    const parts = aiResponse.candidates?.[0]?.content?.parts || [];
+                    const textContent = parts
+                        .filter((p: any) => typeof p?.text === "string" && !p.thought)
+                        .map((p: any) => p.text)
+                        .join("");
+                    if (textContent) {
+                        blogData = JSON.parse(textContent);
+                        break;
+                    }
+                } else {
+                    const errorText = await response.text();
+                    console.warn(`Gemini API error (${modelName}):`, response.status, errorText);
+                }
+            } catch (geminiErr) {
+                console.warn(`Gemini API exception (${modelName}):`, geminiErr);
+            }
+        }
+
+        if (!blogData) {
             const openAiKey = Deno.env.get("OPENAI_API_KEY");
             if (openAiKey) {
                 const oaRes = await fetch("https://api.openai.com/v1/chat/completions", {

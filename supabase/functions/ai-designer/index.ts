@@ -437,7 +437,7 @@ serve(async (req) => {
     let reply = "";
     let usedProvider = "gemini";
 
-    // ── Primary: Gemini (gemini-2.5-flash) ──
+    // ── Primary: Gemini (gemini-3.6-flash -> gemini-3.5-flash) ──
     if (GOOGLE_API_KEY) {
       const contents: Array<{ role: string; parts: Array<{ text: string } | { inline_data: { mime_type: string; data: string } }> }> = [];
 
@@ -455,49 +455,64 @@ serve(async (req) => {
       currentParts.push({ text: promptText });
       contents.push({ role: "user", parts: currentParts });
 
-      try {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-              contents,
-            }),
-          }
-        );
+      const geminiModels = ["gemini-3.6-flash", "gemini-3.5-flash"];
+      let lastGeminiError = "";
 
-        if (response.ok) {
-          const aiResponse = await response.json();
-          reply = aiResponse.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        } else {
-          const errorText = await response.text();
+      for (const modelName of geminiModels) {
+        try {
+          const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(GOOGLE_API_KEY)}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              signal: AbortSignal.timeout(25_000),
+              body: JSON.stringify({
+                system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+                contents,
+              }),
+            }
+          );
+
+          if (response.ok) {
+            const aiResponse = await response.json();
+            const parts = aiResponse.candidates?.[0]?.content?.parts || [];
+            reply = parts
+              .filter((p: { text?: string; thought?: boolean }) => typeof p?.text === "string" && !p.thought)
+              .map((p: { text: string }) => p.text)
+              .join("");
+            if (reply) break;
+          } else {
+            const errorText = await response.text();
+            lastGeminiError = `(${response.status}): ${errorText.substring(0, 180)}`;
+            console.warn(
+              JSON.stringify({
+                function: "ai-designer",
+                event: "gemini_model_error",
+                model: modelName,
+                status: response.status,
+                detail: errorText.substring(0, 180),
+                user_id: user.id,
+                ts: new Date().toISOString(),
+              })
+            );
+          }
+        } catch (geminiErr) {
+          lastGeminiError = String(geminiErr);
           console.warn(
             JSON.stringify({
               function: "ai-designer",
-              event: "gemini_error_falling_back",
-              status: response.status,
-              detail: errorText.substring(0, 180),
+              event: "gemini_model_exception",
+              model: modelName,
+              error: lastGeminiError,
               user_id: user.id,
               ts: new Date().toISOString(),
             })
           );
-          if (!OPENAI_API_KEY) {
-            throw new Error(`AI service error (${response.status}): ${errorText.substring(0, 200)}`);
-          }
         }
-      } catch (geminiErr) {
-        if (!OPENAI_API_KEY) throw geminiErr;
-        console.warn(
-          JSON.stringify({
-            function: "ai-designer",
-            event: "gemini_exception_falling_back",
-            error: String(geminiErr),
-            user_id: user.id,
-            ts: new Date().toISOString(),
-          })
-        );
+      }
+
+      if (!reply && !OPENAI_API_KEY) {
+        throw new Error(`AI service error ${lastGeminiError}`);
       }
     }
 

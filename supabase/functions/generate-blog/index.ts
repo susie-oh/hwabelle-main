@@ -120,31 +120,44 @@ Return a JSON object with these fields:
     let textContent: string | undefined;
 
     if (GOOGLE_API_KEY) {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [
-              { role: "user", parts: [{ text: systemPrompt + "\n\n" + userPrompt }] },
-            ],
-            generationConfig: {
-              responseMimeType: "application/json",
-            },
-          }),
-        }
-      );
+      for (const modelName of ["gemini-3.6-flash", "gemini-3.5-flash"]) {
+        try {
+          const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(GOOGLE_API_KEY)}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              signal: AbortSignal.timeout(45_000),
+              body: JSON.stringify({
+                contents: [
+                  { role: "user", parts: [{ text: systemPrompt + "\n\n" + userPrompt }] },
+                ],
+                generationConfig: {
+                  responseMimeType: "application/json",
+                },
+              }),
+            }
+          );
 
-      if (response.ok) {
-        const aiResponse = await response.json();
-        textContent = aiResponse.candidates?.[0]?.content?.parts?.[0]?.text;
-      } else {
-        const errorText = await response.text();
-        console.warn("Gemini API error in generate-blog, checking OpenAI backup:", response.status, errorText);
-        if (!OPENAI_API_KEY) {
-          throw new Error("Failed to generate blog post");
+          if (response.ok) {
+            const aiResponse = await response.json();
+            const parts = aiResponse.candidates?.[0]?.content?.parts || [];
+            textContent = parts
+              .filter((p: { text?: string; thought?: boolean }) => typeof p?.text === "string" && !p.thought)
+              .map((p: { text: string }) => p.text)
+              .join("");
+            if (textContent) break;
+          } else {
+            const errorText = await response.text();
+            console.warn(`Gemini API error in generate-blog (${modelName}):`, response.status, errorText);
+          }
+        } catch (geminiErr) {
+          console.warn(`Gemini API exception in generate-blog (${modelName}):`, geminiErr);
         }
+      }
+
+      if (!textContent && !OPENAI_API_KEY) {
+        throw new Error("Failed to generate blog post");
       }
     }
 
