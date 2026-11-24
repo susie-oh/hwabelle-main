@@ -2,8 +2,8 @@ name: Daily Hwabelle SEO Auto-Blog
 
 on:
   schedule:
-    # Runs daily at 01:00 UTC (9:00 AM PHT)
-    - cron: '0 1 * * *'
+    # Backup check 15 mins after Supabase pg_cron (01:00 UTC); auto-blog enforces strict max 1 post/day
+    - cron: '15 1 * * *'
   workflow_dispatch:
 
 jobs:

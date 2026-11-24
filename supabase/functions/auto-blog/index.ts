@@ -266,6 +266,46 @@ Deno.serve(async (req) => {
         const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
         const supabase = createClient(supabaseUrl, serviceRoleKey);
 
+        let reqBody: Record<string, unknown> = {};
+        try {
+            reqBody = await req.json();
+        } catch {
+            reqBody = {};
+        }
+
+        // Strict 1-blog-per-day guard (prevents duplicate posts from overlapping cron/GitHub triggers)
+        if (reqBody.manualAdminOverride !== true) {
+            const now = new Date();
+            const startOfUtcDay = new Date(
+                Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0)
+            ).toISOString();
+
+            const { data: todaysPosts } = await supabase
+                .from("blog_posts")
+                .select("id, title, slug, created_at")
+                .gte("created_at", startOfUtcDay)
+                .order("created_at", { ascending: false })
+                .limit(1);
+
+            if (todaysPosts && todaysPosts.length > 0) {
+                console.log(
+                    `Auto-blog skipped: daily quota of 1 post already met today ("${todaysPosts[0].title}")`
+                );
+                return new Response(
+                    JSON.stringify({
+                        success: true,
+                        skipped: true,
+                        reason: "Daily blog limit (1 per day) already met for today.",
+                        existingPost: todaysPosts[0],
+                    }),
+                    {
+                        status: 200,
+                        headers: { ...corsHeaders, "Content-Type": "application/json" },
+                    }
+                );
+            }
+        }
+
         const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
         if (!GOOGLE_API_KEY) {
             throw new Error("GOOGLE_API_KEY is not configured");
