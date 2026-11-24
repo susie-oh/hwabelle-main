@@ -247,28 +247,47 @@ Deno.serve(async (req) => {
         });
     }
 
-    // ── Internal secret auth — mandatory for all calls ──
-    // stripe-webhook passes this header via supabase.functions.invoke headers option.
-    // Any external caller without the correct secret is rejected here.
+    // ── Auth: require x-internal-secret (all actions) OR verified admin JWT (read-only "status" only) ──
     const internalSecret = Deno.env.get("INTERNAL_FUNCTION_SECRET");
-    if (!internalSecret) {
-        console.error(JSON.stringify({ function: "amazon-mcf", event: "startup_error", error: "INTERNAL_FUNCTION_SECRET not configured", ts: new Date().toISOString() }));
-        return new Response(JSON.stringify({ error: "Function not configured" }), {
-            status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-    }
-
     const callerSecret = req.headers.get("x-internal-secret") || "";
-    if (callerSecret !== internalSecret) {
-        console.warn(JSON.stringify({ function: "amazon-mcf", event: "unauthorized", ip, ts: new Date().toISOString() }));
-        return new Response(JSON.stringify({ error: "Unauthorized" }), {
-            status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-    }
+    const hasValidInternalSecret = !!internalSecret && callerSecret === internalSecret;
 
     try {
         const body = await req.json();
         const { action } = body;
+
+        if (!hasValidInternalSecret) {
+            const authHeader = req.headers.get("Authorization") || "";
+            const jwt = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+            let isAdminCaller = false;
+
+            if ((action === "status" || action === "verify") && jwt) {
+                const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+                const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+                const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+                const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+                    global: { headers: { Authorization: `Bearer ${jwt}` } },
+                });
+                const { data: { user } } = await userClient.auth.getUser(jwt);
+                if (user) {
+                    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+                    const { data: roleData } = await adminClient
+                        .from("user_roles")
+                        .select("role")
+                        .eq("user_id", user.id)
+                        .eq("role", "admin")
+                        .maybeSingle();
+                    isAdminCaller = !!roleData;
+                }
+            }
+
+            if (!isAdminCaller) {
+                console.warn(JSON.stringify({ function: "amazon-mcf", event: "unauthorized", ip, ts: new Date().toISOString() }));
+                return new Response(JSON.stringify({ error: "Unauthorized" }), {
+                    status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+                });
+            }
+        }
 
         const accessToken = await getAccessToken();
 
@@ -363,8 +382,82 @@ Deno.serve(async (req) => {
             });
         }
 
+        // ── ACTION: verify (non-mutating SP-API health & permission check) ──
+        if (action === "verify") {
+            const endpoint = "https://sellingpartnerapi-na.amazon.com";
+            const marketplace = Deno.env.get("AMAZON_MARKETPLACE_ID") || "ATVPDKIKX0DER";
+            const sku = PRODUCT_SKU_MAP["flower-press-kit"];
+            const headers = {
+                "Content-Type": "application/json",
+                "x-amz-access-token": accessToken,
+            };
+
+            const probe = async (name: string, url: string, init: RequestInit = { method: "GET", headers }) => {
+                const r = await fetch(url, init);
+                const text = await r.text();
+                let parsed: unknown = text;
+                try { parsed = JSON.parse(text); } catch { /* raw */ }
+                return {
+                    name,
+                    status: r.status,
+                    ok: r.ok,
+                    requestId: r.headers.get("x-amzn-requestid"),
+                    errorType: r.headers.get("x-amzn-errortype"),
+                    body: parsed,
+                };
+            };
+
+            const previewBody = {
+                marketplaceId: marketplace,
+                address: {
+                    name: "Hwabelle Verification",
+                    addressLine1: "3672 Hickory Hill Road",
+                    city: "Bethlehem",
+                    stateOrRegion: "PA",
+                    postalCode: "18015",
+                    countryCode: "US",
+                },
+                items: [
+                    {
+                        sellerSku: sku,
+                        sellerFulfillmentOrderItemId: "verify-item-1",
+                        quantity: 1,
+                    },
+                ],
+                shippingSpeedCategories: ["Standard"],
+            };
+
+            const [mcfPreview, mcfList, sellers, fbaInventory, ordersV0] = await Promise.all([
+                probe(
+                    "mcf_preview",
+                    `${endpoint}/fba/outbound/2020-07-01/fulfillmentOrders/preview`,
+                    { method: "POST", headers, body: JSON.stringify(previewBody) }
+                ),
+                probe("mcf_list", `${endpoint}/fba/outbound/2020-07-01/fulfillmentOrders`),
+                probe("sellers_participations", `${endpoint}/sellers/v1/marketplaceParticipations`),
+                probe(
+                    "fba_inventory",
+                    `${endpoint}/fba/inventory/v1/summaries?details=false&granularityType=Marketplace&granularityId=${marketplace}&marketplaceIds=${marketplace}`
+                ),
+                probe(
+                    "orders_v0",
+                    `${endpoint}/orders/v0/orders?MarketplaceIds=${marketplace}&CreatedAfter=${encodeURIComponent(new Date(Date.now() - 7 * 86400_000).toISOString())}`
+                ),
+            ]);
+
+            return new Response(
+                JSON.stringify({
+                    lwaTokenOk: true,
+                    marketplace,
+                    sku,
+                    checks: { mcfPreview, mcfList, sellers, fbaInventory, ordersV0 },
+                }),
+                { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+        }
+
         return new Response(
-            JSON.stringify({ error: "Invalid action. Use 'create' or 'status'." }),
+            JSON.stringify({ error: "Invalid action. Use 'create', 'status', or 'verify'." }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
 
