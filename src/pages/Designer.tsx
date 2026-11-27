@@ -18,7 +18,7 @@ import {
 import { Link, useSearchParams } from "react-router-dom";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
-import productImage from "@/assets/product-flower-press.jpg";
+import productImage from "@/assets/capture-moment.jpeg";
 import designerImage from "@/assets/digital-designer.jpeg";
 import { PRODUCT, defaultKeywords } from "@/lib/site";
 import { getFlowerProfile } from "@/data/flowerQuizProfiles";
@@ -107,10 +107,9 @@ const Designer = () => {
       originalPrice: PRODUCT.originalPrice,
       image: productImage,
     });
-    addItem({ id: "ai-designer-access", name: "AI Designer Access", price: 19.99 });
     toast({
       title: "Added to cart",
-      description: "Kit + AI Designer access added to your cart.",
+      description: "Acrylic Flower Press Kit (includes AI Designer access) added to your cart.",
     });
     openCart();
   };

@@ -114,6 +114,9 @@ const BeforeAfterSlider = () => {
           </div>
         </div>
       </div>
+      <p className="mt-3 text-center text-xs text-muted-foreground">
+        Keepsake inspiration. Frame and flowers not included. Results vary with flower type, freshness, and drying conditions.
+      </p>
     </div>
   );
 };

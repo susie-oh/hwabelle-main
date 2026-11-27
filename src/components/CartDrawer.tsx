@@ -130,7 +130,7 @@ const CartDrawer = () => {
                                             {item.name}
                                         </h4>
                                         <div className="flex items-center gap-2 mt-1">
-                                            {discountPercent > 0 ? (
+                                            {discountPercent > 0 && !(item.originalPrice && item.originalPrice > item.price) ? (
                                                 <>
                                                     <span className="text-sm font-semibold text-primary">
                                                         ${(item.price * (1 - discountPercent / 100)).toFixed(2)}
@@ -146,6 +146,9 @@ const CartDrawer = () => {
                                                     </span>
                                                     <span className="text-xs text-muted-foreground line-through">
                                                         ${item.originalPrice.toFixed(2)}
+                                                    </span>
+                                                    <span className="text-[10px] font-medium uppercase tracking-wider px-1.5 py-0.5 bg-[#2F3E32]/10 text-[#2F3E32]">
+                                                        20% Off
                                                     </span>
                                                 </>
                                             ) : (

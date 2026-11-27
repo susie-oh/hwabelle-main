@@ -9,6 +9,8 @@ import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import { ShoppingBag, Sparkles } from "lucide-react";
 import { PRODUCT, PRODUCT_PATH, defaultKeywords } from "@/lib/site";
+import { useBfcmCampaign } from "@/lib/bfcmCampaign";
+import BfcmCountdown from "@/components/offers/BfcmCountdown";
 
 const products = [
   {
@@ -42,6 +44,7 @@ const products = [
 const Shop = () => {
   const { addItem } = useCart();
   const { toast } = useToast();
+  const campaign = useBfcmCampaign();
 
   const handleAddToCart = (product: (typeof products)[0]) => {
     addItem({
@@ -73,17 +76,28 @@ const Shop = () => {
         ]}
       />
 
-      <section className="py-16 md:py-24 bg-secondary">
+      <section className="py-14 md:py-20 bg-[#FAF9F5] border-b border-[#141414]/10">
         <div className="container">
           <div className="max-w-3xl">
-            <p className="caption mb-4">Shop</p>
-            <h1 className="font-serif text-display-lg mb-4">
-              Shop Flower Press Kits for Meaningful Keepsakes
-            </h1>
-            <p className="text-muted-foreground text-lg">
-              Explore flower pressing tools and guidance built for preserving wedding bouquets,
-              sentimental blooms, wildflowers, and garden flowers at home.
+            <p className="text-xs font-medium uppercase tracking-[0.16em] text-[#2F3E32] mb-4">
+              {campaign.isActive ? campaign.heroEyebrow : "Shop"}
             </p>
+            <h1 className="font-serif text-display-lg mb-4 text-[#141414]">
+              {campaign.isActive
+                ? "Save 20% On The Hwabelle Flower Press Kit"
+                : "Shop Flower Press Kits for Meaningful Keepsakes"}
+            </h1>
+            <p className="text-muted-foreground text-base md:text-lg mb-6">
+              {campaign.isActive
+                ? "Begin a hands-on flower-pressing project with selected bouquet flowers, garden blooms, or meaningful petals at home."
+                : "Explore flower pressing tools and guidance built for preserving wedding bouquets, sentimental blooms, wildflowers, and garden flowers at home."}
+            </p>
+            {campaign.isActive && (
+              <div className="space-y-2">
+                <BfcmCountdown countdown={campaign.countdown} variant="editorial" />
+                <p className="text-xs sm:text-sm text-[#141414]/70">{campaign.deadlineLine}</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -108,6 +122,11 @@ const Shop = () => {
               <article key={product.id} className="group">
                 <Link to={product.detailUrl} className="block">
                   <div className="aspect-square mb-6 overflow-hidden rounded-lg bg-secondary relative">
+                    {campaign.isActive && product.id === "flower-press-kit" && (
+                      <span className="absolute top-3 left-3 z-10 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider bg-[#141414] text-[#FAF9F5]">
+                        {campaign.productOfferLabel}
+                      </span>
+                    )}
                     {product.image ? (
                       <img
                         src={product.image}

@@ -8,7 +8,6 @@ import { Link } from "react-router-dom";
 import img1 from "@/assets/capture-moment.jpeg";
 import img2 from "@/assets/step-by-step.jpeg";
 import img3 from "@/assets/comparison.jpeg";
-import img4 from "@/assets/digital-designer.jpeg";
 import img5 from "@/assets/kit-contents.jpeg";
 import NewsletterForm from "@/components/sections/NewsletterForm";
 import { useCart } from "@/hooks/useCart";
@@ -16,11 +15,14 @@ import { useToast } from "@/hooks/use-toast";
 import { PRODUCT, PRODUCT_PATH, SITE_URL, buildCanonicalUrl, defaultKeywords } from "@/lib/site";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 import CustomerStories, { PRODUCT_REVIEWS } from "@/components/CustomerStories";
+import { useBfcmCampaign } from "@/lib/bfcmCampaign";
+import BfcmCountdown from "@/components/offers/BfcmCountdown";
 
 const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const { addItem } = useCart();
   const { toast } = useToast();
+  const campaign = useBfcmCampaign();
 
   const images = [
     {
@@ -34,10 +36,6 @@ const ProductDetail = () => {
     {
       src: img3,
       alt: "Acrylic flower press kit comparison for bouquet preservation",
-    },
-    {
-      src: img4,
-      alt: "Hwabelle AI Designer for keepsake planning",
     },
     {
       src: img5,
@@ -249,7 +247,7 @@ const ProductDetail = () => {
                   fetchPriority="high"
                 />
               </div>
-              <div className="grid grid-cols-5 gap-3">
+              <div className="grid grid-cols-4 gap-3">
                 {images.map((img, index) => (
                   <button
                     key={index}
@@ -266,8 +264,15 @@ const ProductDetail = () => {
             </div>
 
             <div className="lg:py-4">
-              <p className="caption mb-3">Hwabelle</p>
-              <h1 className="font-serif text-display mb-2">Hwabelle Acrylic Flower Press Kit — DIY Wedding Bouquet Preservation Kit</h1>
+              <p
+                data-testid="product-offer-label"
+                className={`text-xs uppercase tracking-[0.16em] mb-3 ${
+                  campaign.isActive ? "font-medium text-[#2F3E32]" : "caption"
+                }`}
+              >
+                {campaign.isActive ? campaign.productOfferLabel : "Hwabelle"}
+              </p>
+              <h1 className="font-serif text-display mb-3">Hwabelle Acrylic Flower Press Kit</h1>
               <div className="flex flex-wrap items-center gap-2 text-sm mb-4">
                 <span className="flex gap-0.5 text-[#F1A40E]" aria-hidden="true">
                   {Array.from({ length: 5 }).map((_, i) => (
@@ -279,26 +284,84 @@ const ProductDetail = () => {
                 <span className="text-muted-foreground/40">·</span>
                 <span className="text-emerald-700 dark:text-emerald-400 font-medium">In Stock</span>
               </div>
-              <div className="flex items-baseline gap-3 mb-6">
-                <span className="text-2xl font-serif">${PRODUCT.price.toFixed(2)}</span>
-                <span className="text-lg font-serif text-muted-foreground line-through">
-                  ${PRODUCT.originalPrice.toFixed(2)}
-                </span>
-                <span className="text-xs font-medium tracking-wide uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
-                  Save ${(PRODUCT.originalPrice - PRODUCT.price).toFixed(0)}
-                </span>
-              </div>
 
-              <p className="text-muted-foreground leading-relaxed mb-8">
-                A beginner-friendly acrylic flower press designed as the ultimate DIY wedding bouquet preservation kit. Use it to press wedding bouquet petals, garden flowers, wildflowers, memorial blooms, and sentimental keepsakes at home.
+              <p className="text-base text-muted-foreground leading-relaxed mb-6">
+                Beginner-friendly tools for preserving selected bouquet flowers, garden blooms and meaningful petals at home.
               </p>
 
-              <div className="grid gap-3 mb-8 text-sm text-muted-foreground sm:grid-cols-2">
-                <p>DIY wedding bouquet preservation kit</p>
-                <p>Beginner-friendly flower pressing</p>
-                <p>Designed for adults, crafters, and brides</p>
-                <p>Clear acrylic plates for easier arrangement</p>
+              {/* Primary Buying Action + System-Generated 20% Price + Countdown */}
+              <div className="p-5 bg-[#FAF9F5] border border-[#141414]/12 space-y-4 mb-8">
+                <div className="flex flex-wrap items-baseline justify-between gap-3">
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-2xl sm:text-3xl font-serif text-[#141414]">
+                      ${PRODUCT.price.toFixed(2)}
+                    </span>
+                    <span className="text-lg font-serif text-muted-foreground line-through">
+                      ${PRODUCT.originalPrice.toFixed(2)}
+                    </span>
+                    <span className="text-xs font-medium tracking-wider uppercase px-2.5 py-0.5 bg-[#2F3E32] text-[#FAF9F5]">
+                      20% Off
+                    </span>
+                  </div>
+                </div>
+
+                <Button
+                  variant="hero"
+                  size="xl"
+                  className="w-full min-h-[48px] bg-[#141414] text-white hover:bg-[#2F3E32]"
+                  onClick={handleAddToCart}
+                  id="add-to-cart-button"
+                >
+                  <ShoppingBag size={20} className="mr-2" />
+                  Add To Cart
+                </Button>
+
+                {campaign.isActive && (
+                  <div className="pt-2 border-t border-[#141414]/10 space-y-2">
+                    <BfcmCountdown countdown={campaign.countdown} variant="editorial" />
+                    <p className="text-xs sm:text-sm text-[#141414]/75">
+                      {campaign.deadlineLine}
+                    </p>
+                  </div>
+                )}
+
+                <a
+                  href="https://www.amazon.com/dp/B0GFGY8DGW"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full min-h-[44px] px-6 py-2.5 text-sm font-medium border border-[#141414]/20 text-[#141414] hover:bg-[#141414]/5 transition-colors"
+                  id="buy-on-amazon-button"
+                >
+                  <ExternalLink size={15} />
+                  View on Amazon
+                </a>
+
+                <p className="text-xs text-muted-foreground leading-relaxed pt-1">
+                  Review <Link to="/shipping" className="underline underline-offset-2 text-foreground">shipping</Link> estimates and available delivery options at checkout. For return details, please see our{" "}
+                  <Link to="/returns" className="underline underline-offset-2 text-foreground">Returns Policy</Link> or{" "}
+                  <Link to="/contact" className="underline underline-offset-2 text-foreground">contact support</Link>.
+                </p>
               </div>
+
+              {/* Genuine Verified Review near Buying Section (exact wording & source preserved) */}
+              <blockquote className="mb-8 p-4 border-l-2 border-[#2F3E32] bg-secondary/40">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <span className="flex gap-0.5 text-[#F1A40E]" aria-hidden="true">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} size={13} fill="currentColor" stroke="none" />
+                    ))}
+                  </span>
+                  <span className="text-xs font-medium text-foreground">
+                    {PRODUCT_REVIEWS[1].title}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground italic leading-relaxed mb-2">
+                  &ldquo;{PRODUCT_REVIEWS[1].content}&rdquo;
+                </p>
+                <footer className="text-xs text-muted-foreground">
+                  — <strong className="font-medium text-foreground">{PRODUCT_REVIEWS[1].reviewer}</strong> · Verified Amazon Purchase
+                </footer>
+              </blockquote>
 
               <div className="mb-8">
                 <h2 className="text-sm tracking-widest uppercase mb-4">What this kit helps you preserve</h2>
@@ -312,7 +375,7 @@ const ProductDetail = () => {
                 </ul>
               </div>
 
-              <div className="mb-8">
+              <div>
                 <h2 className="text-sm tracking-widest uppercase mb-4">Why people choose it</h2>
                 <ul className="space-y-2">
                   {features.map((feature, index) => (
@@ -323,38 +386,42 @@ const ProductDetail = () => {
                   ))}
                 </ul>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-              <div className="space-y-3 mb-10">
-                <Button
-                  variant="hero"
-                  size="xl"
-                  className="w-full"
-                  onClick={handleAddToCart}
-                  id="add-to-cart-button"
-                >
-                  <ShoppingBag size={20} className="mr-2" />
-                  Add to Cart
-                </Button>
-                <a
-                  href="https://www.amazon.com/dp/B0GFGY8DGW"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full px-6 py-3 text-sm font-medium rounded-md border border-[#FF9900] text-[#FF9900] hover:bg-[#FF9900] hover:text-white transition-colors"
-                  id="buy-on-amazon-button"
-                >
-                  <ExternalLink size={16} />
-                  View on Amazon
-                </a>
-                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground bg-secondary/50 rounded-lg p-3">
-                  <Check size={14} className="text-emerald-600 flex-shrink-0" />
-                  <span>Free US shipping (2–5 business days via Amazon) · 30-day free returns.</span>
+      {/* Four-Step Module from BFCM Handoff */}
+      <section className="py-16 md:py-20 bg-[#FAF9F5] border-t border-b border-[#141414]/10">
+        <div className="container">
+          <div className="mx-auto max-w-4xl">
+            <h2 className="font-serif text-display text-center mb-12">From Flower To Keepsake</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { num: "01", title: "Choose", desc: "Start with fresh, press-friendly flowers and petals." },
+                { num: "02", title: "Arrange", desc: "Place them carefully between the drying layers." },
+                { num: "03", title: "Press", desc: "Tighten evenly and allow time for the flowers to dry." },
+                { num: "04", title: "Create", desc: "Make a card, frame or botanical keepsake with your dried flowers." },
+              ].map((s) => (
+                <div key={s.num} className="bg-background p-6 border border-border/60">
+                  <span className="font-serif text-2xl text-muted-foreground/40 block mb-2">{s.num}</span>
+                  <h3 className="font-serif text-lg mb-2">{s.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
                 </div>
-                <p className="text-center text-sm text-muted-foreground">
-                  Need details first? Review <Link to="/shipping" className="underline underline-offset-2">shipping</Link>,{" "}
-                  <Link to="/returns" className="underline underline-offset-2">returns</Link>, or{" "}
-                  <Link to="/contact" className="underline underline-offset-2">contact support</Link>.
-                </p>
-              </div>
+              ))}
+            </div>
+            <div className="mt-8 text-center space-y-2">
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Drying time and results vary with the flowers and conditions.
+              </p>
+              <p>
+                <Link
+                  to="/resources"
+                  className="inline-flex items-center text-sm font-medium text-foreground underline underline-offset-4 hover:text-[#2F3E32]"
+                >
+                  Read The Flower Pressing Guides
+                </Link>
+              </p>
             </div>
           </div>
         </div>

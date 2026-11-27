@@ -13,14 +13,17 @@ import heroArrangement from "@/assets/hero-pressed-arrangement.webp";
 import heroFlowImage from "@/assets/hero-pressed-flow.webp";
 import lifestyleImage from "@/assets/lifestyle-pressing-cropped.webp";
 import pressedFlowersImage from "@/assets/pressed-flowers-collection.webp";
-import blogImage from "@/assets/blog-botanical-art.jpg";
+import bridalKeepsakeImg from "@/assets/community/bridal-keepsake-frame.jpg";
 import logoImage from "@/assets/hwabelle-logo.png";
 import { PRODUCT_PATH, defaultKeywords } from "@/lib/site";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 import CustomerStories from "@/components/CustomerStories";
 import { CommunityHomepageModule } from "@/components/community/CommunityHomepageModule";
+import { useBfcmCampaign } from "@/lib/bfcmCampaign";
+import BfcmCountdown from "@/components/offers/BfcmCountdown";
 
 const Index = () => {
+  const campaign = useBfcmCampaign();
   const productHighlights = [
     {
       icon: Leaf,
@@ -46,26 +49,22 @@ const Index = () => {
     {
       number: "01",
       title: "Choose",
-      description:
-        "Pick fresh flowers, petals, and greenery before they wilt, especially bouquet flowers you want to preserve.",
+      description: "Start with fresh, press-friendly flowers and petals.",
     },
     {
       number: "02",
       title: "Arrange",
-      description:
-        "Layer blooms between absorbent sheets and position them carefully so they dry in a shape you love.",
+      description: "Place them carefully between the drying layers.",
     },
     {
       number: "03",
       title: "Press",
-      description:
-        "Tighten the plates evenly and let the flowers dry fully over the next one to three weeks.",
+      description: "Tighten evenly and allow time for the flowers to dry.",
     },
     {
       number: "04",
       title: "Create",
-      description:
-        "Turn your pressed flowers into a wedding bouquet keepsake, framed botanical art, cards, or bookmarks.",
+      description: "Make a card, frame or botanical keepsake with your dried flowers.",
     },
   ];
 
@@ -94,19 +93,22 @@ const Index = () => {
 
   const blogPosts = [
     {
-      title: "How to Preserve a Wedding Bouquet at Home",
+      title: "How to Press Roses and Eucalyptus",
       category: "Wedding Preservation",
-      slug: "how-to-preserve-wedding-bouquet-at-home",
+      slug: "pressing-roses-and-eucalyptus",
+      image: "/blog-images/roses-and-eucalyptus.jpg",
     },
     {
       title: "Best Flowers for Pressing: Beginner Guide",
       category: "Beginner Guide",
       slug: "best-flowers-for-pressing",
+      image: "/blog-images/wild-meadow-herbarium.jpg",
     },
     {
-      title: "Flower Pressing for Beginners: Simple Step-by-Step Guide",
+      title: "How to Press Flowers for Beginners: Step-by-Step Guide",
       category: "How-To",
-      slug: "flower-pressing-for-beginners",
+      slug: "how-to-press-flowers-for-beginners",
+      image: "/blog-images/acrylic-press-flatlay.jpg",
     },
   ];
 
@@ -153,53 +155,129 @@ const Index = () => {
         ]}
       />
 
-      <section className="relative min-h-[88vh] md:min-h-screen w-full overflow-hidden">
-        <motion.div
-          className="absolute inset-0 w-full h-full"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.2, ease: [0.25, 0.1, 0.25, 1] }}
+      {campaign.isActive ? (
+        <section
+          data-testid="bfcm-hero"
+          className="relative bg-[#FAF9F5] border-b border-[#141414]/10 py-10 sm:py-14 md:py-20 lg:py-24"
         >
-          <img
-            src={heroArrangement}
-            alt="Pressed wedding bouquet petals arranged as a keepsake"
-            className="w-full h-full object-cover object-center md:object-[center_35%]"
-            loading="eager"
-            fetchPriority="high"
-          />
-        </motion.div>
-
-        <div className="absolute top-0 left-0 right-0 h-5 bg-gradient-to-b from-background to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 h-5 bg-gradient-to-t from-background to-transparent pointer-events-none" />
-      </section>
-
-      <section className="relative z-10 -mt-8 bg-transparent px-4 pb-8 sm:-mt-10 md:-mt-14 md:pb-12">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-          className="container"
-        >
-          <div className="mx-auto max-w-4xl rounded-[2rem] border border-border/70 bg-background/95 px-6 py-6 shadow-[0_24px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm md:px-8 md:py-7">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="max-w-xl">
-                <p className="caption mb-2">Begin Here</p>
-                <p className="text-sm leading-relaxed text-muted-foreground md:text-base">
-                  Start with the flower press kit, then use the Hwabelle AI Designer to plan bouquet preservation, flower selection, and keepsake ideas.
+          <div className="container">
+            <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
+              {/* Copy first on mobile so headline, 20% offer & primary button appear above the fold */}
+              <div className="order-1 max-w-xl">
+                <p
+                  data-testid="bfcm-hero-eyebrow"
+                  className="text-xs font-medium uppercase tracking-[0.18em] text-[#2F3E32] mb-4"
+                >
+                  {campaign.heroEyebrow}
                 </p>
+                <h1 className="font-serif text-[2.125rem] sm:text-[2.5rem] lg:text-[3.25rem] leading-[1.12] text-[#141414] mb-5">
+                  {campaign.heroHeadlineLines.map((line, i) => (
+                    <span key={line} className="block">
+                      {line}
+                      {i < campaign.heroHeadlineLines.length - 1 ? "" : ""}
+                    </span>
+                  ))}
+                </h1>
+                <p className="text-base md:text-lg leading-relaxed text-[#141414]/80 mb-7">
+                  {campaign.heroSupporting}
+                </p>
+
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-7">
+                  <Button
+                    asChild
+                    className="min-h-[48px] px-7 py-3 bg-[#141414] text-white hover:bg-[#2F3E32] text-base font-medium rounded-none transition-colors"
+                  >
+                    <Link to={PRODUCT_PATH}>{campaign.heroPrimaryCta}</Link>
+                  </Button>
+                  <a
+                    href="#how-it-works"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    className="inline-flex items-center min-h-[44px] text-base text-[#141414]/80 hover:text-[#141414] underline underline-offset-4 transition-colors"
+                  >
+                    See How It Works
+                  </a>
+                </div>
+
+                <div className="space-y-2.5 pt-2 border-t border-[#141414]/10">
+                  <BfcmCountdown countdown={campaign.countdown} variant="editorial" />
+                  <p className="text-sm text-[#141414]/70">{campaign.deadlineLine}</p>
+                </div>
               </div>
-              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap md:justify-end">
-                <Button variant="hero" size="lg" className="text-sm sm:text-base" asChild>
-                  <Link to={PRODUCT_PATH}>Shop the Flower Press Kit</Link>
-                </Button>
-                <Button variant="hero-outline" size="lg" className="text-sm sm:text-base" asChild>
-                  <Link to="/designer">Explore AI Designer</Link>
-                </Button>
+
+              {/* Dominant Inspiration Image with required visible disclosure */}
+              <div className="order-2">
+                <figure className="bg-white p-3 sm:p-4 border border-[#141414]/10 shadow-sm">
+                  <div className="aspect-[4/3] overflow-hidden bg-secondary">
+                    <img
+                      src={bridalKeepsakeImg}
+                      alt="Framed pressed-flower keepsake inspiration"
+                      className="w-full h-full object-cover"
+                      loading="eager"
+                      fetchPriority="high"
+                    />
+                  </div>
+                  <figcaption className="pt-2.5 text-xs text-[#141414]/65 text-center">
+                    Keepsake inspiration. Frame and flowers not included.
+                  </figcaption>
+                </figure>
               </div>
             </div>
           </div>
-        </motion.div>
-      </section>
+        </section>
+      ) : (
+        <>
+          <section className="relative min-h-[88vh] md:min-h-screen w-full overflow-hidden">
+            <motion.div
+              className="absolute inset-0 w-full h-full"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1.2, ease: [0.25, 0.1, 0.25, 1] }}
+            >
+              <img
+                src={heroArrangement}
+                alt="Pressed wedding bouquet petals arranged as a keepsake"
+                className="w-full h-full object-cover object-center md:object-[center_35%]"
+                loading="eager"
+                fetchPriority="high"
+              />
+            </motion.div>
+
+            <div className="absolute top-0 left-0 right-0 h-5 bg-gradient-to-b from-background to-transparent pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-5 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+          </section>
+
+          <section className="relative z-10 -mt-8 bg-transparent px-4 pb-8 sm:-mt-10 md:-mt-14 md:pb-12">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+              className="container"
+            >
+              <div className="mx-auto max-w-4xl rounded-[2rem] border border-border/70 bg-background/95 px-6 py-6 shadow-[0_24px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm md:px-8 md:py-7">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <div className="max-w-xl">
+                    <p className="caption mb-2">Begin Here</p>
+                    <p className="text-sm leading-relaxed text-muted-foreground md:text-base">
+                      Start with the flower press kit, then use the Hwabelle AI Designer to plan bouquet preservation, flower selection, and keepsake ideas.
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap md:justify-end">
+                    <Button variant="hero" size="lg" className="text-sm sm:text-base" asChild>
+                      <Link to={PRODUCT_PATH}>Shop the Flower Press Kit</Link>
+                    </Button>
+                    <Button variant="hero-outline" size="lg" className="text-sm sm:text-base" asChild>
+                      <Link to="/designer">Explore AI Designer</Link>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </section>
+        </>
+      )}
 
       <section className="relative overflow-hidden bg-background py-16 md:py-24">
         <FloralBorder position="all" size="lg" />
@@ -208,7 +286,7 @@ const Index = () => {
             <ScrollReveal direction="left">
               <motion.img
                 src={heroFlowImage}
-                alt="Hwabelle acrylic flower press kit with preserved flowers"
+                alt="Pressed garden blooms and botanical petals"
                 className="h-auto w-full"
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.6 }}
@@ -216,27 +294,30 @@ const Index = () => {
             </ScrollReveal>
             <ScrollReveal direction="right" delay={0.2}>
               <p className="caption mb-4">DIY Wedding Bouquet Preservation Kit</p>
-              <h1 className="font-serif text-display md:text-display-lg mb-6">
-                DIY Wedding Bouquet Preservation Kit & Flower Press
-              </h1>
+              {campaign.isActive ? (
+                <h2 className="font-serif text-display md:text-display-lg mb-6">
+                  DIY Wedding Bouquet Preservation Kit & Flower Press
+                </h2>
+              ) : (
+                <h1 className="font-serif text-display md:text-display-lg mb-6">
+                  DIY Wedding Bouquet Preservation Kit & Flower Press
+                </h1>
+              )}
               <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                Preserve your most precious wedding day memories, garden blooms, and wildflowers. Hwabelle's beginner-friendly acrylic flower press kit lets you create beautiful DIY wedding bouquet keepsakes, framed arrangements, and botanical art at home.
+                Preserve selected wedding bouquet flowers, garden blooms, and meaningful petals at home. Hwabelle&apos;s beginner-friendly acrylic flower press kit helps you create framed botanical arrangements, cards, and keepsakes at your own pace.
               </p>
               <ul className="mb-8 grid gap-3 text-sm text-muted-foreground sm:grid-cols-2">
                 <li>Beginner-friendly & easy to use</li>
                 <li>Great for bridal bouquet keepsakes</li>
                 <li>Designed for adults, crafters, and brides</li>
-                <li>Complete DIY flower preservation kit</li>
+                <li>Clear acrylic plates for visible alignment</li>
               </ul>
               <div className="flex flex-wrap gap-4">
                 <Button variant="hero" asChild>
-                  <Link to="/shop">View the Shop</Link>
+                  <Link to={PRODUCT_PATH}>Shop the Flower Press Kit</Link>
                 </Button>
                 <Button variant="hero-outline" asChild>
-                  <Link to="/about">Learn About Hwabelle</Link>
-                </Button>
-                <Button variant="hero-outline" asChild>
-                  <Link to="/blog">Read Resources</Link>
+                  <Link to="/resources">Read Resources</Link>
                 </Button>
               </div>
             </ScrollReveal>
@@ -303,13 +384,13 @@ const Index = () => {
         <div className="divider" />
       </div>
 
-      <section className="bg-background py-20 md:py-30">
+      <section id="how-it-works" className="scroll-mt-28 bg-background py-20 md:py-30">
         <div className="container">
           <ScrollReveal className="mb-16 text-center">
             <p className="caption mb-4">How It Works</p>
-            <h2 className="font-serif text-display mb-4">Press flowers in four simple steps</h2>
+            <h2 className="font-serif text-display mb-4">From Flower To Keepsake</h2>
           </ScrollReveal>
-          <StaggerContainer className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-6" staggerDelay={0.15}>
+          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 gap-8 md:grid-cols-4 md:gap-6" staggerDelay={0.15}>
             {steps.map((step, index) => (
               <StaggerItem key={index} className="text-center">
                 <span className="font-serif text-4xl md:text-5xl text-muted-foreground/30 block mb-4">
@@ -320,6 +401,19 @@ const Index = () => {
               </StaggerItem>
             ))}
           </StaggerContainer>
+          <div className="mt-10 text-center space-y-2">
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Drying time and results vary with the flowers and conditions.
+            </p>
+            <p>
+              <Link
+                to="/resources"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline underline-offset-4 hover:text-[#2F3E32] transition-colors"
+              >
+                Read The Flower Pressing Guides
+              </Link>
+            </p>
+          </div>
         </div>
       </section>
 
@@ -425,7 +519,7 @@ const Index = () => {
                 <Link to={`/blog/${post.slug}`} className="group block">
                   <div className="aspect-[4/3] mb-4 overflow-hidden bg-secondary">
                     <motion.img
-                      src={blogImage}
+                      src={post.image}
                       alt={post.title}
                       className="h-full w-full object-cover"
                       whileHover={{ scale: 1.05 }}

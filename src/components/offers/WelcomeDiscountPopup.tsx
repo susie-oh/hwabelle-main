@@ -33,6 +33,7 @@ import {
   POPUP_CLAIMED_KEY,
   POPUP_DISMISS_KEY,
 } from "@/lib/welcomeDiscount";
+import { useBfcmCampaign } from "@/lib/bfcmCampaign";
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -40,6 +41,7 @@ export const WelcomeDiscountPopup: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { applyDiscountCode } = useCart();
+  const { isActive: isBfcmActive } = useBfcmCampaign();
 
   // Persistent unique code generated per user/browser session
   const [discountCode] = useState<string>(() => getOrCreateUserWelcomeCode());
@@ -105,6 +107,9 @@ export const WelcomeDiscountPopup: React.FC = () => {
       setIsOpen(true);
       return;
     }
+
+    // Suppress 10% welcome popup during active BFCM 20% offer so promos never conflict or stack
+    if (isBfcmActive) return;
 
     if (isClaimed) return;
     if (isDismissed()) return;
@@ -241,8 +246,8 @@ export const WelcomeDiscountPopup: React.FC = () => {
 
   return (
     <>
-      {/* Floating Re-open Button (Visible on non-excluded routes) */}
-      {!isExcludedRoute(location.pathname) && (
+      {/* Floating Re-open Button (Hidden during active BFCM 20% campaign and on excluded routes) */}
+      {!isBfcmActive && !isExcludedRoute(location.pathname) && (
         <button
           onClick={() => {
             setIsOpen(true);

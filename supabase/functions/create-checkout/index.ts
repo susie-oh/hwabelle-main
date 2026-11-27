@@ -104,7 +104,9 @@ Deno.serve(withAllowedOrigin(async (req) => {
             });
         }
 
-        const discountMultiplier = (100 - discountPercentFor(discountCode)) / 100;
+        // BFCM 2026 end cutoff: Mon Nov 30, 2026 at 11:59:59 p.m. Pacific (UTC-8 -> 2026-12-01T07:59:59.999Z)
+        const isBfcmActive = Date.now() <= Date.parse("2026-12-01T07:59:59.999Z");
+        const codeDiscountPct = discountPercentFor(discountCode);
 
         // Build line items and collect product_type map for metadata
         // This is the ONLY place product_types are associated with line items.
@@ -116,8 +118,14 @@ Deno.serve(withAllowedOrigin(async (req) => {
             // so the webhook can read it without any string inference.
             lineItemTypes[item.name] = productType;
 
+            // Prevent stacking 10% welcome discount on top of the 20% BFCM Flower Press Kit offer ($39.99)
+            const itemDiscountMultiplier =
+                isBfcmActive && item.id === "flower-press-kit"
+                    ? 1
+                    : (100 - codeDiscountPct) / 100;
+
             // Same rounding as the cart (CartDrawer.tsx) so totals match
-            const unitPrice = Number((PRODUCT_PRICES[item.id] * discountMultiplier).toFixed(2));
+            const unitPrice = Number((PRODUCT_PRICES[item.id] * itemDiscountMultiplier).toFixed(2));
 
             return {
                 price_data: {
@@ -140,7 +148,8 @@ Deno.serve(withAllowedOrigin(async (req) => {
             payment_method_types: ["card"],
             line_items,
             mode: "payment",
-            allow_promotion_codes: true,
+            // Prevent extra Stripe promo code stacking on the 20%-off kit during BFCM
+            allow_promotion_codes: !(isBfcmActive && hasPhysical),
             success_url: `${successUrl}?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: cancelUrl,
             ...(customerEmail ? { customer_email: customerEmail } : {}),

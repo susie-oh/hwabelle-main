@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { isValidWelcomeDiscountCode, getWelcomeDiscountPercent } from "@/lib/welcomeDiscount";
+import { isBfcmOfferActive } from "@/lib/bfcmCampaign";
 
 export interface CartItem {
     id: string;
@@ -128,11 +129,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
         const percent = getWelcomeDiscountPercent(normalized);
         if (percent > 0) {
+            const onlyBfcmKit =
+                isBfcmOfferActive() &&
+                items.length > 0 &&
+                items.every((item) => item.id === "flower-press-kit");
+            if (onlyBfcmKit) {
+                return {
+                    success: false,
+                    message: "20% BFCM offer is already applied to the Flower Press Kit and cannot be combined with another promotional discount.",
+                };
+            }
             setDiscountCode(normalized);
             return { success: true, message: `${percent}% discount applied with code ${normalized}!` };
         }
         return { success: false, message: "Invalid discount code." };
-    }, []);
+    }, [items]);
 
     const removeDiscountCode = useCallback(() => {
         setDiscountCode(null);
@@ -144,8 +155,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
         0
     );
 
-    const discountPercent = discountCode ? getWelcomeDiscountPercent(discountCode) : 0;
-    const discountAmount = Number(((totalPrice * discountPercent) / 100).toFixed(2));
+    const bfcmActive = isBfcmOfferActive();
+    const rawDiscountPercent = discountCode ? getWelcomeDiscountPercent(discountCode) : 0;
+    // During BFCM, the Flower Press Kit already carries the 20% offer ($39.99 off $49.99) and cannot stack with 10% welcome codes
+    const eligibleSubtotal = items.reduce((sum, item) => {
+        if (bfcmActive && item.id === "flower-press-kit") return sum;
+        return sum + item.price * item.quantity;
+    }, 0);
+    const discountAmount = Number(((eligibleSubtotal * rawDiscountPercent) / 100).toFixed(2));
+    const discountPercent = discountAmount > 0 ? rawDiscountPercent : 0;
     const finalPrice = Math.max(0, Number((totalPrice - discountAmount).toFixed(2)));
 
     return (

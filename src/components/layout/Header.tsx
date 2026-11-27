@@ -4,6 +4,7 @@ import { Menu, X, ShoppingBag, User } from "lucide-react";
 import { useState } from "react";
 import logo from "@/assets/hwabelle-logo.png";
 import { useCart } from "@/hooks/useCart";
+import BfcmAnnouncementBar from "@/components/offers/BfcmAnnouncementBar";
 
 const Header = () => {
   const location = useLocation();
@@ -26,6 +27,7 @@ const Header = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-divider">
+      <BfcmAnnouncementBar />
       <div className="container flex items-center justify-between h-[4.5rem] md:h-[5.25rem]">
         {/* Logo */}
         <Link to="/" className="flex items-center shrink-0">
